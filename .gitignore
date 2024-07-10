@@ -1,0 +1,71 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+lerna-debug.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Static analysis cache
+/.eslintcache
+
+# Optional npm cache directory
+.npm
+
+# Parcel-bundler cache (https://parceljs.org/)
+.cache
+
+# Storybook files
+out
+storybook-static
+
+# Webpack output
+dist/
+
+# SASS cache
+.sass-cache
+
+# TypeScript
+*.tsbuildinfo
+*.d.ts
+*.d.ts.map
+
+# MacOS X finder files
+*.DS_Store
+
+# Local env files
+.local.env
+
+# Miscellaneous
+coverage/
+.cache/
