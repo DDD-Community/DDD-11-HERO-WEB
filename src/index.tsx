@@ -1,20 +1,10 @@
-import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import React from "react"
+import ReactDOM from "react-dom/client"
+import App from "./App.tsx"
+import "@/style/tailwind.css"
 
-// page component
-import App from "@src/App";
-import "@src/style/tailwind.css";
-
-const container = document.getElementById("root");
-
-if (container instanceof HTMLElement) {
-  const root = createRoot(container);
-
-  root.render(
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+)

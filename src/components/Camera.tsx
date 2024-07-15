@@ -1,11 +1,11 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react"
 
 type WebcamProps = {
-  onStreamReady: (video: HTMLVideoElement) => void;
-};
+  onStreamReady: (video: HTMLVideoElement) => void
+}
 
 const Camera: React.FC<WebcamProps> = ({ onStreamReady }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   const startVideo = (): void => {
     navigator.mediaDevices
@@ -19,24 +19,24 @@ const Camera: React.FC<WebcamProps> = ({ onStreamReady }) => {
       })
       .then((stream) => {
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+          videoRef.current.srcObject = stream
           // 'loadedmetadata' 이벤트가 발생하면 비디오 재생
           videoRef.current.onloadedmetadata = () => {
             if (videoRef.current) {
-              videoRef.current.play();
-              onStreamReady(videoRef.current);
+              videoRef.current.play()
+              onStreamReady(videoRef.current)
             }
-          };
+          }
         }
       })
       .catch((err) => {
-        console.error("Error accessing webcam: ", err);
-      });
-  };
+        console.error("Error accessing webcam: ", err)
+      })
+  }
 
   useEffect(() => {
-    startVideo();
-  }, []);
+    startVideo()
+  }, [])
 
   return (
     <div style={{ position: "relative", width: "640px", height: "480px" }}>
@@ -51,7 +51,7 @@ const Camera: React.FC<WebcamProps> = ({ onStreamReady }) => {
         }}
       />
     </div>
-  );
-};
+  )
+}
 
-export default Camera;
+export default Camera
