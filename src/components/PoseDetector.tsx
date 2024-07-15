@@ -4,6 +4,9 @@ import type { pose } from "@/utils/detector"
 import { detectSlope, detectTextNeck } from "@/utils/detector"
 import { drawPose } from "@/utils/drawer"
 import usePushNotification from "@/hooks/usePushNotification"
+import { worker } from "@/utils/worker"
+
+declare let ml5: any
 
 const PoseDetector: React.FC = () => {
   const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
@@ -13,6 +16,7 @@ const PoseDetector: React.FC = () => {
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false)
   const [mode, setMode] = useState<string>("snapshot")
 
+  const modelRef = useRef<any>(null)
   const snapRef = useRef<pose[] | null>(null)
   const resultRef = useRef<pose[] | null>(null)
   const textNeckStartTime = useRef<number | null>(null)
@@ -23,25 +27,43 @@ const PoseDetector: React.FC = () => {
 
   const requestApi = (delay: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, delay))
 
+  const setup = async (): Promise<void> => {
+    ml5.bodyPose(
+      "MoveNet",
+      {
+        modelType: "SINGLEPOSE_THUNDER",
+      },
+      setupCallback
+    )
+  }
+
+  const setupCallback = async (bodypose: any, error: Error): Promise<void> => {
+    if (error) {
+      console.log("bodypose 모델 불러오기를 실패했습니다.")
+      return
+    }
+    await initializeBackend()
+    setIsModelLoaded(true)
+    modelRef.current = bodypose
+    worker.postMessage({ type: "init", data: {} })
+  }
+
   const getScript = (): void => {
-    console.log("getScript")
     const script = document.createElement("script")
     script.src = "https://unpkg.com/ml5@1/dist/ml5.min.js"
-
     script.onload = (): void => {
       setIsScriptLoaded(true)
+      setup()
     }
-
     script.onerror = (): void => {
       setIsScriptError(true)
     }
-
     document.body.appendChild(script)
   }
 
   // webgl설정
   const initializeBackend = async (): Promise<void> => {
-    await window.ml5.setBackend("webgl")
+    await ml5.setBackend("webgl")
   }
 
   const detect = (results: pose[]): void => {
@@ -73,19 +95,16 @@ const PoseDetector: React.FC = () => {
     }
   }
 
-  // pose detecting 시작
   const detectStart = async (video: HTMLVideoElement): Promise<void> => {
-    const detector = window.ml5.bodyPose("MoveNet", {
-      modelType: "SINGLEPOSE_THUNDER",
-    })
-    await detector.loadModel()
-    await initializeBackend()
-    setIsModelLoaded(true)
-    detector.detectStart(video, detect)
+    worker.onmessage = ({ data }: any) => {
+      if (modelRef.current) {
+        modelRef.current.detect(video, detect)
+      }
+    }
   }
 
   const getInitSnap = (): void => {
-    if (isModelLoaded) snapRef.current = resultRef.current
+    if (modelRef && modelRef.current) snapRef.current = resultRef.current
   }
 
   useEffect(() => {
