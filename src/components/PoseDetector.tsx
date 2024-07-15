@@ -9,8 +9,9 @@ const PoseDetector: React.FC = () => {
   const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
   const [isScriptError, setIsScriptError] = useState<boolean>(false)
   const [slope, setSlope] = useState<string | null>(null)
-  const [isTextNeck, setIsTextNeck] = useState<boolean>(false)
+  const [isTextNeck, setIsTextNeck] = useState<boolean | null>(null)
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false)
+  const [mode, setMode] = useState<string>("snapshot")
 
   const snapRef = useRef<pose[] | null>(null)
   const resultRef = useRef<pose[] | null>(null)
@@ -47,9 +48,8 @@ const PoseDetector: React.FC = () => {
     resultRef.current = results
     if (canvasRef.current) drawPose(results, canvasRef.current)
     if (snapRef.current) {
-      const _slope = detectSlope(snapRef.current, results)
+      const _slope = detectSlope(snapRef.current, results, mode === "snapshot")
       const _isTextNeck = detectTextNeck(snapRef.current, results)
-
       if (_slope !== null) setSlope(_slope)
       if (_isTextNeck !== null) setIsTextNeck(_isTextNeck)
 
@@ -92,6 +92,12 @@ const PoseDetector: React.FC = () => {
     getScript()
   }, [])
 
+  const onChangeMode = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (e.target.value) {
+      setMode(e.target.value)
+    }
+  }
+
   return (
     <div>
       {isScriptError ? (
@@ -112,9 +118,58 @@ const PoseDetector: React.FC = () => {
               border: "1px solid black",
             }}
           />
-          {isModelLoaded ? <button onClick={getInitSnap}>get snap</button> : null}
-          <div>{`거북목 상태 ${isTextNeck}`}</div>
-          <div>{`어깨 기울기 ${slope}`}</div>
+          {isModelLoaded && (
+            <>
+              <div className="font-bold text-red-500">본 화면은 좌우가 반대로 보이고 있으니 주의하세요!</div>
+              <div className="w-1/2">
+                <select
+                  className="w-full appearance-none rounded border border-gray-400 bg-white p-2"
+                  onChange={onChangeMode}
+                >
+                  <option value={"snapshot"}>스냅샷 모드 (올바른 자세 촬영 후, 해당 자세 기준으로 측정)</option>
+                  <option value={"skeleton"}>스켈레톤 모드 (올바른 자세 제시 후, 해당 자세 기준으로 측정)</option>
+                </select>
+              </div>
+              {mode === "snapshot" && (
+                <>
+                  <button
+                    className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+                    onClick={getInitSnap}
+                  >
+                    올바른 자세를 촬영한 후 자세 측정 시작!
+                  </button>
+                  <div>
+                    거북목 상태:&nbsp;
+                    {isTextNeck === null
+                      ? "상태를 확인할 수 없습니다."
+                      : isTextNeck
+                        ? "거북목 상태 입니다"
+                        : "정상적인 자세 입니다"}
+                  </div>
+                  <div>어깨 기울기: {slope === null ? "상태를 확인할 수 없습니다." : slope}</div>
+                </>
+              )}
+              {mode === "skeleton" && (
+                <>
+                  <button
+                    className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+                    onClick={getInitSnap}
+                  >
+                    기준 그림에 몸을 맞춘 후 측정 시작!
+                  </button>
+                  <div>
+                    거북목 상태:&nbsp;
+                    {isTextNeck === null
+                      ? "상태를 확인할 수 없습니다."
+                      : isTextNeck
+                        ? "거북목 상태 입니다"
+                        : "정상적인 자세 입니다"}
+                  </div>
+                  <div>어깨 기울기: {slope === null ? "상태를 확인할 수 없습니다." : slope}</div>
+                </>
+              )}
+            </>
+          )}
         </>
       )}
     </div>

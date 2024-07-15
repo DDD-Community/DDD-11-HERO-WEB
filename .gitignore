@@ -57,7 +57,7 @@ dist/
 
 # TypeScript
 *.tsbuildinfo
-*.d.ts
+# *.d.ts
 *.d.ts.map
 
 # MacOS X finder files

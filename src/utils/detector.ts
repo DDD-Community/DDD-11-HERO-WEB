@@ -112,24 +112,47 @@ export const detectTextNeck = (refer: pose[], comp: pose[]): boolean | null => {
  * 어깨 기울기는 각 포즈 배열에서 왼쪽 어깨와 오른쪽 어깨의 좌표를 이용하여 계산
  * @param refer 비교 기준이 되는 포즈 배열
  * @param comp 비교할 대상이 되는 포즈 배열
+ * @param isSnapShotMode 스냅샷 촬영후, 해당 기준으로 자세를 측정할 지 아니면 스켈레톤을 토대로 측정할 지
  * @returns 기울기가 왼쪽으로 치우쳤으면 "left", 오른쪽으로 치우쳤으면 "right"를 반환하며,
  * 기울기를 계산할 수 없는 경우 null을 반환
  */
-export const detectSlope = (refer: pose[], comp: pose[]): string | null => {
+export const detectSlope = (refer: pose[], comp: pose[], isSnapShotMode: boolean = true): string | null => {
   if (!refer || !comp) return null
 
   const referLeftSoulder = getXYfromPose(refer, "left_shoulder")
   const referRightSoulder = getXYfromPose(refer, "right_shoulder")
-  const compLeftSoulder = getXYfromPose(comp, "left_shoulder")
-  const compRightSoulder = getXYfromPose(comp, "right_shoulder")
+  const compLeftShoulder = getXYfromPose(comp, "left_shoulder")
+  const compRightShoulder = getXYfromPose(comp, "right_shoulder")
 
-  if (!referLeftSoulder || !referRightSoulder || !compLeftSoulder || !compRightSoulder) return null
+  if (!isSnapShotMode && compLeftShoulder && compRightShoulder) {
+    const SHOULDER_DIFF_THRESHOLD = 30
+    const shoulderSlope = compLeftShoulder.y - compRightShoulder.y
+
+    if (Math.abs(shoulderSlope) < SHOULDER_DIFF_THRESHOLD) {
+      return "적절한 자세입니다"
+    } else if (shoulderSlope > 0) {
+      return "오른쪽 어깨가 올라갔습니다"
+    } else {
+      return "왼쪽 어깨가 올라갔습니다"
+    }
+  }
+
+  if (!referLeftSoulder || !referRightSoulder || !compLeftShoulder || !compRightShoulder) return null
 
   const referSlope = getSlopeFromPoints(referLeftSoulder, referRightSoulder)
-  const compSlope = getSlopeFromPoints(compLeftSoulder, compRightSoulder)
+  const compSlope = getSlopeFromPoints(compLeftShoulder, compRightShoulder)
 
   if (referSlope === Infinity || compSlope === Infinity) return null
 
-  if (referSlope < compSlope) return "left"
-  else return "right"
+  // referSlope를 기준으로 10% 오차 미만이면, 정상 자세인 것으로 간주
+  const tenPercentOfReferSlope = Math.abs(referSlope) * 0.9
+  const slopeDifference = Math.abs(referSlope - compSlope)
+
+  if (slopeDifference <= tenPercentOfReferSlope) {
+    return "올바른 자세입니다"
+  } else if (referSlope < compSlope) {
+    return "왼쪽으로 치우쳐져 있습니다"
+  } else {
+    return "오른쪽으로 치우쳐져 있습니다"
+  }
 }
