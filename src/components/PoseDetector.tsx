@@ -98,7 +98,7 @@ const PoseDetector: React.FC = () => {
 
   const detectStart = useCallback(
     async (video: HTMLVideoElement): Promise<void> => {
-      worker.onmessage = ({ data }: any) => {
+      worker.onmessage = ({ }: any) => {
         if (modelRef.current) {
           modelRef.current.detect(video, detect)
         }
