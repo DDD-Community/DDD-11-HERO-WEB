@@ -1,4 +1,2 @@
-// eslint-disable-next-line import/extensions
-import Worker from "../workers/worker.ts?worker"
+export const worker = new Worker(new URL("../workers/worker.ts?worker", import.meta.url))
 
-export const worker = new Worker()

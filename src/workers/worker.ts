@@ -4,7 +4,7 @@ interface e {
 }
 
 self.onmessage = (e) => {
-  const { type, data } = e.data
+  const { type } = e.data
   switch (type) {
     case "init":
       setInterval(() => {
