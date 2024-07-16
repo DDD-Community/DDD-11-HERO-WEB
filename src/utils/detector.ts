@@ -69,10 +69,11 @@ export const getXYfromPose = (poses: pose[], name: string): point | null => {
  * 두 귀의 거리, 귀의 중간지점과 어깨를 이은 직선과의 거리를 이용해 비교
  * @param refer 비교 기준이 되는 포즈 배열
  * @param comp 비교할 대상이 되는 포즈 배열
+ * @param isSnapShotMode 스냅샷 촬영후, 해당 기준으로 자세를 측정할 지 아니면 자동으로 측정할 지
  * @returns 거북목 상태라고 판단되면 true, 판단되지 않으면 false, 비교할 수 없는 경우 null을 반환
  */
-export const detectTextNeck = (refer: pose[], comp: pose[]): boolean | null => {
-  if (!refer || !comp) return null
+export const detectTextNeck = (refer: pose[], comp: pose[], isSnapShotMode: boolean = true): boolean | null => {
+  if (!comp) return null
 
   const referLeftEar = getXYfromPose(refer, "left_ear")
   const referRightEar = getXYfromPose(refer, "right_ear")
@@ -82,6 +83,7 @@ export const detectTextNeck = (refer: pose[], comp: pose[]): boolean | null => {
   const compRightEar = getXYfromPose(comp, "right_ear")
   const compLeftShoulder = getXYfromPose(comp, "left_shoulder")
   const compRightShoulder = getXYfromPose(comp, "right_shoulder")
+  const compNose = getXYfromPose(comp, "nose")
 
   if (
     !referLeftEar ||
@@ -91,9 +93,34 @@ export const detectTextNeck = (refer: pose[], comp: pose[]): boolean | null => {
     !compLeftEar ||
     !compRightEar ||
     !compLeftShoulder ||
-    !compRightShoulder
+    !compRightShoulder ||
+    !compNose
   )
     return null
+
+  if (!isSnapShotMode) {
+    // 귀의 중점 계산
+    const earMidpoint = getMidPoint(compLeftEar, compRightEar)
+
+    // 어깨의 중점 계산
+    const shoulderMidpoint = getMidPoint(compLeftShoulder, compRightShoulder)
+
+    // // 귀의 중점과 어깨의 중점 사이의 거리 계산
+    // const earToShoulderDistance = getDistance(earMidpoint, shoulderMidpoint)
+
+    // // 코와 어깨 중점 사이의 거리 계산
+    // const noseToShoulderDistance = getDistance(compNose, shoulderMidpoint)
+
+    // 거북목 판단 기준:
+    // 1. 귀의 중점이 어깨의 중점보다 앞쪽에 있는지 (x 좌표 비교)
+    // 2. 코가 귀의 중점보다 어깨 쪽에 가까운지 (거리 비교)
+
+    console.log(earMidpoint.x, " / ", shoulderMidpoint.x)
+    const isEarForwardOfShoulder = earMidpoint.x > shoulderMidpoint.x
+    // const isNoseCloserToShoulder = noseToShoulderDistance < earToShoulderDistance
+    // 두 조건이 모두 참이면 거북목으로 판단
+    return isEarForwardOfShoulder
+  }
 
   const referDistance = getDistanceFromLine(
     referLeftShoulder,
@@ -112,12 +139,12 @@ export const detectTextNeck = (refer: pose[], comp: pose[]): boolean | null => {
  * 어깨 기울기는 각 포즈 배열에서 왼쪽 어깨와 오른쪽 어깨의 좌표를 이용하여 계산
  * @param refer 비교 기준이 되는 포즈 배열
  * @param comp 비교할 대상이 되는 포즈 배열
- * @param isSnapShotMode 스냅샷 촬영후, 해당 기준으로 자세를 측정할 지 아니면 스켈레톤을 토대로 측정할 지
+ * @param isSnapShotMode 스냅샷 촬영후, 해당 기준으로 자세를 측정할 지 아니면 자동으로 측정할 지
  * @returns 기울기가 왼쪽으로 치우쳤으면 "left", 오른쪽으로 치우쳤으면 "right"를 반환하며,
  * 기울기를 계산할 수 없는 경우 null을 반환
  */
 export const detectSlope = (refer: pose[], comp: pose[], isSnapShotMode: boolean = true): string | null => {
-  if (!refer || !comp) return null
+  if (!comp) return null
 
   const referLeftSoulder = getXYfromPose(refer, "left_shoulder")
   const referRightSoulder = getXYfromPose(refer, "right_shoulder")
@@ -125,7 +152,7 @@ export const detectSlope = (refer: pose[], comp: pose[], isSnapShotMode: boolean
   const compRightShoulder = getXYfromPose(comp, "right_shoulder")
 
   if (!isSnapShotMode && compLeftShoulder && compRightShoulder) {
-    const SHOULDER_DIFF_THRESHOLD = 30
+    const SHOULDER_DIFF_THRESHOLD = 40
     const shoulderSlope = compLeftShoulder.y - compRightShoulder.y
 
     if (Math.abs(shoulderSlope) < SHOULDER_DIFF_THRESHOLD) {
