@@ -23,7 +23,7 @@ const PoseDetector: React.FC = () => {
   const timer = useRef<any>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const { showNotification } = usePushNotification()
+  const { requestNotificationPermission, showNotification } = usePushNotification()
 
   const requestApi = (delay: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, delay))
 
@@ -108,6 +108,7 @@ const PoseDetector: React.FC = () => {
   }
 
   useEffect(() => {
+    requestNotificationPermission()
     getScript()
   }, [])
 
