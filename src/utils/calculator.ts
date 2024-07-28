@@ -126,3 +126,70 @@ export const getMidPoint = (p1: point, p2: point): point => {
 
   return { x, y };
 };
+
+/**
+ * x=axisX를 기준으로 point를 대칭 이동 시킴
+ *
+ * @param {point} point
+ * @param {number} axisX
+ *
+ */
+export const getSymmetricPointFromX = (point : point, axisX : number) => {
+  return {
+    x: axisX + (axisX - point.x),
+    y: point.y
+  };
+}
+
+/**
+ * y=axisY를 기준으로 point를 대칭 이동 시킴
+ *
+ * @param {point} point
+ * @param {number} axisY
+ *
+ */
+export const getSymmetricPointFromY = (point : point, axisY : number) => {
+  return {
+    x: point.x,
+    y: axisY + (axisY -point.y)
+  };
+}
+
+/**
+ * dx, dy 만큼 point를 이동 시킴
+ *
+ * @param {point} point
+ * @param {number} dx
+ * @param {number} dy
+ *
+ */
+export const getTranslatedPoint = (point : point, dx : number, dy : number) => {
+  return {
+    x: point.x + dx,
+    y: point.y + dy
+  }
+}
+
+/**
+ * cx, cy를 기준으로 scaleFactor 만큼 point의 스케일을 변경
+ *
+ * @param {point} point
+ * @param {number} cx
+ * @param {number} cy
+ * @param {number} scaleFactor
+ *
+ */
+export const getScaledPoint = (point : point, cx : number, cy : number, scaleFactor : number) => {
+  const x = point.x
+  const y = point.y
+
+  // 기준점으로부터의 상대적인 거리 계산
+  const dx = x - cx
+  const dy = y - cy
+
+  // 스케일 팩터를 적용한 새로운 거리 계산
+  const scaledX = cx + dx * scaleFactor
+  const scaledY = cy + dy * scaleFactor
+
+  return { x: scaledX, y: scaledY }
+}
