@@ -13,13 +13,18 @@ const PoseDetector: React.FC = () => {
   const [isTextNeck, setIsTextNeck] = useState<boolean | null>(null)
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false)
   const [mode, setMode] = useState<string>("snapshot")
-
+  const [canInit, setCanInit] = useState<boolean>(false)
+  const [isSnapSaved, setIsSnapSaved] = useState<boolean>(false);
   const modelRef = useRef<any>(null)
   const snapRef = useRef<pose[] | null>(null)
   const resultRef = useRef<pose[] | null>(null)
   const textNeckStartTime = useRef<number | null>(null)
   const timer = useRef<any>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const dx = useRef<number>(0)
+  const dy = useRef<number>(0)
+  const scale = useRef<number>(1)
 
   const { requestNotificationPermission, showNotification } = usePushNotification()
 
@@ -64,10 +69,23 @@ const PoseDetector: React.FC = () => {
     await window.ml5.setBackend("webgl")
   }
 
+  const canInitCallback = (canInit : boolean) => {
+    setCanInit(canInit)
+  }
+
   const detect = useCallback(
     (results: pose[]): void => {
       resultRef.current = results
-      if (canvasRef.current) drawPose(results, canvasRef.current)
+      if (canvasRef.current) {
+        drawPose(
+          results, 
+          canvasRef.current, 
+          dx.current, 
+          dy.current, 
+          scale.current, 
+          canInitCallback,
+          !!snapRef.current)
+      }
       if (snapRef.current) {
         const _slope = detectSlope(snapRef.current, results, mode === "snapshot")
         const _isTextNeck = detectTextNeck(snapRef.current, results, mode === "snapshot")
@@ -108,7 +126,10 @@ const PoseDetector: React.FC = () => {
   )
 
   const getInitSnap = (): void => {
-    if (modelRef && modelRef.current) snapRef.current = resultRef.current
+    if (modelRef && modelRef.current) {
+      snapRef.current = resultRef.current
+      setIsSnapSaved(true)
+    }
   }
 
   useEffect(() => {
@@ -129,12 +150,33 @@ const PoseDetector: React.FC = () => {
     setIsTextNeck(null)
     setSlope(null)
     snapRef.current = null
+    setIsSnapSaved(false)
+    setCanInit(false)
   }
 
   const onChangeMode = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (e.target.value) {
       setMode(e.target.value)
       initializePoseMonitoring()
+    }
+  }
+
+  const onChangeTranslation = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const id = e.target.id ;
+      if(e.target.value){
+        const value = Number.parseInt(e.target.value)
+        switch(id){
+          case 'vertical' : 
+            dy.current = value
+            return
+          case 'horizontal' : 
+            dx.current = value
+            return
+          case 'scale' : 
+            scale.current = value / 100 * 2
+            return
+          default : 
+        }
     }
   }
 
@@ -164,6 +206,14 @@ const PoseDetector: React.FC = () => {
           />
           {isModelLoaded && (
             <>
+              <div>
+                <div>좌우 이동</div>
+                <input id="horizontal" type="range" min={-100} max={100} onChange={onChangeTranslation}></input>
+                <div>상하 이동</div>
+                <input id="vertical" type="range" min={-100} max={100} onChange={onChangeTranslation}></input>
+                <div>크기 변경</div>
+                <input id="scale" type="range" min={0} max={100} onChange={onChangeTranslation}></input>
+              </div>
               <div className="font-bold text-red-500">본 화면은 좌우가 반대로 보이고 있으니 주의하세요!</div>
               <div>
                 <select className="rounded border border-gray-400 bg-white p-2" onChange={onChangeMode}>
@@ -177,9 +227,17 @@ const PoseDetector: React.FC = () => {
                     스냅샷 모드입니다. 올바른 자세를 하신 후에, 버튼을 눌러 촬영을 하면 해당 자세를 기준으로 부적절한
                     자세를 추적합니다!
                   </div>
-                  <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white" onClick={getInitSnap}>
-                    올바른 자세를 촬영한 후 자세 측정 시작!
-                  </button>
+                  {
+                    canInit ? 
+                      isSnapSaved ? 
+                        <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white" onClick={initializePoseMonitoring}>
+                          스냅샷 다시 찍기
+                        </button> :
+                        <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white" onClick={getInitSnap}>
+                          올바른 자세를 촬영한 후 자세 측정 시작!
+                        </button> : 
+                      <div className="font-bold text-red-500">스냅샷을 찍을 수 없습니다. 가이드 라인에 맞게 자세를 잡아주세요.</div>
+                  }
                 </>
               )}
               {mode === "skeleton" && (
