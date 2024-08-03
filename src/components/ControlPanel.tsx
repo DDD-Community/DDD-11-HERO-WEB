@@ -2,11 +2,10 @@ import React from "react"
 
 interface ControlPanelProps {
   onChangeTranslation: React.ChangeEventHandler<HTMLInputElement>
-  onChangeMode: React.ChangeEventHandler<HTMLSelectElement>
 }
 
 export default function ControlPanel(props: ControlPanelProps) {
-  const { onChangeTranslation, onChangeMode } = props
+  const { onChangeTranslation } = props
   return (
     <div>
       <div>

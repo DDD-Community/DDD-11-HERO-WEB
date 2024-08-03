@@ -190,7 +190,6 @@ const PoseDetector: React.FC = () => {
             detectStart={detectStart}
             canvasRef={canvasRef}
             isModelLoaded={isModelLoaded}
-            onChangeMode={onChangeMode}
             onChangeTranslation={onChangeTranslation}
           />
           {isModelLoaded && (

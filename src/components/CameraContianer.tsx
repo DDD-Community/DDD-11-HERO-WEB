@@ -6,12 +6,11 @@ interface CameraContianerProps {
   detectStart: (video: HTMLVideoElement) => void
   canvasRef: React.LegacyRef<HTMLCanvasElement> | undefined
   isModelLoaded: boolean
-  onChangeMode: React.ChangeEventHandler<HTMLSelectElement>
   onChangeTranslation: React.ChangeEventHandler<HTMLInputElement>
 }
 
 export default function CameraContianer(props: CameraContianerProps) {
-  const { detectStart, canvasRef, isModelLoaded, onChangeMode, onChangeTranslation } = props
+  const { detectStart, canvasRef, isModelLoaded, onChangeTranslation } = props
   return (
     <div
       style={{
@@ -43,7 +42,7 @@ export default function CameraContianer(props: CameraContianerProps) {
           width: "150px",
         }}
       >
-        {isModelLoaded && <ControlPanel onChangeMode={onChangeMode} onChangeTranslation={onChangeTranslation} />}
+        {isModelLoaded && <ControlPanel onChangeTranslation={onChangeTranslation} />}
       </div>
     </div>
   )
