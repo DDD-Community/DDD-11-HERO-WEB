@@ -13,7 +13,7 @@ const Camera: React.FC<WebcamProps> = ({ onStreamReady }) => {
         video: {
           facingMode: "user",
           frameRate: {
-            ideal: 5,
+            ideal: 60,
           },
         },
       })
