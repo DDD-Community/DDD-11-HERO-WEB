@@ -14,7 +14,7 @@ const PoseDetector: React.FC = () => {
   const [isTextNeck, setIsTextNeck] = useState<boolean | null>(null)
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false)
   const [mode, setMode] = useState<string>("snapshot")
-  const [canInit, setCanInit] = useState<boolean>(false)
+  const [, setCanInit] = useState<boolean>(false)
   const [isSnapSaved, setIsSnapSaved] = useState<boolean>(false)
   const modelRef = useRef<any>(null)
   const snapRef = useRef<pose[] | null>(null)
@@ -70,15 +70,11 @@ const PoseDetector: React.FC = () => {
     await window.ml5.setBackend("webgl")
   }
 
-  const canInitCallback = (canInit: boolean) => {
-    setCanInit(canInit)
-  }
-
   const detect = useCallback(
     (results: pose[]): void => {
       resultRef.current = results
       if (canvasRef.current) {
-        drawPose(results, canvasRef.current, dx.current, dy.current, scale.current, canInitCallback, !!snapRef.current)
+        drawPose(results, canvasRef.current, dx.current, dy.current, scale.current)
       }
       if (snapRef.current) {
         const _slope = detectSlope(snapRef.current, results, mode === "snapshot")
@@ -212,8 +208,7 @@ const PoseDetector: React.FC = () => {
                       paddingTop: "5px",
                     }}
                   >
-                    {canInit ? (
-                      isSnapSaved ? (
+                    {isSnapSaved ? (
                         <button
                           className="rounded bg-blue-500 px-4 py-2 font-bold text-white"
                           onClick={initializePoseMonitoring}
@@ -224,12 +219,7 @@ const PoseDetector: React.FC = () => {
                         <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white" onClick={getInitSnap}>
                           올바른 자세를 촬영한 후 자세 측정 시작!
                         </button>
-                      )
-                    ) : (
-                      <div className="font-bold text-red-500">
-                        스냅샷을 찍을 수 없습니다. 가이드 라인에 맞게 자세를 잡아주세요.
-                      </div>
-                    )}
+                      )}
                   </div>
                 )}
                 {mode === "skeleton" && (

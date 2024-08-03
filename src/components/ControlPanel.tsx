@@ -7,7 +7,7 @@ interface ControlPanelProps {
 export default function ControlPanel(props: ControlPanelProps) {
   const { onChangeTranslation } = props
   return (
-    <div>
+    <div style={{display : 'none'}}>
       <div>
         <div>좌우 이동</div>
         <input id="horizontal" type="range" min={-100} max={100} onChange={onChangeTranslation}></input>

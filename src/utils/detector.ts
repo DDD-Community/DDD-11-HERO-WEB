@@ -130,7 +130,7 @@ export const detectTextNeck = (refer: pose[], comp: pose[], isSnapShotMode: bool
   const referEearsDistance = getDistance(referLeftEar, referRightEar)
   const compDistance = getDistanceFromLine(compLeftShoulder, compRightShoulder, getMidPoint(compLeftEar, compRightEar))
   const compEearsDistance = getDistance(compLeftEar, compRightEar)
-  if (referDistance * 0.98 > compDistance && referEearsDistance < compEearsDistance) return true
+  if (referDistance * 0.95 > compDistance && referEearsDistance < compEearsDistance) return true
   else return false
 }
 
