@@ -1,18 +1,8 @@
 // dependencies
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
-
-// components
-import { PoseDetector } from "./components"
+import { Router } from "@/routes"
 
 const App: React.FC = () => {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<PoseDetector />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
-  )
+  return <Router></Router>
 }
 
 export default App

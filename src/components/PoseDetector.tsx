@@ -5,7 +5,6 @@ import { drawPose } from "@/utils/drawer"
 import { worker } from "@/utils/worker"
 import { useCallback, useEffect, useRef, useState } from "react"
 import CameraContianer from "./CameraContianer"
-import TrackingResult from "./TrackingResult"
 
 const PoseDetector: React.FC = () => {
   const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
@@ -13,8 +12,7 @@ const PoseDetector: React.FC = () => {
   const [slope, setSlope] = useState<string | null>(null)
   const [isTextNeck, setIsTextNeck] = useState<boolean | null>(null)
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false)
-  const [mode, setMode] = useState<string>("snapshot")
-  const [, setCanInit] = useState<boolean>(false)
+  const [mode] = useState<string>("snapshot")
   const [isSnapSaved, setIsSnapSaved] = useState<boolean>(false)
   const modelRef = useRef<any>(null)
   const snapRef = useRef<pose[] | null>(null)
@@ -23,22 +21,13 @@ const PoseDetector: React.FC = () => {
   const timer = useRef<any>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const dx = useRef<number>(0)
-  const dy = useRef<number>(0)
-  const scale = useRef<number>(1)
-
   const { requestNotificationPermission, showNotification } = usePushNotification()
 
   const requestApi = (delay: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, delay))
 
-  const setup = async (): Promise<void> => {
-    window.ml5.bodyPose(
-      "MoveNet",
-      {
-        modelType: "SINGLEPOSE_THUNDER",
-      },
-      setupCallback
-    )
+  // webgl설정
+  const initializeBackend = async (): Promise<void> => {
+    await window.ml5.setBackend("webgl")
   }
 
   const setupCallback = async (bodypose: any, error: Error): Promise<void> => {
@@ -52,9 +41,19 @@ const PoseDetector: React.FC = () => {
     worker.postMessage({ type: "init", data: {} })
   }
 
+  const setup = async (): Promise<void> => {
+    window.ml5.bodyPose(
+      "MoveNet",
+      {
+        modelType: "SINGLEPOSE_THUNDER",
+      },
+      setupCallback
+    )
+  }
+
   const getScript = (): void => {
     const script = document.createElement("script")
-    script.src = "https://unpkg.com/ml5@1/dist/ml5.min.js"
+    script.src = "https://unpkg.com/ml5@1.0.1/dist/ml5.min.js"
     script.onload = (): void => {
       setIsScriptLoaded(true)
       setup()
@@ -65,19 +64,14 @@ const PoseDetector: React.FC = () => {
     document.body.appendChild(script)
   }
 
-  // webgl설정
-  const initializeBackend = async (): Promise<void> => {
-    await window.ml5.setBackend("webgl")
-  }
-
   const detect = useCallback(
     (results: pose[]): void => {
       resultRef.current = results
       if (canvasRef.current) {
-        drawPose(results, canvasRef.current, dx.current, dy.current, scale.current)
+        drawPose(results, canvasRef.current)
       }
       if (snapRef.current) {
-        const _slope = detectSlope(snapRef.current, results, mode === "snapshot")
+        const _slope = detectSlope(snapRef.current, results, false)
         const _isTextNeck = detectTextNeck(snapRef.current, results, mode === "snapshot")
         if (_slope !== null) setSlope(_slope)
         if (_isTextNeck !== null) setIsTextNeck(_isTextNeck)
@@ -122,6 +116,11 @@ const PoseDetector: React.FC = () => {
     }
   }
 
+  const getIsRight = (_slope: string | null, _isTextNeck: boolean | null): boolean => {
+    if (_slope === "적절한 자세입니다" && !_isTextNeck) return true
+    return false
+  }
+
   useEffect(() => {
     requestNotificationPermission()
     getScript()
@@ -136,43 +135,12 @@ const PoseDetector: React.FC = () => {
     }
   }, [isModelLoaded, detectStart])
 
-  const initializePoseMonitoring = () => {
-    setIsTextNeck(null)
-    setSlope(null)
-    snapRef.current = null
-    setIsSnapSaved(false)
-    setCanInit(false)
-  }
-
-  const onChangeMode = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    if (e.target.value) {
-      setMode(e.target.value)
-      initializePoseMonitoring()
-    }
-  }
-
-  const onChangeTranslation = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const id = e.target.id
-    if (e.target.value) {
-      const value = Number.parseInt(e.target.value)
-      switch (id) {
-        case "vertical":
-          dy.current = value
-          return
-        case "horizontal":
-          dx.current = value
-          return
-        case "scale":
-          scale.current = (value / 100) * 2
-          return
-        default:
-      }
-    }
-  }
-
-  const onCancelAutoPoseMonitoring = () => {
-    initializePoseMonitoring()
-  }
+  // const initializePoseMonitoring = () => {
+  //   setIsTextNeck(null)
+  //   setSlope(null)
+  //   snapRef.current = null
+  //   setIsSnapSaved(false)
+  // }
 
   return (
     <>
@@ -181,14 +149,33 @@ const PoseDetector: React.FC = () => {
       ) : !isScriptLoaded ? (
         "스크립트 불러오는 중"
       ) : (
-        <div className="flex flex-col items-center justify-center">
-          <CameraContianer
-            detectStart={detectStart}
-            canvasRef={canvasRef}
-            isModelLoaded={isModelLoaded}
-            onChangeTranslation={onChangeTranslation}
-          />
+        <div className="relative flex h-full w-full flex-col items-center justify-center">
+          <CameraContianer detectStart={detectStart} canvasRef={canvasRef} isModelLoaded={isModelLoaded} />
           {isModelLoaded && (
+            <>
+              <div className="absolute top-0 flex w-[100%] items-center justify-center rounded-t-lg bg-[#1A1B1D] bg-opacity-75 p-[20px] text-white">
+                {!isSnapSaved
+                  ? "바른 자세를 취한 후, 하단의 버튼을 눌러주세요."
+                  : getIsRight(slope, isTextNeck)
+                  ? "올바른 자세입니다."
+                  : "올바르지 않은 자세입니다."}
+              </div>
+              {!isSnapSaved && (
+                <div className="absolute bottom-0 flex w-[100%] items-center justify-center gap-[20px] p-[50px] text-white">
+                  <button className="rounded rounded-full bg-[#FFFFFF] bg-opacity-80 p-[20px] text-black">
+                    가이드 다시 볼게요!
+                  </button>
+                  <button
+                    className="rounded rounded-full bg-[#1A75FF] bg-opacity-80 p-[20px] text-white"
+                    onClick={getInitSnap}
+                  >
+                    바른자세를 취했어요!
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+          {/* {isModelLoaded && (
             <div
               style={{
                 display: "flex",
@@ -253,7 +240,7 @@ const PoseDetector: React.FC = () => {
                 <TrackingResult isTextNeck={isTextNeck} slope={slope} />
               </div>
             </div>
-          )}
+          )} */}
         </div>
       )}
     </>

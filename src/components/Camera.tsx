@@ -15,6 +15,8 @@ const Camera: React.FC<WebcamProps> = ({ onStreamReady }) => {
           frameRate: {
             ideal: 60,
           },
+          width: 1280,
+          height: 720,
         },
       })
       .then((stream) => {
@@ -36,18 +38,20 @@ const Camera: React.FC<WebcamProps> = ({ onStreamReady }) => {
 
   useEffect(() => {
     startVideo()
-  }, [])
+  })
 
   return (
-    <div style={{ position: "relative", width: "640px", height: "480px" }}>
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <video
+        className="rounded-lg"
         ref={videoRef}
         style={{
           position: "absolute",
           top: 0,
           left: 0,
-          width: "640px",
-          height: "480px",
+          width: "100%",
+          height: "100%",
+          objectFit: "fill",
         }}
       />
     </div>
