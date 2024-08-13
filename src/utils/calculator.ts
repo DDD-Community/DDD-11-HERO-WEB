@@ -1,6 +1,6 @@
 export interface point {
-  x: number;
-  y: number;
+  x: number
+  y: number
 }
 /**
  * 두 점을 잇는 직선과 주어진 점 사이의 거리를 계산
@@ -17,21 +17,16 @@ export interface point {
  * const distance = getDistanceFromLine(point1, point2, point3);
  * console.log(distance); // 출력: 0
  */
-export const getDistanceFromLine = (
-  l1: point,
-  l2: point,
-  to: point
-): number => {
-  const a = l2.y - l1.y;
-  const b = l1.x - l2.x;
-  const c = l2.x * l1.y - l1.x * l2.y;
+export const getDistanceFromLine = (l1: point, l2: point, to: point): number => {
+  const a = l2.y - l1.y
+  const b = l1.x - l2.x
+  const c = l2.x * l1.y - l1.x * l2.y
 
   // 세 번째 점 C와 직선 사이의 거리를 구합니다.
-  const distance =
-    Math.abs(a * to.x + b * to.y + c) / Math.sqrt(a ** 2 + b ** 2);
+  const distance = Math.abs(a * to.x + b * to.y + c) / Math.sqrt(a ** 2 + b ** 2)
 
-  return distance;
-};
+  return distance
+}
 
 /**
  * 3점 이상의 좌표들을 입력받아 다각형의 면적을 계산
@@ -49,20 +44,20 @@ export const getDistanceFromLine = (
  * console.log(area); // 출력: 6
  */
 export const getAreaFromPoints = (points: point[]): number | null => {
-  const n = points.length;
+  const n = points.length
 
-  if (n <= 2) return null;
+  if (n <= 2) return null
 
-  let area = 0;
+  let area = 0
 
   for (let i = 0; i < n; i++) {
-    const { x: x1, y: y1 } = points[i];
-    const { x: x2, y: y2 } = points[(i + 1) % n];
-    area += x1 * y2 - x2 * y1;
+    const { x: x1, y: y1 } = points[i]
+    const { x: x2, y: y2 } = points[(i + 1) % n]
+    area += x1 * y2 - x2 * y1
   }
 
-  return Math.abs(area / 2);
-};
+  return Math.abs(area / 2)
+}
 
 /**
  * 두 점을 잇는 직선의 기울기를 구하는 함수
@@ -84,11 +79,11 @@ export const getAreaFromPoints = (points: point[]): number | null => {
 export const getSlopeFromPoints = (p1: point, p2: point): number => {
   if (p1.x === p2.x) {
     // 수직선의 경우, 기울기를 무한대로 설정
-    return Infinity;
+    return Infinity
   }
 
-  return (p2.y - p1.y) / (p2.x - p1.x);
-};
+  return (p2.y - p1.y) / (p2.x - p1.x)
+}
 
 /**
  * 두 점 사이의 유클리드 거리를 계산
@@ -104,8 +99,8 @@ export const getSlopeFromPoints = (p1: point, p2: point): number => {
  * console.log(distance); // 출력: 5
  */
 export const getDistance = (p1: point, p2: point): number => {
-  return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
-};
+  return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
+}
 
 /**
  * 두 점의 중간 지점을 계산
@@ -121,75 +116,75 @@ export const getDistance = (p1: point, p2: point): number => {
  * console.log(distance); // 출력: {x : 2, y : 4}
  */
 export const getMidPoint = (p1: point, p2: point): point => {
-  const x = (p1.x + p2.x) * 0.5;
-  const y = (p1.y + p2.y) * 0.5;
+  const x = (p1.x + p2.x) * 0.5
+  const y = (p1.y + p2.y) * 0.5
 
-  return { x, y };
-};
-
-/**
- * x=axisX를 기준으로 point를 대칭 이동 시킴
- *
- * @param {point} point
- * @param {number} axisX
- *
- */
-export const getSymmetricPointFromX = (point : point, axisX : number) => {
-  return {
-    x: axisX + (axisX - point.x),
-    y: point.y
-  };
+  return { x, y }
 }
 
-/**
- * y=axisY를 기준으로 point를 대칭 이동 시킴
- *
- * @param {point} point
- * @param {number} axisY
- *
- */
-export const getSymmetricPointFromY = (point : point, axisY : number) => {
-  return {
-    x: point.x,
-    y: axisY + (axisY -point.y)
-  };
-}
+// /**
+//  * x=axisX를 기준으로 point를 대칭 이동 시킴
+//  *
+//  * @param {point} point
+//  * @param {number} axisX
+//  *
+//  */
+// export const getSymmetricPointFromX = (point: point, axisX: number) : point => {
+//   return {
+//     x: axisX + (axisX - point.x),
+//     y: point.y,
+//   }
+// }
 
-/**
- * dx, dy 만큼 point를 이동 시킴
- *
- * @param {point} point
- * @param {number} dx
- * @param {number} dy
- *
- */
-export const getTranslatedPoint = (point : point, dx : number, dy : number) => {
-  return {
-    x: point.x + dx,
-    y: point.y + dy
-  }
-}
+// /**
+//  * y=axisY를 기준으로 point를 대칭 이동 시킴
+//  *
+//  * @param {point} point
+//  * @param {number} axisY
+//  *
+//  */
+// export const getSymmetricPointFromY = (point: point, axisY: number) : point => {
+//   return {
+//     x: point.x,
+//     y: axisY + (axisY - point.y),
+//   }
+// }
 
-/**
- * cx, cy를 기준으로 scaleFactor 만큼 point의 스케일을 변경
- *
- * @param {point} point
- * @param {number} cx
- * @param {number} cy
- * @param {number} scaleFactor
- *
- */
-export const getScaledPoint = (point : point, cx : number, cy : number, scaleFactor : number) => {
-  const x = point.x
-  const y = point.y
+// /**
+//  * dx, dy 만큼 point를 이동 시킴
+//  *
+//  * @param {point} point
+//  * @param {number} dx
+//  * @param {number} dy
+//  *
+//  */
+// export const getTranslatedPoint = (point: point, dx: number, dy: number) : point => {
+//   return {
+//     x: point.x + dx,
+//     y: point.y + dy,
+//   }
+// }
 
-  // 기준점으로부터의 상대적인 거리 계산
-  const dx = x - cx
-  const dy = y - cy
+// /**
+//  * cx, cy를 기준으로 scaleFactor 만큼 point의 스케일을 변경
+//  *
+//  * @param {point} point
+//  * @param {number} cx
+//  * @param {number} cy
+//  * @param {number} scaleFactor
+//  *
+//  */
+// export const getScaledPoint = (point: point, cx: number, cy: number, scaleFactor: number) => {
+//   const x = point.x
+//   const y = point.y
 
-  // 스케일 팩터를 적용한 새로운 거리 계산
-  const scaledX = cx + dx * scaleFactor
-  const scaledY = cy + dy * scaleFactor
+//   // 기준점으로부터의 상대적인 거리 계산
+//   const dx = x - cx
+//   const dy = y - cy
 
-  return { x: scaledX, y: scaledY }
-}
+//   // 스케일 팩터를 적용한 새로운 거리 계산
+//   const scaledX = cx + dx * scaleFactor
+//   const scaledY = cy + dy * scaleFactor
+
+//   return { x: scaledX, y: scaledY }
+// }

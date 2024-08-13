@@ -72,7 +72,7 @@ export const getXYfromPose = (poses: pose[], name: string): point | null => {
  * @param isSnapShotMode 스냅샷 촬영후, 해당 기준으로 자세를 측정할 지 아니면 자동으로 측정할 지
  * @returns 거북목 상태라고 판단되면 true, 판단되지 않으면 false, 비교할 수 없는 경우 null을 반환
  */
-export const detectTextNeck = (refer: pose[], comp: pose[], isSnapShotMode: boolean = true): boolean | null => {
+export const detectTextNeck = (refer: pose[], comp: pose[], isSnapShotMode = true): boolean | null => {
   if (!comp) return null
 
   const referLeftEar = getXYfromPose(refer, "left_ear")
@@ -143,7 +143,7 @@ export const detectTextNeck = (refer: pose[], comp: pose[], isSnapShotMode: bool
  * @returns 기울기가 왼쪽으로 치우쳤으면 "left", 오른쪽으로 치우쳤으면 "right"를 반환하며,
  * 기울기를 계산할 수 없는 경우 null을 반환
  */
-export const detectSlope = (refer: pose[], comp: pose[], isSnapShotMode: boolean = true): string | null => {
+export const detectSlope = (refer: pose[], comp: pose[], isSnapShotMode = true): string | null => {
   if (!comp) return null
 
   const referLeftSoulder = getXYfromPose(refer, "left_shoulder")
@@ -154,7 +154,6 @@ export const detectSlope = (refer: pose[], comp: pose[], isSnapShotMode: boolean
   const SHOULDER_DIFF_THRESHOLD = 60
 
   if (!isSnapShotMode && compLeftShoulder && compRightShoulder) {
-
     const shoulderSlope = compLeftShoulder.y - compRightShoulder.y
 
     if (Math.abs(shoulderSlope) < SHOULDER_DIFF_THRESHOLD) {
@@ -174,24 +173,14 @@ export const detectSlope = (refer: pose[], comp: pose[], isSnapShotMode: boolean
   if (referSlope === Infinity || compSlope === Infinity) return null
 
   // referSlope를 기준으로 10% 오차 미만이면, 정상 자세인 것으로 간주
-  // const tenPercentOfReferSlope = Math.abs(referSlope) * 0.9
-  // const slopeDifference = Math.abs(referSlope - compSlope)
+  const tenPercentOfReferSlope = Math.abs(referSlope) * 0.9
+  const slopeDifference = Math.abs(referSlope - compSlope)
 
-  // if (shoulderSlope) {
-  //   return "올바른 자세입니다"
-  // } else if (referSlope < compSlope) {
-  //   return "왼쪽으로 치우쳐져 있습니다"
-  // } else {
-  //   return "오른쪽으로 치우쳐져 있습니다"
-  // }
-
-  const shoulderSlope = compLeftShoulder.y - compRightShoulder.y
-
-  if (Math.abs(shoulderSlope) < SHOULDER_DIFF_THRESHOLD) {
+  if (slopeDifference <= tenPercentOfReferSlope) {
     return "적절한 자세입니다"
-  } else if (shoulderSlope > 0) {
-    return "오른쪽 어깨가 올라갔습니다"
+  } else if (referSlope < compSlope) {
+    return "왼쪽으로 치우쳐져 있습니다"
   } else {
-    return "왼쪽 어깨가 올라갔습니다"
+    return "오른쪽으로 치우쳐져 있습니다"
   }
 }

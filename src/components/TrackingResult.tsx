@@ -3,7 +3,7 @@ interface TrackingResultProps {
   slope: null | string
 }
 
-export default function TrackingResult(props: TrackingResultProps) {
+export default function TrackingResult(props: TrackingResultProps): React.ReactElement {
   const { isTextNeck, slope } = props
   return (
     <div
