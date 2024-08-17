@@ -7,18 +7,40 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-      - name: Checkout source code.
+      - name: Checkout source code
         uses: actions/checkout@v3
-      
+
       - name: Install dependencies
         run: yarn install
-      
+
       - name: Generate build
         run: yarn build
-      
-      - name: Deploy
+
+      - name: Deploy to S3
+        id: deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws s3 sync --region ap-northeast-2 dist s3://alignlab-client --delete
+        continue-on-error: true
+
+      - name: Discord notification - Success
+        if: steps.deploy.outcome == 'success'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_DEPLOY_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: "🎉 배포가 성공적으로 완료되었습니다! 브랜치: develop"
+
+      - name: Discord notification - Failure
+        if: steps.deploy.outcome == 'failure'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_DEPLOY_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: "❌ 배포 중 오류가 발생했습니다. 브랜치: develop"
+
+      - name: Check deploy result
+        if: steps.deploy.outcome == 'failure'
+        run: exit 1

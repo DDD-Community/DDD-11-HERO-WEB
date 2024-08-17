@@ -1,0 +1,19 @@
+name: Discord PR Notification
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  notify_discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Discord Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_PR_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '새로운 PR이 열렸습니다! @이광훈 @배지훈 \nPR: ${{ github.event.pull_request.html_url }}\n작성자: ${{ github.event.pull_request.user.login }}\n제목: ${{ github.event.pull_request.title }}'
