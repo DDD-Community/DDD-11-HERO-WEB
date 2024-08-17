@@ -9,6 +9,15 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get commit message and author
+        id: get_commit_info
+        run: |
+          echo "::set-output name=message::$(git log --format=%s -n 1)"
+          echo "::set-output name=author::$(git log --format=%an -n 1)"
+          echo "::set-output name=author_username::$(git log --format=%ae -n 1 | cut -d@ -f1)"
 
       - name: Install dependencies
         run: yarn install
@@ -29,17 +38,30 @@ jobs:
         if: steps.deploy.outcome == 'success'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_DEPLOY_WEBHOOK }}
+          DISCORD_USERNAME: GitHub
+          DISCORD_AVATAR: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
         uses: Ilshidur/action-discord@master
         with:
-          args: "🎉 배포가 성공적으로 완료되었습니다! 브랜치: develop"
+          args: |
+            🎉 배포가 성공적으로 완료되었습니다!
+            브랜치: develop
+            커밋: ${{ steps.get_commit_info.outputs.message }}
+            작성자: ${{ steps.get_commit_info.outputs.author }}
 
       - name: Discord notification - Failure
         if: steps.deploy.outcome == 'failure'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_DEPLOY_WEBHOOK }}
+          DISCORD_USERNAME: GitHub
+          DISCORD_AVATAR: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
         uses: Ilshidur/action-discord@master
         with:
-          args: "❌ 배포 중 오류가 발생했습니다. 브랜치: develop"
+          args: |
+            ❌ 배포 중 오류가 발생했습니다.
+            브랜치: develop
+            커밋: ${{ steps.get_commit_info.outputs.message }}
+            작성자: <@${{ steps.get_commit_info.outputs.author_username }}>
+            실패한 워크플로우: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Check deploy result
         if: steps.deploy.outcome == 'failure'
