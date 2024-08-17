@@ -241,7 +241,7 @@ export function SketchRNN(
   callback?: (error: any, result: any) => void
 ): undefined | Promise<any>
 
-// ToDo: 임시 타입, 추후 타입 구체적으로 정의할 것
+// ToDo: 임시 타입, 추후 타입 구체적으로 정의할 것.
 export function setBackend(value: string): undefined | Promise<any>
 
 export function bodyPose(vlaue: string, obj: object, callback?: function)
