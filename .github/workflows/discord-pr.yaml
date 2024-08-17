@@ -19,7 +19,7 @@ jobs:
         uses: Ilshidur/action-discord@master
         with:
           args: |
-            새로운 PR이 열렸습니다! <@lkhoony> <@baezzy1789>
+            새로운 PR이 열렸습니다! @lkhoony @baezzy1789 @이광훈 @배지훈
             PR: ${{ github.event.pull_request.html_url }}
             작성자: ${{ github.event.pull_request.user.login }}
             제목: ${{ github.event.pull_request.title }}
