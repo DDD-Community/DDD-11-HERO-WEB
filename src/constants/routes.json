@@ -1,5 +1,6 @@
 {
   "MONITORING": "/monitoring",
   "LOGIN": "/login",
-  "AUTH" : "/auth"
+  "AUTH" : "/auth",
+  "SOCKET": "/socket"
 }
