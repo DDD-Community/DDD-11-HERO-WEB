@@ -50,22 +50,22 @@ export default function Camera(props: CameraProps): React.ReactElement {
         position: "relative",
       }}
     >
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
-      <video
-        className="rounded-lg"
-        ref={videoRef}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "fill",
-          transform: "scaleX(-1)", // 비디오를 좌우 반전시키는 CSS 속성 추가
-        }}
-      />
-    </div>
-    <canvas
+      <div style={{ position: "relative", width: "100%", height: "100%" }}>
+        <video
+          className="rounded-lg"
+          ref={videoRef}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "fill",
+            transform: "scaleX(-1)", // 비디오를 좌우 반전시키는 CSS 속성 추가
+          }}
+        />
+      </div>
+      <canvas
         ref={canvasRef}
         width="1280"
         height="720"

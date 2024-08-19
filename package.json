@@ -13,12 +13,14 @@
     "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.51.23",
     "axios": "1.7.3",
     "core-js": "^3.28.0",
     "p5": "^1.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.8.1"
+    "react-router-dom": "^6.8.1",
+    "zustand": "^4.5.5"
   },
   "devDependencies": {
     "@types/node": "^20.7.1",
