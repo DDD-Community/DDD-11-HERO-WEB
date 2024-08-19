@@ -23,10 +23,13 @@ jobs:
         run: yarn install
 
       - name: Generate build
+        id: build
         run: yarn build
+        continue-on-error: true
 
       - name: Deploy to S3
         id: deploy
+        if: steps.build.outcome == 'success'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -49,7 +52,7 @@ jobs:
             작성자: ${{ steps.get_commit_info.outputs.author }}
 
       - name: Discord notification - Failure
-        if: steps.deploy.outcome == 'failure'
+        if: steps.build.outcome == 'failure' || steps.deploy.outcome == 'failure'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_DEPLOY_WEBHOOK }}
           DISCORD_USERNAME: GitHub
@@ -57,12 +60,14 @@ jobs:
         uses: Ilshidur/action-discord@master
         with:
           args: |
-            ❌ 배포 중 오류가 발생했습니다.
+            ❌ ${{ steps.build.outcome == 'failure' && '빌드 중' || '배포 중' }} 오류가 발생했습니다.
             브랜치: develop
             커밋: ${{ steps.get_commit_info.outputs.message }}
-            작성자: <@${{ steps.get_commit_info.outputs.author_username }}>
+            작성자: <@${{ secrets.DISCORD_ID_1 }}>
             실패한 워크플로우: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            ${{ steps.build.outcome == 'failure' && '빌드 오류 메시지:' || '' }}
+            ${{ steps.build.outcome == 'failure' && steps.build.outputs.stderr || '' }}
 
       - name: Check deploy result
-        if: steps.deploy.outcome == 'failure'
+        if: steps.build.outcome == 'failure' || steps.deploy.outcome == 'failure'
         run: exit 1
