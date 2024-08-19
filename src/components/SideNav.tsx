@@ -48,7 +48,7 @@ export default function SideNav() {
           {/* Navigation Links */}
           <nav className="mt-10">
             <ul>
-              {navItems.map(({ icon: Icon, label, link, className }) => (
+              {navItems.map(({ icon: Icon, label, className }) => (
                 <li
                   key={label}
                   className={`mb-1 flex cursor-pointer items-center rounded-r-md p-3 hover:bg-gray-700 ${
