@@ -1,7 +1,7 @@
-import MainCraftIcon from "@public/icons/posture-craft-side-nav-icon.svg?react"
-import MonitoringIcon from "@public/icons/side-nav-monitor-icon.svg?react"
-import AnalysisIcon from "@public/icons/side-nav-analysis-icon.svg?react"
-import CrewIcon from "@public/icons/side-nav-crew-icon.svg?react"
+import MainCraftIcon from "@assets/icons/posture-craft-side-nav-icon.svg?react"
+import MonitoringIcon from "@assets/icons/side-nav-monitor-icon.svg?react"
+import AnalysisIcon from "@assets/icons/side-nav-analysis-icon.svg?react"
+import CrewIcon from "@assets/icons/side-nav-crew-icon.svg?react"
 import { useAuthStore } from "@/store/AuthStore"
 
 const navItems = [

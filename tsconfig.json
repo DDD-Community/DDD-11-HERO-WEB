@@ -29,7 +29,7 @@
       "@pages/*": ["src/pages/*"],
       "@layouts/*": ["src/layouts/*"],
       "@store": ["src/store/*"],
-      "@public/*": ["src/public/*"]
+      "@assets/*": ["src/assets/*"]
     }
   },
   "include": ["src", "svg.d.ts"],

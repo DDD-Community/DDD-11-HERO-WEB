@@ -1,4 +1,4 @@
-import MainCraftIcon from "@public/icons/posture-craft-side-nav-icon.svg?react"
+import MainCraftIcon from "@assets/icons/posture-craft-side-nav-icon.svg?react"
 
 const REST_API_KEY = import.meta.env.VITE_OAUTH_KAKAO_REST_API_KEY
 const REDIRECT_URI = import.meta.env.VITE_OAUTH_KAKAO_REDIRECT_URI
