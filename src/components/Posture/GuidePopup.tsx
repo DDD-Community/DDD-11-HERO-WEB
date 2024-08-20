@@ -1,4 +1,4 @@
-import GuideImage from "public/images/posture-guide-2x.png"
+import GuideImage from "@public/images/posture-guide-2x.png"
 
 const GuidePopup = ({ onClose }: { onClose: () => void }) => {
   return (

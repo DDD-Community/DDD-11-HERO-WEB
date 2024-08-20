@@ -25,10 +25,11 @@
     "paths": {
       "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
-      "@constants/*" : ["src/constants/*"],
-      "@pages/*" : ["src/pages/*"],
-      "@layouts/*" : ["src/layouts/*"],
-      "@store" : ["src/store/*"]
+      "@constants/*": ["src/constants/*"],
+      "@pages/*": ["src/pages/*"],
+      "@layouts/*": ["src/layouts/*"],
+      "@store": ["src/store/*"],
+      "@public/*": ["src/public/*"]
     }
   },
   "include": ["src", "svg.d.ts"],
