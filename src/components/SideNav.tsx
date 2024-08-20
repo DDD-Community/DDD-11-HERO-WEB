@@ -3,7 +3,6 @@ import MonitoringIcon from "public/icons/side-nav-monitor-icon.svg?react"
 import AnalysisIcon from "public/icons/side-nav-analysis-icon.svg?react"
 import CrewIcon from "public/icons/side-nav-crew-icon.svg?react"
 import { useAuthStore } from "@/store/AuthStore"
-import { useEffect } from "react"
 
 const navItems = [
   {
