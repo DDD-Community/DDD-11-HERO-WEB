@@ -2,6 +2,7 @@ import MainCraftIcon from "public/icons/posture-craft-side-nav-icon.svg?react"
 import MonitoringIcon from "public/icons/side-nav-monitor-icon.svg?react"
 import AnalysisIcon from "public/icons/side-nav-analysis-icon.svg?react"
 import CrewIcon from "public/icons/side-nav-crew-icon.svg?react"
+import { useAuthStore } from "@/store/AuthStore"
 
 const navItems = [
   {
@@ -25,6 +26,8 @@ const navItems = [
 const footerLinks = ["이용약관", "의견보내기", "로그아웃"]
 
 export default function SideNav() {
+  const nickname = useAuthStore((state) => state.user?.nickname)
+
   return (
     <aside className="w-[224px] flex-none bg-[#1C1D20]">
       <div className="flex h-full flex-col justify-between text-white">
@@ -40,7 +43,7 @@ export default function SideNav() {
           <div className="pl-6 pt-2">
             <div className="text-sm text-gray-400">바른자세 똑딱똑딱</div>
             <div>
-              <span className="text-sm font-bold">조하은</span>
+              <span className="text-sm font-bold">{nickname}</span>
               <span className="text-sm text-gray-400"> 님</span>
             </div>
           </div>

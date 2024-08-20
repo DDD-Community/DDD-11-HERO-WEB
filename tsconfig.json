@@ -27,7 +27,8 @@
       "@components/*": ["src/components/*"],
       "@constants/*" : ["src/constants/*"],
       "@pages/*" : ["src/pages/*"],
-      "@layouts/*" : ["src/layouts/*"]
+      "@layouts/*" : ["src/layouts/*"],
+      "@store" : ["src/store/*"]
     }
   },
   "include": ["src", "svg.d.ts"],
