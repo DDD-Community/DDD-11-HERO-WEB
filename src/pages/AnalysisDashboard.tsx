@@ -1,4 +1,3 @@
-import React from "react"
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react" // 아이콘을 위해 lucide-react 사용
 
 const AnalysisDashboard = () => {
