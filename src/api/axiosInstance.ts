@@ -13,19 +13,19 @@ const axiosInstance = axios.create({
 // localStorage에서 토큰 가져오기
 const token = localStorage.getItem("accessToken")
 if (token) {
-  axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`
+  axiosInstance.defaults.headers.common["X-HERO-AUTH-TOKEN"] = token
 }
 
 // 엑세스 토큰 설정 함수
-export const setAccessToken = (token: string) => {
-  axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`
-  localStorage.setItem("accessToken", token)
+export const setAccessToken = (_token: string): void => {
+  axiosInstance.defaults.headers.common["X-HERO-AUTH-TOKEN"] = _token
+  //   localStorage.setItem("accessToken", token)
 }
 
 // 엑세스 토큰 제거 함수
-export const clearAccessToken = () => {
-  delete axiosInstance.defaults.headers.common["Authorization"]
-  localStorage.removeItem("accessToken")
+export const clearAccessToken = (): void => {
+  delete axiosInstance.defaults.headers.common["X-HERO-AUTH-TOKEN"]
+  //   localStorage.removeItem("accessToken")
 }
 
 export default axiosInstance

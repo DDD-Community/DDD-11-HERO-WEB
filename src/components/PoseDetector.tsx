@@ -6,6 +6,9 @@ import { worker } from "@/utils/worker"
 import { useCallback, useEffect, useRef, useState } from "react"
 import Camera from "./Camera"
 import GuidePopup from "./Posture/GuidePopup"
+import { useSnapshotStore } from "@/store/SnapshotStore"
+import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
+import { position } from "@/api"
 import PostureCheckIcon from "@assets/icons/good-posture-check-button-icon.svg?react"
 import GuideIcon from "@assets/icons/posture-guide-button-icon.svg?react"
 
@@ -23,6 +26,10 @@ const PoseDetector: React.FC = () => {
   const textNeckStartTime = useRef<number | null>(null)
   const timer = useRef<any>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const snapshot = useSnapshotStore((state) => state.snapshot)
+  const createSnapMutation = useCreateSnaphot()
+  const setSnap = useSnapshotStore((state) => state.setSnapshot)
 
   const { requestNotificationPermission, showNotification } = usePushNotification()
 
@@ -115,6 +122,30 @@ const PoseDetector: React.FC = () => {
   const getInitSnap = (): void => {
     if (modelRef && modelRef.current) {
       snapRef.current = resultRef.current
+      if (snapshot === null) {
+        if (snapRef.current) {
+          const req = snapRef.current[0].keypoints.map((p) => ({
+            position: p.name.toUpperCase() as position,
+            x: p.x,
+            y: p.y,
+          }))
+          createSnapMutation.mutate(
+            { points: req },
+            {
+              onSuccess: (data: any) => {
+                setSnap(data)
+              },
+            }
+          )
+        }
+      }
+      setIsSnapSaved(true)
+    }
+  }
+
+  const getUserSnap = (): void => {
+    if (snapshot) {
+      snapRef.current = [{ keypoints: snapshot }]
       setIsSnapSaved(true)
     }
   }
@@ -138,6 +169,10 @@ const PoseDetector: React.FC = () => {
     }
   }, [isModelLoaded, detectStart])
 
+  useEffect(() => {
+    getUserSnap()
+  }, [snapshot])
+  
   // const initializePoseMonitoring = () => {
   //   setIsTextNeck(null)
   //   setSlope(null)
