@@ -21,26 +21,26 @@ export interface box {
 // 포즈 객체의 타입 정의
 export interface pose {
   keypoints: keypoint[]
-  box: box
-  score: number
-  id: number
-  nose: keypoint
-  left_eye: keypoint
-  right_eye: keypoint
-  left_ear: keypoint
-  right_ear: keypoint
-  left_shoulder: keypoint
-  right_shoulder: keypoint
-  left_elbow: keypoint
-  right_elbow: keypoint
-  left_wrist: keypoint
-  right_wrist: keypoint
-  left_hip: keypoint
-  right_hip: keypoint
-  left_knee: keypoint
-  right_knee: keypoint
-  left_ankle: keypoint
-  right_ankle: keypoint
+  box?: box
+  score?: number
+  id?: number
+  nose?: keypoint
+  left_eye?: keypoint
+  right_eye?: keypoint
+  left_ear?: keypoint
+  right_ear?: keypoint
+  left_shoulder?: keypoint
+  right_shoulder?: keypoint
+  left_elbow?: keypoint
+  right_elbow?: keypoint
+  left_wrist?: keypoint
+  right_wrist?: keypoint
+  left_hip?: keypoint
+  right_hip?: keypoint
+  left_knee?: keypoint
+  right_knee?: keypoint
+  left_ankle?: keypoint
+  right_ankle?: keypoint
 }
 
 /**
