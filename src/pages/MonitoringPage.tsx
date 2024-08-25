@@ -32,7 +32,7 @@ const MonitoringPage: React.FC = () => {
 
       {/* 토글 버튼 */}
       {!isSidebarOpen && (
-        <button className="z-1 fixed right-4 top-4 z-50 rounded-full" onClick={toggleSidebar}>
+        <button className="z-1 fixed right-2 top-2 rounded-full p-4" onClick={toggleSidebar}>
           <GroupSideIcon />
         </button>
       )}
