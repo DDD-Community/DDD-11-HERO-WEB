@@ -15,7 +15,7 @@ export const drawPose = (poses: pose[], canvas: HTMLCanvasElement): void => {
         ctx.beginPath()
         ctx.moveTo(leftShoulder.x, leftShoulder.y)
         ctx.lineTo(rightShoulder.x, rightShoulder.y)
-        ctx.strokeStyle = "red"
+        ctx.strokeStyle = "#00C670"
         ctx.lineWidth = 2
         ctx.stroke()
       }
@@ -24,8 +24,11 @@ export const drawPose = (poses: pose[], canvas: HTMLCanvasElement): void => {
         if (keypoint.confidence > 0.25) {
           ctx.beginPath()
           ctx.arc(keypoint.x, keypoint.y, 5, 0, 2 * Math.PI)
-          ctx.fillStyle = "red"
+          ctx.fillStyle = "white"
           ctx.fill()
+          ctx.strokeStyle = "#00C670" // 초록색 테두리
+          ctx.lineWidth = 2 // 테두리 두께
+          ctx.stroke() // 테
         }
       })
     })

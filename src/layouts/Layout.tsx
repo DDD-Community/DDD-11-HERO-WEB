@@ -9,7 +9,7 @@ const Layout: React.FC = () => {
         <SideNav />
 
         {/* Main Content */}
-        <main className="min-w-[652px] flex-1 overflow-y-auto bg-[#1C1D20] p-1.5">
+        <main className="min-w-[652px] flex-1 overflow-y-auto bg-[#1C1D20] p-3">
           <Outlet />
         </main>
       </div>

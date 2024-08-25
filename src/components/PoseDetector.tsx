@@ -9,6 +9,8 @@ import GuidePopup from "./Posture/GuidePopup"
 import { useSnapshotStore } from "@/store/SnapshotStore"
 import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
 import { position } from "@/api"
+import PostureCheckIcon from "@assets/icons/good-posture-check-button-icon.svg?react"
+import GuideIcon from "@assets/icons/posture-guide-button-icon.svg?react"
 
 const PoseDetector: React.FC = () => {
   const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
@@ -16,7 +18,6 @@ const PoseDetector: React.FC = () => {
   const [slope, setSlope] = useState<string | null>(null)
   const [isTextNeck, setIsTextNeck] = useState<boolean | null>(null)
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false)
-  const [mode] = useState<string>("snapshot")
   const [isSnapSaved, setIsSnapSaved] = useState<boolean>(false)
   const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false)
   const modelRef = useRef<any>(null)
@@ -81,7 +82,7 @@ const PoseDetector: React.FC = () => {
       }
       if (snapRef.current) {
         const _slope = detectSlope(snapRef.current, results, false)
-        const _isTextNeck = detectTextNeck(snapRef.current, results, mode === "snapshot")
+        const _isTextNeck = detectTextNeck(snapRef.current, results, true)
         if (_slope !== null) setSlope(_slope)
         if (_isTextNeck !== null) setIsTextNeck(_isTextNeck)
 
@@ -104,7 +105,7 @@ const PoseDetector: React.FC = () => {
         }
       }
     },
-    [mode, setSlope, setIsTextNeck, showNotification]
+    [setSlope, setIsTextNeck, showNotification]
   )
 
   const detectStart = useCallback(
@@ -208,18 +209,24 @@ const PoseDetector: React.FC = () => {
                   : "올바르지 않은 자세입니다."}
               </div>
               {!isSnapSaved && (
-                <div className="absolute bottom-0 flex w-full items-center justify-center gap-[20px] p-[50px] text-white">
+                <div className="absolute bottom-0 flex w-full items-center justify-center gap-[16px] p-[50px] text-white">
                   <button
-                    className="rounded rounded-full bg-white bg-opacity-80 p-[20px] text-black"
+                    className="flex w-[260px] items-center justify-center rounded rounded-full bg-white bg-opacity-80 p-[20px] text-black"
                     onClick={handleShowPopup}
                   >
-                    가이드 다시 볼게요!
+                    <div className="flex flex-row items-center gap-2">
+                      <GuideIcon />
+                      <span>가이드 다시 볼게요!</span>
+                    </div>
                   </button>
                   <button
-                    className="rounded rounded-full bg-[#1A75FF] bg-opacity-80 p-[20px] text-white"
+                    className="flex w-[260px] items-center justify-center rounded rounded-full bg-[#1A75FF] bg-opacity-80 p-[20px] text-white"
                     onClick={getInitSnap}
                   >
-                    바른자세를 취했어요!
+                    <div className="flex flex-row items-center gap-2">
+                      <PostureCheckIcon />
+                      바른자세를 취했어요!
+                    </div>
                   </button>
                 </div>
               )}
