@@ -172,7 +172,7 @@ const PoseDetector: React.FC = () => {
   useEffect(() => {
     getUserSnap()
   }, [snapshot])
-  
+
   // const initializePoseMonitoring = () => {
   //   setIsTextNeck(null)
   //   setSlope(null)
@@ -181,12 +181,12 @@ const PoseDetector: React.FC = () => {
   // }
 
   // 팝업 열기
-  const handleShowPopup = () => {
+  const handleShowPopup = () : void => {
     setIsPopupVisible(true)
   }
 
   // 팝업 닫기
-  const handleClosePopup = () => {
+  const handleClosePopup = () : void => {
     setIsPopupVisible(false)
   }
 
