@@ -1,7 +1,9 @@
 {
   "MONITORING": "/monitoring",
+  "ANALYSIS": "/analysis",
   "LOGIN": "/login",
-  "AUTH" : "/auth",
-  "SOCKET": "/socket",
-  "HOME" : "/home"
+  "AUTH": "/auth",
+  "CREW": "/crew",
+  "HOME": "/home",
+  "SOCKET": "/socket"
 }
