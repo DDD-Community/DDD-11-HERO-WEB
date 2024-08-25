@@ -23,7 +23,7 @@ const MonitoringPage: React.FC = () => {
 
       {/* 사이드바 */}
       <div
-        className={`transition-width absolute right-0 top-0 h-full bg-[#fafafa] duration-300 ${
+        className={`transition-width absolute right-0 top-0 z-10 h-full rounded-2xl bg-[#fafafa] duration-300 ${
           isSidebarOpen ? "w-[224px]" : "w-0"
         }`}
       >
@@ -32,8 +32,8 @@ const MonitoringPage: React.FC = () => {
 
       {/* 토글 버튼 */}
       {!isSidebarOpen && (
-        <button className="fixed right-4 top-4 z-50 rounded-full" onClick={toggleSidebar}>
-          <GroupSideIcon className="h-6 w-6" />
+        <button className="z-1 fixed right-4 top-4 z-50 rounded-full" onClick={toggleSidebar}>
+          <GroupSideIcon />
         </button>
       )}
     </div>
