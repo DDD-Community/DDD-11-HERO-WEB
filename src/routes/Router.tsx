@@ -1,7 +1,9 @@
 import React from "react"
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom"
-import { AuthPage, MonitoringPage, HomePage } from "@/pages"
-import { Layout } from "@/layouts"
+import { AuthPage, MonitoringPage, HomePage, AnalysisDashboard, Crew } from "@/pages"
+import BaseLayout from "@/layouts/BaseLayout"
+import MonitoringLayout from "@/layouts/MonitoringLayout"
+import AnalysisLayout from "@/layouts/AnalysisLayout"
 import RoutePath from "@/constants/routes.json"
 import AuthRoute from "@/routes/AuthRoute"
 
@@ -11,13 +13,24 @@ const Router: React.FC = () => {
       <Routes>
         <Route path={RoutePath.AUTH} element={<AuthPage />} />
         <Route path="/" element={<HomePage />} />
-        <Route path="/" element={<Layout />}>
-          {/* AuthRoute로 보호된 경로를 감쌉니다 */}
-          <Route element={<AuthRoute />}>
-            <Route path={RoutePath.MONITORING} element={<MonitoringPage />} />
+
+        <Route element={<AuthRoute />}>
+          <Route element={<BaseLayout />}>
+            <Route element={<MonitoringLayout />}>
+              <Route path={RoutePath.MONITORING} element={<MonitoringPage />} />
+            </Route>
+
+            <Route element={<AnalysisLayout />}>
+              <Route path={RoutePath.ANALYSIS} element={<AnalysisDashboard />} />
+            </Route>
+
+            <Route element={<MonitoringLayout />}>
+              <Route path={RoutePath.CREW} element={<Crew />} />
+            </Route>
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )

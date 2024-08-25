@@ -1,15 +1,15 @@
+import { useAuthStore } from "@/store/AuthStore"
 import MainCraftIcon from "@assets/icons/posture-craft-side-nav-icon.svg?react"
-import MonitoringIcon from "@assets/icons/side-nav-monitor-icon.svg?react"
 import AnalysisIcon from "@assets/icons/side-nav-analysis-icon.svg?react"
 import CrewIcon from "@assets/icons/side-nav-crew-icon.svg?react"
-import { useAuthStore } from "@/store/AuthStore"
+import MonitoringIcon from "@assets/icons/side-nav-monitor-icon.svg?react"
+import { Link, useLocation } from "react-router-dom"
 
 const navItems = [
   {
     icon: MonitoringIcon,
     label: "모니터링",
     link: "/monitoring",
-    className: "bg-gray-700", // 선택 됐을 때
   },
   {
     icon: AnalysisIcon,
@@ -27,6 +27,7 @@ const footerLinks = ["이용약관", "의견보내기", "로그아웃"]
 
 export default function SideNav() {
   const nickname = useAuthStore((state) => state.user?.nickname)
+  const location = useLocation()
 
   return (
     <aside className="w-[224px] flex-none bg-[#1C1D20]">
@@ -51,19 +52,17 @@ export default function SideNav() {
           {/* Navigation Links */}
           <nav className="mt-10">
             <ul>
-              {navItems.map(({ icon: Icon, label, className }) => (
-                <li
-                  key={label}
-                  className={`mb-1 flex cursor-pointer items-center rounded-r-md p-3 hover:bg-gray-700 ${
-                    className || ""
-                  }`}
-                >
-                  <a className="flex w-full items-center">
-                    <Icon className="ml-3 mr-2 h-5 w-5" />
-                    <span>{label}</span>
-                  </a>
-                </li>
-              ))}
+              {navItems.map(({ icon: Icon, label, link }) => {
+                const isActive = location.pathname === link
+                return (
+                  <li key={label} className={`mb-1 rounded-r-md ${isActive ? "bg-gray-700" : "hover:bg-gray-700"}`}>
+                    <Link to={link} className={`nav-item flex w-full items-center p-3 ${isActive ? "active" : ""}`}>
+                      <Icon className="ml-3 mr-2 h-5 w-5" />
+                      <span className={isActive ? "font-bold" : ""}>{label}</span>
+                    </Link>
+                  </li>
+                )
+              })}
             </ul>
           </nav>
         </div>
