@@ -6,7 +6,7 @@ import React, { useState } from "react"
 const MonitoringPage: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
 
-  const toggleSidebar = () => {
+  const toggleSidebar = (): void => {
     setIsSidebarOpen((prev) => !prev)
   }
 

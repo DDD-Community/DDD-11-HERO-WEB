@@ -36,7 +36,7 @@ export interface createSnapshotRes {
 
 export const createSnapshot = async (snapshot: snapshot): Promise<createSnapshotRes> => {
   try {
-    const res = await axiosInstance.post(`/pose-layouts`, { points : snapshot.points })
+    const res = await axiosInstance.post(`/pose-layouts`, { points: snapshot.points })
     const { id } = res.data.data
 
     return { id }
