@@ -1,6 +1,6 @@
 import usePushNotification from "@/hooks/usePushNotification"
 import type { pose } from "@/utils/detector"
-import { detectSlope, detectTextNeck } from "@/utils/detector"
+import { detectHandOnChin, detectSlope, detectTextNeck } from "@/utils/detector"
 import { drawPose } from "@/utils/drawer"
 import { worker } from "@/utils/worker"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -19,6 +19,7 @@ const PoseDetector: React.FC = () => {
   const [isScriptError, setIsScriptError] = useState<boolean>(false)
   const [isTextNeck, setIsTextNeck] = useState<boolean | null>(null)
   const [isShoulderTwist, setIsShoulderTwist] = useState<boolean | null>(null)
+  const [isHandOnChin, setIsHandOnChin] = useState<boolean | null>(null)
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false)
   const [isSnapSaved, setIsSnapSaved] = useState<boolean>(false)
   const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false)
@@ -28,7 +29,7 @@ const PoseDetector: React.FC = () => {
 
   const turtleNeckTimer = useRef<any>(null)
   const shoulderTwistTimer = useRef<any>(null)
-  // const chinUtpTimer = useRef<any>(null)
+  const chinUtpTimer = useRef<any>(null)
   // const tailboneSit = useRef<any>(null)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -89,12 +90,14 @@ const PoseDetector: React.FC = () => {
       if (snapRef.current) {
         const _isShoulderTwist = detectSlope(snapRef.current, results, false)
         const _isTextNeck = detectTextNeck(snapRef.current, results, true)
+        const _isHandOnChin = detectHandOnChin(results)
 
         if (_isShoulderTwist !== null) setIsShoulderTwist(_isShoulderTwist)
         if (_isTextNeck !== null) setIsTextNeck(_isTextNeck)
+        if (_isHandOnChin !== null) setIsHandOnChin(_isHandOnChin)
       }
     },
-    [setIsShoulderTwist, setIsTextNeck, showNotification]
+    [setIsShoulderTwist, setIsTextNeck, setIsHandOnChin, showNotification]
   )
 
   const detectStart = useCallback(
@@ -139,8 +142,12 @@ const PoseDetector: React.FC = () => {
     }
   }
 
-  const getIsRight = (_isShoulderTwist: boolean | null, _isTextNeck: boolean | null): boolean => {
-    if (!_isShoulderTwist && !_isTextNeck) return true
+  const getIsRight = (
+    _isShoulderTwist: boolean | null,
+    _isTextNeck: boolean | null,
+    _isHandOnChin: boolean | null
+  ): boolean => {
+    if (!_isShoulderTwist && !_isTextNeck && !_isHandOnChin) return true
     return false
   }
 
@@ -166,6 +173,7 @@ const PoseDetector: React.FC = () => {
 
   usePoseTimer(isTextNeck, "TURTLE_NECK", turtleNeckTimer)
   usePoseTimer(isShoulderTwist, "SHOULDER_TWIST", shoulderTwistTimer)
+  usePoseTimer(isHandOnChin, "CHIN_UTP", chinUtpTimer)
 
   useEffect(() => {
     requestNotificationPermission()
@@ -209,7 +217,7 @@ const PoseDetector: React.FC = () => {
               <div className="absolute top-0 flex w-full items-center justify-center rounded-t-lg bg-[#1A1B1D] bg-opacity-75 p-[20px] text-white">
                 {!isSnapSaved
                   ? "바른 자세를 취한 후, 하단의 버튼을 눌러주세요."
-                  : getIsRight(isShoulderTwist, isTextNeck)
+                  : getIsRight(isShoulderTwist, isTextNeck, isHandOnChin)
                   ? "올바른 자세입니다."
                   : "올바르지 않은 자세입니다."}
               </div>

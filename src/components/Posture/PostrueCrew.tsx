@@ -4,6 +4,7 @@ import PostureGuide from "@assets/icons/posture-guide-button-icon.svg?react"
 import RankingGuideToolTip from "@assets/images/ranking-guide.png"
 import { useEffect, useState } from "react"
 import SelectBox from "@components/SelectBox"
+import { useAuthStore } from "@/store"
 
 interface IPostureCrew {
   groupUserId: number
@@ -19,15 +20,14 @@ interface PostureCrewProps {
 
 export default function PostrueCrew(props: PostureCrewProps) {
   const { toggleSidebar } = props
+  const accessToken = useAuthStore((state) => state.accessToken)
   const [crews, setCrews] = useState<IPostureCrew[]>([])
   const [isConnected, setIsConnected] = useState<"loading" | "success" | "disconnected">("loading")
   const [isEnabled, setIsEnabled] = useState(true)
   const [notiAlarmTime, setNotiAlarmTime] = useState("틀어진 즉시")
 
   useEffect(() => {
-    const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJoZXJvLWFsaWdubGFiLWFwaSIsImF1ZCI6Imhlcm8tYWxpZ25sYWItYXBpIiwiaWQiOjIwMDAwMSwidHlwZSI6ImFjY2Vzc1Rva2VuIiwiZXhwIjoxNzM1Mzk4MDAwfQ.pIl87yrMX4EVoLlBOG0A2X5AMRRUXalwMKnfH6cSDE8"
-    const socket = new WebSocket(`wss://api.alignlab.site/ws/v1/groups/1/users?X-HERO-AUTH-TOKEN=${token}`)
+    const socket = new WebSocket(`wss://api.alignlab.site/ws/v1/groups/1/users?X-HERO-AUTH-TOKEN=${accessToken}`)
 
     socket.onopen = () => {
       console.log("WebSocket connected")
