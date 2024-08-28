@@ -1,0 +1,7 @@
+.nav-item.active svg path {
+  fill: #3b82f6; /* 활성화된 상태의 파란색 */
+}
+
+.nav-item svg path {
+  fill: #5f6368; /* 비활성화 상태의 흰색 */
+}

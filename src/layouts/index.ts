@@ -1,1 +1,3 @@
-export { default as Layout } from "./Layout"
+export { default as Layout } from "./BaseLayout"
+export { default as AnalysisLayout } from "./AnalysisLayout"
+export { default as MonitoringLayout } from "./MonitoringLayout"

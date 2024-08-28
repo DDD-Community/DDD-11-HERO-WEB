@@ -34,6 +34,8 @@ const AuthPage: React.FC = () => {
 
         const _accessToken = await oauthMutation.mutateAsync(code)
 
+        console.log("_accessToken: ", _accessToken)
+
         const isUserSignedUp = await getIsSignUpMutation.mutateAsync(_accessToken)
 
         if (!isUserSignedUp) {
