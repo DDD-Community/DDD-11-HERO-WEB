@@ -1,6 +1,6 @@
 import usePushNotification from "@/hooks/usePushNotification"
 import type { pose } from "@/utils/detector"
-import { detectHandOnChin, detectSlope, detectTextNeck } from "@/utils/detector"
+import { detectHandOnChin, detectSlope, detectTextNeck, detectTailboneSit } from "@/utils/detector"
 import { drawPose } from "@/utils/drawer"
 import { worker } from "@/utils/worker"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -19,6 +19,7 @@ const PoseDetector: React.FC = () => {
   const [isScriptError, setIsScriptError] = useState<boolean>(false)
   const [isTextNeck, setIsTextNeck] = useState<boolean | null>(null)
   const [isShoulderTwist, setIsShoulderTwist] = useState<boolean | null>(null)
+  const [isTailboneSit, setIsTailboneSit] = useState<boolean | null>(null)
   const [isHandOnChin, setIsHandOnChin] = useState<boolean | null>(null)
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false)
   const [isSnapSaved, setIsSnapSaved] = useState<boolean>(false)
@@ -30,7 +31,7 @@ const PoseDetector: React.FC = () => {
   const turtleNeckTimer = useRef<any>(null)
   const shoulderTwistTimer = useRef<any>(null)
   const chinUtpTimer = useRef<any>(null)
-  // const tailboneSit = useRef<any>(null)
+  const tailboneSitTimer = useRef<any>(null)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -42,7 +43,7 @@ const PoseDetector: React.FC = () => {
 
   const { requestNotificationPermission, showNotification } = usePushNotification()
 
-  // webgl설정
+  // webgl 설정
   const initializeBackend = async (): Promise<void> => {
     await window.ml5.setBackend("webgl")
   }
@@ -81,23 +82,54 @@ const PoseDetector: React.FC = () => {
     document.body.appendChild(script)
   }
 
+  const managePoseTimer = (
+    condition: boolean | null,
+    timerRef: React.MutableRefObject<any>,
+    poseType: poseType,
+    isSnapSaved: boolean
+  ): void => {
+    if (condition && isSnapSaved) {
+      if (!timerRef.current) {
+        timerRef.current = setInterval(() => {
+          if (resultRef.current) {
+            const { keypoints, score } = resultRef.current[0]
+            const req = { snapshot: { keypoints, score }, type: poseType }
+            sendPoseMutation.mutate(req)
+          }
+        }, 5000)
+      }
+    } else {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
+  }
+
   const detect = useCallback(
     (results: pose[]): void => {
       resultRef.current = results
+
       if (canvasRef.current) {
         drawPose(results, canvasRef.current)
       }
+
       if (snapRef.current) {
         const _isShoulderTwist = detectSlope(snapRef.current, results, false)
         const _isTextNeck = detectTextNeck(snapRef.current, results, true)
         const _isHandOnChin = detectHandOnChin(results)
+        const _isTailboneSit = detectTailboneSit(snapRef.current, results)
 
         if (_isShoulderTwist !== null) setIsShoulderTwist(_isShoulderTwist)
         if (_isTextNeck !== null) setIsTextNeck(_isTextNeck)
         if (_isHandOnChin !== null) setIsHandOnChin(_isHandOnChin)
+        if (_isTailboneSit !== null) setIsTailboneSit(_isTailboneSit)
+
+        // 공통 타이머 관리 함수 호출
+        managePoseTimer(_isTextNeck, turtleNeckTimer, "TURTLE_NECK", isSnapSaved)
+        managePoseTimer(_isShoulderTwist, shoulderTwistTimer, "SHOULDER_TWIST", isSnapSaved)
+        managePoseTimer(_isTailboneSit, tailboneSitTimer, "TAILBONE_SIT", isSnapSaved)
       }
     },
-    [setIsShoulderTwist, setIsTextNeck, setIsHandOnChin, showNotification]
+    [setIsShoulderTwist, setIsTextNeck, setIsHandOnChin, setIsTailboneSit, isSnapSaved, showNotification]
   )
 
   const detectStart = useCallback(
@@ -124,14 +156,16 @@ const PoseDetector: React.FC = () => {
           createSnapMutation.mutate(
             { points: req },
             {
-              onSuccess: (data: any) => {
-                setSnap(data)
+              onSuccess: () => {
+                if (snapRef.current) {
+                  setSnap(snapRef.current[0].keypoints)
+                  setIsSnapSaved(true)
+                }
               },
             }
           )
         }
       }
-      setIsSnapSaved(true)
     }
   }
 
@@ -142,43 +176,44 @@ const PoseDetector: React.FC = () => {
     }
   }
 
+  const clearTimers = () => {
+    clearInterval(turtleNeckTimer.current)
+    clearInterval(shoulderTwistTimer.current)
+    clearInterval(tailboneSitTimer.current)
+
+    turtleNeckTimer.current = null
+    shoulderTwistTimer.current = null
+    tailboneSitTimer.current = null
+  }
+
+  const clearSnap = (): void => {
+    if (snapshot) {
+      snapRef.current = null
+      setIsSnapSaved(false)
+      setSnap(null)
+      clearTimers() // 타이머들을 초기화
+    }
+  }
+
   const getIsRight = (
     _isShoulderTwist: boolean | null,
     _isTextNeck: boolean | null,
-    _isHandOnChin: boolean | null
+    _isTailboneSit: boolean | null
   ): boolean => {
-    if (!_isShoulderTwist && !_isTextNeck && !_isHandOnChin) return true
+    if (!_isShoulderTwist && !_isTextNeck && !_isTailboneSit) return true
     return false
   }
-
-  // 공통 타이머 관리 함수
-  const usePoseTimer = (isActive: boolean | null, poseType: poseType, timerRef: React.MutableRefObject<any>) => {
-    useEffect(() => {
-      if (isActive) {
-        if (!timerRef.current) {
-          timerRef.current = setInterval(() => {
-            if (resultRef.current) {
-              const { keypoints, score } = resultRef.current[0]
-              const req = { snapshot: { keypoints, score }, type: poseType }
-              sendPoseMutation.mutate(req)
-            }
-          }, 5000)
-        }
-      } else {
-        clearInterval(timerRef.current)
-        timerRef.current = null
-      }
-    }, [isActive, poseType])
-  }
-
-  usePoseTimer(isTextNeck, "TURTLE_NECK", turtleNeckTimer)
-  usePoseTimer(isShoulderTwist, "SHOULDER_TWIST", shoulderTwistTimer)
-  usePoseTimer(isHandOnChin, "CHIN_UTP", chinUtpTimer)
 
   useEffect(() => {
     requestNotificationPermission()
     getScript()
   }, [])
+
+  useEffect(() => {
+    if (!isSnapSaved) {
+      clearTimers() // 스냅샷이 저장되지 않았을 때 타이머들을 초기화
+    }
+  }, [isSnapSaved])
 
   useEffect(() => {
     if (isModelLoaded) {
@@ -190,7 +225,7 @@ const PoseDetector: React.FC = () => {
   }, [isModelLoaded, detectStart])
 
   useEffect(() => {
-    getUserSnap()
+    if (snapshot) getUserSnap()
   }, [snapshot])
 
   // 팝업 열기
@@ -217,32 +252,44 @@ const PoseDetector: React.FC = () => {
               <div className="absolute top-0 flex w-full items-center justify-center rounded-t-lg bg-[#1A1B1D] bg-opacity-75 p-[20px] text-white">
                 {!isSnapSaved
                   ? "바른 자세를 취한 후, 하단의 버튼을 눌러주세요."
-                  : getIsRight(isShoulderTwist, isTextNeck, isHandOnChin)
+                  : getIsRight(isShoulderTwist, isTextNeck, isHandOnChin, isTailboneSit)
                   ? "올바른 자세입니다."
                   : "올바르지 않은 자세입니다."}
               </div>
-              {!isSnapSaved && (
-                <div className="absolute bottom-0 flex w-full items-center justify-center gap-[16px] p-[50px] text-white">
-                  <button
-                    className="flex w-[260px] items-center justify-center rounded rounded-full bg-white bg-opacity-80 p-[20px] text-black"
-                    onClick={handleShowPopup}
-                  >
-                    <div className="flex flex-row items-center gap-2">
-                      <GuideIcon />
-                      <span>가이드 다시 볼게요!</span>
-                    </div>
-                  </button>
+              <div className="absolute bottom-0 flex w-full items-center justify-center gap-[16px] p-[50px] text-white">
+                {!isSnapSaved ? (
+                  <>
+                    <button
+                      className="flex w-[260px] items-center justify-center rounded rounded-full bg-white bg-opacity-80 p-[20px] text-black"
+                      onClick={handleShowPopup}
+                    >
+                      <div className="flex flex-row items-center gap-2">
+                        <GuideIcon />
+                        <span>가이드 다시 볼게요!</span>
+                      </div>
+                    </button>
+                    <button
+                      className="flex w-[260px] items-center justify-center rounded rounded-full bg-[#1A75FF] bg-opacity-80 p-[20px] text-white"
+                      onClick={getInitSnap}
+                    >
+                      <div className="flex flex-row items-center gap-2">
+                        <PostureCheckIcon />
+                        바른자세를 취했어요!
+                      </div>
+                    </button>
+                  </>
+                ) : (
                   <button
                     className="flex w-[260px] items-center justify-center rounded rounded-full bg-[#1A75FF] bg-opacity-80 p-[20px] text-white"
-                    onClick={getInitSnap}
+                    onClick={clearSnap}
                   >
                     <div className="flex flex-row items-center gap-2">
                       <PostureCheckIcon />
-                      바른자세를 취했어요!
+                      스냅샷 다시찍기
                     </div>
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </>
           )}
           {isPopupVisible && <GuidePopup onClose={handleClosePopup} />} {/* 팝업 표시 */}

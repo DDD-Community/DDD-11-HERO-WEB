@@ -4,6 +4,9 @@ import AnalysisIcon from "@assets/icons/side-nav-analysis-icon.svg?react"
 import CrewIcon from "@assets/icons/side-nav-crew-icon.svg?react"
 import MonitoringIcon from "@assets/icons/side-nav-monitor-icon.svg?react"
 import { Link, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
+import { useSnapshotStore } from "@/store/SnapshotStore"
+import { useMemo } from "react"
 
 const navItems = [
   {
@@ -23,11 +26,32 @@ const navItems = [
   },
 ]
 
-const footerLinks = ["이용약관", "의견보내기", "로그아웃"]
-
 export default function SideNav() {
   const nickname = useAuthStore((state) => state.user?.nickname)
   const location = useLocation()
+  const logout = useAuthStore((state) => state.logout)
+  const navigate = useNavigate()
+
+  const logoutHandler = (): void => {
+    const clearUser = useAuthStore.persist.clearStorage
+    const clearSnapshot = useSnapshotStore.persist.clearStorage
+
+    clearUser()
+    clearSnapshot()
+
+    logout(() => {
+      navigate("/")
+    })
+  }
+
+  const footerLinks = useMemo(
+    () => [
+      { label: "이용약관", link: "", onClick: () => {} },
+      { label: "의견보내기", link: "", onClick: () => {} },
+      { label: "로그아웃", link: "", onClick: logoutHandler },
+    ],
+    [logoutHandler]
+  )
 
   return (
     <aside className="w-[224px] flex-none bg-[#1C1D20]">
@@ -75,9 +99,9 @@ export default function SideNav() {
           {/* Footer Links */}
           <div className="mb-12">
             <ul>
-              {footerLinks.map((link, index) => (
-                <li key={index} className="mb-3 cursor-pointer text-sm">
-                  {link}
+              {footerLinks.map(({ label, onClick }, index) => (
+                <li key={index} className="mb-3 cursor-pointer text-sm" onClick={onClick}>
+                  {label}
                 </li>
               ))}
             </ul>

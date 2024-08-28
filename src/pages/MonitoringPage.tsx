@@ -1,14 +1,36 @@
 import { PoseDetector } from "@/components"
 import PostrueCrew from "@/components/Posture/PostrueCrew"
 import GroupSideIcon from "@assets/icons/group-side-nav-button.svg?react"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+import { useGetRecentSnapshot } from "@/hooks/useSnapshotMutation"
+import { useSnapshotStore } from "@/store/SnapshotStore"
 
 const MonitoringPage: React.FC = () => {
+  const getRecentSnapMutation = useGetRecentSnapshot()
+  const setSnap = useSnapshotStore((state) => state.setSnapshot)
+  const snapshot = useSnapshotStore((state) => state.snapshot)
+
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
 
   const toggleSidebar = (): void => {
     setIsSidebarOpen((prev) => !prev)
   }
+
+  const init = async (): Promise<void> => {
+    // 최근 스냅샷을 가져오기
+    if (!snapshot) {
+      const userSnap = await getRecentSnapMutation.mutateAsync()
+
+      // 스냅샷이 있으면 store에 저장
+      if (userSnap.id !== -1) {
+        setSnap(userSnap.points.map((p) => ({ name: p.position.toLocaleLowerCase(), x: p.x, y: p.y, confidence: 1 })))
+      }
+    }
+  }
+
+  useEffect(() => {
+    init()
+  }, [])
 
   return (
     <div className="relative flex h-full w-full overflow-hidden">

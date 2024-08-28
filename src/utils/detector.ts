@@ -55,10 +55,11 @@ export const getXYfromPose = (poses: pose[], name: string): point | null => {
     const point = pose.keypoints.find((k) => k.name === name)
     const x = point?.x
     const y = point?.y
+    const confidence = point?.confidence
 
-    if (!x || !y) return null
+    if (!x || !y || !confidence) return null
 
-    return { x, y }
+    return { x, y, confidence }
   } catch (error) {
     return null
   }
@@ -227,4 +228,48 @@ export const detectHandOnChin = (poses: pose[]): boolean | null => {
   }
 
   return false
+}
+
+export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null => {
+  if (!comp || !refer) null
+
+  const referLeftEar = getXYfromPose(refer, "left_ear")
+  const referRightEar = getXYfromPose(refer, "right_ear")
+  const referLeftShoulder = getXYfromPose(refer, "left_shoulder")
+  const referRightShoulder = getXYfromPose(refer, "right_shoulder")
+  const compLeftEar = getXYfromPose(comp, "left_ear")
+  const compRightEar = getXYfromPose(comp, "right_ear")
+  const compLeftShoulder = getXYfromPose(comp, "left_shoulder")
+  const compRightShoulder = getXYfromPose(comp, "right_shoulder")
+
+  if (
+    !referLeftEar ||
+    !referRightEar ||
+    !referLeftShoulder ||
+    !referRightShoulder ||
+    !compLeftEar ||
+    !compRightEar ||
+    !compLeftShoulder ||
+    !compRightShoulder
+  )
+    return null
+
+  const compEarMid = getMidPoint(compLeftEar, compRightEar)
+  const referEarMid = getMidPoint(referLeftEar, referRightEar)
+
+  const compShoulderMid = getMidPoint(compLeftShoulder, compRightShoulder)
+  const referShoulderMid = getMidPoint(referLeftShoulder, referRightShoulder)
+
+  // 스냅샷 귀 중간.y < 비교 귀 중간.y and 스냅샷 어깨 중간.y < 비교 어깨 중간.y
+  // and 스냅샷 귀 거리 > 비교 귀 거리 and 스냅샷 어깨 거리 > 비교 어깨 거리
+
+  const referShoulderDistance = getDistance(referLeftShoulder, referRightShoulder)
+  const referEarsDistance = getDistance(referLeftEar, referRightEar)
+  const compShoulderDistance = getDistance(compLeftShoulder, compRightShoulder)
+  const compEearsDistance = getDistance(compLeftEar, compRightEar)
+
+  const compY = compEarMid.y - referEarMid.y > 20 && compShoulderMid.y - referShoulderMid.y > 20
+  const compDistance = compEearsDistance < referEarsDistance * 0.9 && compShoulderDistance < referShoulderDistance * 0.9
+
+  return compY && compDistance
 }
