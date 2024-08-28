@@ -127,6 +127,7 @@ const PoseDetector: React.FC = () => {
         managePoseTimer(_isTextNeck, turtleNeckTimer, "TURTLE_NECK", isSnapSaved)
         managePoseTimer(_isShoulderTwist, shoulderTwistTimer, "SHOULDER_TWIST", isSnapSaved)
         managePoseTimer(_isTailboneSit, tailboneSitTimer, "TAILBONE_SIT", isSnapSaved)
+        managePoseTimer(_isHandOnChin, chinUtpTimer, "CHIN_UTP", isSnapSaved)
       }
     },
     [setIsShoulderTwist, setIsTextNeck, setIsHandOnChin, setIsTailboneSit, isSnapSaved, showNotification]
@@ -180,10 +181,12 @@ const PoseDetector: React.FC = () => {
     clearInterval(turtleNeckTimer.current)
     clearInterval(shoulderTwistTimer.current)
     clearInterval(tailboneSitTimer.current)
+    clearInterval(chinUtpTimer.current)
 
     turtleNeckTimer.current = null
     shoulderTwistTimer.current = null
     tailboneSitTimer.current = null
+    chinUtpTimer.current = null
   }
 
   const clearSnap = (): void => {
@@ -198,9 +201,10 @@ const PoseDetector: React.FC = () => {
   const getIsRight = (
     _isShoulderTwist: boolean | null,
     _isTextNeck: boolean | null,
-    _isTailboneSit: boolean | null
+    _isTailboneSit: boolean | null,
+    _isHandOnChin: boolean | null
   ): boolean => {
-    if (!_isShoulderTwist && !_isTextNeck && !_isTailboneSit) return true
+    if (!_isShoulderTwist && !_isTextNeck && !_isTailboneSit && !_isHandOnChin) return true
     return false
   }
 

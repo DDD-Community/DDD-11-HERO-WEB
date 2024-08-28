@@ -19,7 +19,6 @@ const Router: React.FC = () => {
         {/* 로그인 상태에 따라 홈 페이지로 접근 시 리다이렉트 */}
         <Route path="/" element={isAuthenticated ? <Navigate to={RoutePath.MONITORING} replace /> : <HomePage />} />
 
-
         <Route element={<AuthRoute />}>
           <Route element={<BaseLayout />}>
             <Route element={<MonitoringLayout />}>
