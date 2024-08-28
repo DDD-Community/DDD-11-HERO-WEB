@@ -1,6 +1,7 @@
 export interface point {
   x: number
   y: number
+  confidence?: number
 }
 /**
  * 두 점을 잇는 직선과 주어진 점 사이의 거리를 계산

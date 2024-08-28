@@ -55,10 +55,11 @@ export const getXYfromPose = (poses: pose[], name: string): point | null => {
     const point = pose.keypoints.find((k) => k.name === name)
     const x = point?.x
     const y = point?.y
+    const confidence = point?.confidence
 
-    if (!x || !y) return null
+    if (!x || !y || !confidence) return null
 
-    return { x, y }
+    return { x, y, confidence }
   } catch (error) {
     return null
   }
@@ -228,3 +229,65 @@ export const detectHandOnChin = (poses: pose[]): boolean | null => {
 
   return false
 }
+
+/**
+ * 두 개의 포즈 배열을 받아 비교하여 꼬리뼈 앉기 자세 판단
+ * 귀 중간의 y좌표, 어깨 중간의 y좌표, 귀 사이의 거리, 어깨 사이의 거리를 사용해서 비교
+ * @param refer 비교 기준이 되는 포즈 배열
+ * @param comp 비교할 대상이 되는 포즈 배열
+ * @returns 꼬리뼈 앉기로 판단되면 true, 판단되지 않으면 false, 비교할 수 없는 경우 null을 반환
+ */
+export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null => {
+  // 스냅샷(refer)과 현재 데이터(comp)가 없으면 null 반환
+  if (!comp || !refer) null
+
+  // 스냅샷(refer)에서 왼쪽 귀, 오른쪽 귀, 왼쪽 어깨, 오른쪽 어깨의 좌표를 가져옴
+  const referLeftEar = getXYfromPose(refer, "left_ear")
+  const referRightEar = getXYfromPose(refer, "right_ear")
+  const referLeftShoulder = getXYfromPose(refer, "left_shoulder")
+  const referRightShoulder = getXYfromPose(refer, "right_shoulder")
+
+  // 비교할 현재 데이터(comp)에서 왼쪽 귀, 오른쪽 귀, 왼쪽 어깨, 오른쪽 어깨의 좌표를 가져옴
+  const compLeftEar = getXYfromPose(comp, "left_ear")
+  const compRightEar = getXYfromPose(comp, "right_ear")
+  const compLeftShoulder = getXYfromPose(comp, "left_shoulder")
+  const compRightShoulder = getXYfromPose(comp, "right_shoulder")
+
+  // 필요한 좌표 데이터가 하나라도 없으면 null 반환
+  if (
+    !referLeftEar ||
+    !referRightEar ||
+    !referLeftShoulder ||
+    !referRightShoulder ||
+    !compLeftEar ||
+    !compRightEar ||
+    !compLeftShoulder ||
+    !compRightShoulder
+  )
+    return null
+
+  // 현재(comp)와 스냅샷(refer) 데이터의 귀 중간 좌표를 계산
+  const compEarMid = getMidPoint(compLeftEar, compRightEar)
+  const referEarMid = getMidPoint(referLeftEar, referRightEar)
+
+  // 현재(comp)와 스냅샷(refer) 데이터의 어깨 중간 좌표를 계산
+  const compShoulderMid = getMidPoint(compLeftShoulder, compRightShoulder)
+  const referShoulderMid = getMidPoint(referLeftShoulder, referRightShoulder)
+
+  // 귀와 어깨 사이의 거리 계산
+  const referShoulderDistance = getDistance(referLeftShoulder, referRightShoulder)
+  const referEarsDistance = getDistance(referLeftEar, referRightEar)
+  const compShoulderDistance = getDistance(compLeftShoulder, compRightShoulder)
+  const compEearsDistance = getDistance(compLeftEar, compRightEar)
+
+  // 조건 1: 현재(comp)의 귀 중간 y좌표가 스냅샷(refer)보다 아래에 있고, 
+  // 현재(comp)의 어깨 중간 y좌표도 스냅샷(refer)보다 아래에 있는지 확인
+  const compY = compEarMid.y - referEarMid.y > 20 && compShoulderMid.y - referShoulderMid.y > 20
+
+  // 조건 2: 현재(comp)의 귀 거리와 어깨 거리가 참조(refer)의 90%보다 짧은지 확인
+  const compDistance = compEearsDistance < referEarsDistance * 0.9 && compShoulderDistance < referShoulderDistance * 0.9
+
+  // 두 조건을 모두 만족하면 true 반환, 그렇지 않으면 false 반환
+  return compY && compDistance
+}
+
