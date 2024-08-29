@@ -280,7 +280,7 @@ export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null =
   const compShoulderDistance = getDistance(compLeftShoulder, compRightShoulder)
   const compEearsDistance = getDistance(compLeftEar, compRightEar)
 
-  // 조건 1: 현재(comp)의 귀 중간 y좌표가 스냅샷(refer)보다 아래에 있고, 
+  // 조건 1: 현재(comp)의 귀 중간 y좌표가 스냅샷(refer)보다 아래에 있고,
   // 현재(comp)의 어깨 중간 y좌표도 스냅샷(refer)보다 아래에 있는지 확인
   const compY = compEarMid.y - referEarMid.y > 20 && compShoulderMid.y - referShoulderMid.y > 20
 
@@ -290,4 +290,3 @@ export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null =
   // 두 조건을 모두 만족하면 true 반환, 그렇지 않으면 false 반환
   return compY && compDistance
 }
-
