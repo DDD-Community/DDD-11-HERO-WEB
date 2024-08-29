@@ -10,7 +10,7 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="w-[1440px]">
+    <div>
       {/* header */}
       <div className="flex w-full bg-white px-[120px] py-5">
         <div className="flex flex-grow items-center">
