@@ -1,6 +1,7 @@
 import GuideImage from "@assets/images/posture-guide-2x.png"
+import { ReactElement } from "react"
 
-const GuidePopup = ({ onClose }: { onClose: () => void }) => {
+const GuidePopup = ({ onClose }: { onClose: () => void }): ReactElement => {
   return (
     <div className="absolute inset-0 flex items-center justify-center backdrop-blur-lg">
       {/* blur 처리 */}

@@ -2,9 +2,12 @@ import CloseCrewPanelIcon from "@assets/icons/crew-panel-close-button.svg?react"
 import QuestionIcon from "@assets/icons/question-info-icon.svg?react"
 import PostureGuide from "@assets/icons/posture-guide-button-icon.svg?react"
 import RankingGuideToolTip from "@assets/images/ranking-guide.png"
-import { useEffect, useState } from "react"
+import { ReactElement, useEffect, useState } from "react"
 import SelectBox from "@components/SelectBox"
 import { useAuthStore } from "@/store"
+import { duration, notification } from "@/api/notification"
+import { useNotificationStore } from "@/store/NotificationStore"
+import { usePatchNoti } from "@/hooks/useNotiMutation"
 
 interface IPostureCrew {
   groupUserId: number
@@ -18,13 +21,31 @@ interface PostureCrewProps {
   toggleSidebar: () => void
 }
 
-export default function PostrueCrew(props: PostureCrewProps) {
+interface NotiOption {
+  value: duration
+  label: string
+}
+
+const NOTI_OPTIONS: NotiOption[] = [
+  { value: "IMMEDIATELY", label: "틀어진 즉시" },
+  { value: "MIN_15", label: "15분 간격" },
+  { value: "MIN_30", label: "30분 간격" },
+  { value: "MIN_45", label: "45분 간격" },
+  { value: "MIN_60", label: "1시간 간격" },
+]
+
+export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const { toggleSidebar } = props
   const accessToken = useAuthStore((state) => state.accessToken)
   const [crews, setCrews] = useState<IPostureCrew[]>([])
   const [isConnected, setIsConnected] = useState<"loading" | "success" | "disconnected">("loading")
-  const [isEnabled, setIsEnabled] = useState(true)
-  const [notiAlarmTime, setNotiAlarmTime] = useState("틀어진 즉시")
+
+  const userNoti = useNotificationStore((state) => state.notification)
+  const setUserNoti = useNotificationStore((state) => state.setNotification)
+  const patchNotiMutation = usePatchNoti()
+
+  const [isEnabled, setIsEnabled] = useState(userNoti?.isActive)
+  const [notiAlarmTime, setNotiAlarmTime] = useState(NOTI_OPTIONS.find((n) => n.value === userNoti?.duration)?.label)
 
   useEffect(() => {
     const socket = new WebSocket(`wss://api.alignlab.site/ws/v1/groups/1/users?X-HERO-AUTH-TOKEN=${accessToken}`)
@@ -53,12 +74,33 @@ export default function PostrueCrew(props: PostureCrewProps) {
     }
   }, [])
 
-  const onClickCloseSideNavButton = () => {
+  const onClickCloseSideNavButton = (): void => {
     toggleSidebar()
   }
 
-  const onClickNotiAlarmTime = (value: string) => {
-    setNotiAlarmTime(value)
+  const onClickNotiAlarmTime = (option: NotiOption): void => {
+    setNotiAlarmTime(option.label)
+    patchNotiMutation.mutate(
+      { id: userNoti?.id, duration: option.value },
+      {
+        onSuccess: (data: notification) => {
+          setNotiAlarmTime(option.label)
+          setUserNoti(data)
+        },
+      }
+    )
+  }
+
+  const onClickNotiAlarm = (): void => {
+    patchNotiMutation.mutate(
+      { id: userNoti?.id, isActive: !userNoti?.isActive },
+      {
+        onSuccess: (data: notification) => {
+          setIsEnabled(data.isActive)
+          setUserNoti(data)
+        },
+      }
+    )
   }
 
   return (
@@ -73,19 +115,15 @@ export default function PostrueCrew(props: PostureCrewProps) {
           </div>
 
           <label className="relative inline-flex cursor-pointer items-center">
-            <input
-              type="checkbox"
-              className="peer sr-only"
-              checked={isEnabled}
-              onChange={() => setIsEnabled(!isEnabled)}
-            />
+            <input type="checkbox" className="peer sr-only" checked={isEnabled} onChange={onClickNotiAlarm} />
             <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
           </label>
         </div>
 
         <div className="pb-8 pl-2 pr-2">
           <SelectBox
-            options={["틀어진 즉시", "15분 간격", "30분 간격", "45분 간격", "1시간 간격"]}
+            isDisabled={!userNoti?.isActive}
+            options={NOTI_OPTIONS}
             value={notiAlarmTime}
             onClick={onClickNotiAlarmTime}
           />

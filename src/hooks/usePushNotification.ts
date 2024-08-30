@@ -16,10 +16,10 @@ const usePushNotification = (): any => {
     }
   }
 
-  const showNotification = (): void => {
+  const showNotification = (body: string): void => {
     if (Notification.permission === "granted") {
-      new Notification("Hello!", {
-        body: "거북목 상태입니다. 자세를 바르게 하세요.",
+      new Notification("자세 공작소", {
+        body: body,
       })
     }
   }
