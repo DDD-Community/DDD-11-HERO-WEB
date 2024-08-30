@@ -6,9 +6,8 @@ import RoutePath from "@/constants/routes.json"
 import { useAuthStore } from "@/store/AuthStore"
 import { useSnapshotStore } from "@/store/SnapshotStore"
 import { useGetRecentSnapshot } from "@/hooks/useSnapshotMutation"
-import { useGetNoti, useModifyNoti } from "@/hooks/useNotiMutation"
+import { useGetNoti } from "@/hooks/useNotiMutation"
 import { useNotificationStore } from "@/store/NotificationStore"
-import { duration, modifyNotification, notification } from "@/api/notification"
 
 const AuthPage: React.FC = () => {
   const navigate = useNavigate()
@@ -19,7 +18,6 @@ const AuthPage: React.FC = () => {
   const signInMutation = useSignIn()
   const getRecentSnapMutation = useGetRecentSnapshot()
   const getNotiMutation = useGetNoti()
-  const modifyNotiMutation = useModifyNoti()
   const [isLoading, setIsLoading] = useState(true)
   const [isError, setIsError] = useState(false)
 
