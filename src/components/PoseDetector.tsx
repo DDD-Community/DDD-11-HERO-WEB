@@ -127,7 +127,7 @@ const PoseDetector: React.FC = () => {
               cntRef.current = cntRef.current + 1
               if (isShowNoti) showNotification(`${getPoseName(poseType)} 감지! 자세를 바르게 앉아주세요.`)
             }
-          }, 5 * 1000)
+          }, 30 * 1000)
         }
       } else {
         clearInterval(timerRef.current)
@@ -321,7 +321,7 @@ const PoseDetector: React.FC = () => {
       const t = getDurationInMinutes(userNoti?.duration)
       notificationTimer.current = setInterval(() => {
         if (userNoti.duration) sendNotification(t)
-      }, 1000 * t)
+      }, 1000 * 60 * t)
     }
   }, [userNoti, isSnapSaved])
 
