@@ -6,6 +6,7 @@ import MonitoringIcon from "@assets/icons/side-nav-monitor-icon.svg?react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useSnapshotStore } from "@/store/SnapshotStore"
 import { useMemo } from "react"
+import { clearAccessToken } from "@/api/axiosInstance"
 
 const navItems = [
   {
@@ -25,7 +26,7 @@ const navItems = [
   },
 ]
 
-export default function SideNav() {
+export default function SideNav(): React.ReactElement {
   const nickname = useAuthStore((state) => state.user?.nickname)
   const location = useLocation()
   const logout = useAuthStore((state) => state.logout)
@@ -37,6 +38,7 @@ export default function SideNav() {
 
     clearUser()
     clearSnapshot()
+    clearAccessToken()
 
     logout(() => {
       navigate("/")

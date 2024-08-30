@@ -6,6 +6,9 @@ import RoutePath from "@/constants/routes.json"
 import { useAuthStore } from "@/store/AuthStore"
 import { useSnapshotStore } from "@/store/SnapshotStore"
 import { useGetRecentSnapshot } from "@/hooks/useSnapshotMutation"
+import { useGetNoti, useModifyNoti } from "@/hooks/useNotiMutation"
+import { useNotificationStore } from "@/store/NotificationStore"
+import { duration, modifyNotification, notification } from "@/api/notification"
 
 const AuthPage: React.FC = () => {
   const navigate = useNavigate()
@@ -15,12 +18,14 @@ const AuthPage: React.FC = () => {
   const signUpMutation = useSignUp()
   const signInMutation = useSignIn()
   const getRecentSnapMutation = useGetRecentSnapshot()
-
+  const getNotiMutation = useGetNoti()
+  const modifyNotiMutation = useModifyNoti()
   const [isLoading, setIsLoading] = useState(true)
   const [isError, setIsError] = useState(false)
 
   const setUser = useAuthStore((state) => state.setUser)
   const setSnap = useSnapshotStore((state) => state.setSnapshot)
+  const setNoti = useNotificationStore((state) => state.setNotification)
 
   useEffect(() => {
     const authenticate = async (): Promise<void> => {
@@ -33,8 +38,6 @@ const AuthPage: React.FC = () => {
         }
 
         const _accessToken = await oauthMutation.mutateAsync(code)
-
-        console.log("_accessToken: ", _accessToken)
 
         const isUserSignedUp = await getIsSignUpMutation.mutateAsync(_accessToken)
 
@@ -53,6 +56,14 @@ const AuthPage: React.FC = () => {
         // 스냅샷이 있으면 store에 저장
         if (userSnap.id !== -1) {
           setSnap(userSnap.points.map((p) => ({ name: p.position.toLocaleLowerCase(), x: p.x, y: p.y, confidence: 1 })))
+        }
+
+        const notification = await getNotiMutation.mutateAsync()
+        // notification 설정 없으면 기본값(틀어진 즉시)로 설정
+        if (!notification) {
+          setNoti({ isActive: false, duration: "IMMEDIATELY" })
+        } else {
+          setNoti({ isActive: true, ...notification })
         }
 
         setIsLoading(false)

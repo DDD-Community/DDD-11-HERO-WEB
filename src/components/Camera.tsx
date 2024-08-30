@@ -40,7 +40,7 @@ export default function Camera(props: CameraProps): React.ReactElement {
 
   useEffect(() => {
     startVideo()
-  })
+  }, [])
 
   return (
     <div
