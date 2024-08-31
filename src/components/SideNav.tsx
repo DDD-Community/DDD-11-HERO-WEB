@@ -7,6 +7,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useSnapshotStore } from "@/store/SnapshotStore"
 import { useMemo } from "react"
 import { clearAccessToken } from "@/api/axiosInstance"
+import { useNotificationStore } from "@/store/NotificationStore"
 
 const navItems = [
   {
@@ -35,10 +36,12 @@ export default function SideNav(): React.ReactElement {
   const logoutHandler = (): void => {
     const clearUser = useAuthStore.persist.clearStorage
     const clearSnapshot = useSnapshotStore.persist.clearStorage
+    const clearNotification = useNotificationStore.persist.clearStorage
 
     clearUser()
     clearSnapshot()
     clearAccessToken()
+    clearNotification()
 
     logout(() => {
       navigate("/")
