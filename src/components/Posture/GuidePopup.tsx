@@ -3,7 +3,7 @@ import { ReactElement } from "react"
 
 const GuidePopup = ({ onClose }: { onClose: () => void }): ReactElement => {
   return (
-    <div className="absolute inset-0 flex items-center justify-center backdrop-blur-lg">
+    <div className="absolute inset-0 flex items-center justify-center rounded-3xl backdrop-blur-lg">
       {/* blur 처리 */}
       <div className="pointer-events-auto relative w-[600px] rounded-lg bg-white p-8 shadow-lg">
         {/* 이미지로 대체된 가이드 부분 */}

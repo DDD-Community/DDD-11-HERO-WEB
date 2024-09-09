@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from "react"
+import { useCameraPermission } from "@/hooks/useCameraPermission" // 커스텀 훅을 가져옵니다.
 
 interface CameraProps {
   detectStart: (video: HTMLVideoElement) => void
@@ -9,6 +10,7 @@ export default function Camera(props: CameraProps): React.ReactElement {
   const { detectStart, canvasRef } = props
   const videoRef = useRef<HTMLVideoElement>(null)
 
+  // 비디오를 시작하는 함수
   const startVideo = (): void => {
     navigator.mediaDevices
       .getUserMedia({
@@ -38,9 +40,34 @@ export default function Camera(props: CameraProps): React.ReactElement {
       })
   }
 
+  // 비디오를 중지하는 함수
+  const stopVideo = (): void => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream
+      const tracks = stream.getTracks()
+
+      tracks.forEach((track) => {
+        track.stop() // 모든 트랙 중지
+      })
+
+      videoRef.current.srcObject = null // 비디오 스트림 초기화
+    }
+  }
+
+  // 커스텀 훅을 사용해 권한 상태 확인
+  const { hasPermission, isPermissionDenied } = useCameraPermission()
+
   useEffect(() => {
-    startVideo()
-  }, [])
+    if (hasPermission) {
+      startVideo()
+    } else if (isPermissionDenied) {
+      stopVideo()
+    }
+
+    return () => {
+      stopVideo() // 컴포넌트가 언마운트될 때 비디오 중지
+    }
+  }, [hasPermission, isPermissionDenied])
 
   return (
     <div
@@ -50,9 +77,9 @@ export default function Camera(props: CameraProps): React.ReactElement {
         position: "relative",
       }}
     >
-      <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <div className="rounded-3xl bg-[#787870]/20" style={{ position: "relative", width: "100%", height: "100%" }}>
         <video
-          className="rounded-lg"
+          className="rounded-3xl"
           ref={videoRef}
           style={{
             position: "absolute",
