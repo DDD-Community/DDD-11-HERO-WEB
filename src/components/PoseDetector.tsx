@@ -52,8 +52,6 @@ const PoseDetector: React.FC = () => {
   const setSnap = useSnapshotStore((state) => state.setSnapshot)
   const userNoti = useNotificationStore((state) => state.notification)
 
-  const random = Math.random() < 0.5
-
   const { requestNotificationPermission } = usePushNotification()
   const { hasPermission } = useCameraPermission()
   // webgl 설정
