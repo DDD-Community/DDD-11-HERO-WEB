@@ -4,8 +4,10 @@ import GroupSideIcon from "@assets/icons/group-side-nav-button.svg?react"
 import React, { useEffect, useState } from "react"
 import { useGetRecentSnapshot } from "@/hooks/useSnapshotMutation"
 import { useSnapshotStore } from "@/store/SnapshotStore"
+import usePushNotification from "@/hooks/usePushNotification"
 
 const MonitoringPage: React.FC = () => {
+  const { hasPermission } = usePushNotification()
   const getRecentSnapMutation = useGetRecentSnapshot()
   const setSnap = useSnapshotStore((state) => state.setSnapshot)
   const snapshot = useSnapshotStore((state) => state.snapshot)
@@ -36,10 +38,15 @@ const MonitoringPage: React.FC = () => {
     <div className="relative flex h-full w-full overflow-hidden">
       {/* Main content area */}
       <div className={`flex-grow transition-all duration-300 ${isSidebarOpen ? "pr-[232px]" : ""}`}>
-        <div className="flex h-full items-center justify-center">
+        <div className="relative flex h-full items-center justify-center">
           <div className="aspect-video w-full max-w-[1280px]">
             <PoseDetector />
           </div>
+          {!hasPermission && (
+            <div className="absolute bottom-[74px] rounded-[42px] bg-[#787870]/20 px-10 py-3 text-lg font-medium text-orange-400">
+              브라우저의 알림 기능을 허용해주세요.
+            </div>
+          )}
         </div>
       </div>
 

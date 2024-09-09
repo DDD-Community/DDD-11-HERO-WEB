@@ -58,7 +58,7 @@ export default function SideNav(): React.ReactElement {
   )
 
   return (
-    <aside className="w-[224px] flex-none bg-[#1C1D20]">
+    <aside className="w-[224px] flex-none bg-zinc-900">
       <div className="flex h-full flex-col justify-between text-white">
         {/* Top Section */}
         <div>

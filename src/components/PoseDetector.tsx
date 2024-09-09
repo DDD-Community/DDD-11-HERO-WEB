@@ -15,6 +15,7 @@ import PostureMessage from "./Posture/PostureMessage"
 import Controls from "./Posture/Controls"
 import { useNotificationStore } from "@/store/NotificationStore"
 import { duration } from "@/api/notification"
+import { useCameraPermission } from "@/hooks/useCameraPermission"
 
 const PoseDetector: React.FC = () => {
   const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
@@ -51,10 +52,8 @@ const PoseDetector: React.FC = () => {
   const setSnap = useSnapshotStore((state) => state.setSnapshot)
   const userNoti = useNotificationStore((state) => state.notification)
 
-  const random = Math.random() < 0.5
-
   const { requestNotificationPermission } = usePushNotification()
-
+  const { hasPermission } = useCameraPermission()
   // webgl 설정
   const initializeBackend = async (): Promise<void> => {
     await window.ml5.setBackend("webgl")
@@ -125,7 +124,7 @@ const PoseDetector: React.FC = () => {
               const req = { snapshot: { keypoints, score }, type: poseType }
               sendPoseMutation.mutate(req)
               cntRef.current = cntRef.current + 1
-              if (isShowNoti) showNotification(`${getPoseName(poseType)} 감지! 자세를 바르게 앉아주세요.`)
+              if (isShowNoti) showNotification(`척추 건강 위험! ${getPoseName(poseType)} 감지! 자세를 바르게 앉아주세요.`)
             }
           }, 30 * 1000)
         }
@@ -140,11 +139,6 @@ const PoseDetector: React.FC = () => {
   const detect = useCallback(
     (results: pose[]): void => {
       resultRef.current = results
-
-      if (canvasRef.current) {
-        drawPose(results, canvasRef.current)
-      }
-
       if (snapRef.current) {
         const _isShoulderTwist = detectSlope(snapRef.current, results, false)
         const _isTextNeck = detectTextNeck(snapRef.current, results, true)
@@ -169,6 +163,10 @@ const PoseDetector: React.FC = () => {
         )
         managePoseTimer(_isTailboneSit, tailboneSitTimer, "TAILBONE_SIT", isSnapSaved, tailboneSitCnt, _isShowNoti)
         managePoseTimer(_isHandOnChin, chinUtpTimer, "CHIN_UTP", isSnapSaved, chinUtpCnt, _isShowNoti)
+        const isRight = !_isTextNeck && !_isHandOnChin && !_isShoulderTwist && !_isTailboneSit
+        if (canvasRef.current) drawPose(results, canvasRef.current, isRight)
+      } else {
+        if (canvasRef.current) drawPose(results, canvasRef.current)
       }
     },
     [setIsShoulderTwist, setIsTextNeck, setIsHandOnChin, setIsTailboneSit, isSnapSaved, managePoseTimer, userNoti]
@@ -260,22 +258,17 @@ const PoseDetector: React.FC = () => {
     }
   }
 
-  const sendNotification = (minutes: number | null): void => {
-    const total = turtleNeckCnt.current + shoulderTwistCnt.current + chinUtpCnt.current + tailboneSitCnt.current
-    if (random) {
-      showNotification(
-        `지난 ${minutes}분 동안 총 ${total}회 감지! ${
-          total > 0 ? "자세를 바르게 앉아주세요." : "좋은 자세를 유지해주세요."
-        }`
-      )
+  const sendNotification = (): void => {
+    const message: string[] = []
+    if (turtleNeckCnt.current > 0) message.push("거북목")
+    if (shoulderTwistCnt.current > 0) message.push("어깨 틀어짐")
+    if (chinUtpCnt.current > 0) message.push("턱 괴기")
+    if (tailboneSitCnt.current > 0) message.push("꼬리뼈로 앉기")
+
+    if (message.length > 0) {
+      showNotification(`척추 건강 위험! ${message.join(", ")} 감지! 자세를 바르게 앉아주세요.`)
     } else {
-      showNotification(
-        `지난 ${minutes}분 동안 거북목 ${turtleNeckCnt.current}회, 어깨틀어짐 ${shoulderTwistCnt.current}회, 턱 괴기 ${
-          chinUtpCnt.current
-        }회, 꼬리뼈 앉기 ${tailboneSitCnt.current}회 감지! ${
-          total > 0 ? "자세를 바르게 앉아주세요." : "좋은 자세를 유지해주세요."
-        }`
-      )
+      showNotification(`좋은 자세를 유지해주세요.`)
     }
   }
 
@@ -291,20 +284,20 @@ const PoseDetector: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    if (!isSnapSaved) {
+    if (!isSnapSaved || !hasPermission) {
       clearTimers() // 스냅샷이 저장되지 않았을 때 타이머들을 초기화
       clearCnt() // 횟수도 초기화
     }
-  }, [isSnapSaved])
+  }, [isSnapSaved, hasPermission])
 
   useEffect(() => {
-    if (isModelLoaded) {
+    if (isModelLoaded && hasPermission) {
       const video = document.querySelector("video")
       if (video) {
         detectStart(video)
       }
     }
-  }, [isModelLoaded, detectStart])
+  }, [isModelLoaded, hasPermission, detectStart])
 
   useEffect(() => {
     if (snapshot) getUserSnap()
@@ -320,7 +313,10 @@ const PoseDetector: React.FC = () => {
     if (userNoti.isActive && userNoti.duration && userNoti.duration !== "IMMEDIATELY") {
       const t = getDurationInMinutes(userNoti?.duration)
       notificationTimer.current = setInterval(() => {
-        if (userNoti.duration) sendNotification(t)
+        if (userNoti.duration) {
+          sendNotification()
+          clearCnt()
+        }
       }, 1000 * 60 * t)
     }
   }, [userNoti, isSnapSaved])
@@ -352,12 +348,14 @@ const PoseDetector: React.FC = () => {
                 isTextNeck={isTextNeck}
                 isHandOnChin={isHandOnChin}
                 isTailboneSit={isTailboneSit}
+                hasPermission={hasPermission}
               />
               <Controls
                 isSnapSaved={isSnapSaved}
                 getInitSnap={getInitSnap}
                 clearSnap={clearSnap}
                 handleShowPopup={handleShowPopup}
+                hasPermission={hasPermission}
               />
             </>
           )}
