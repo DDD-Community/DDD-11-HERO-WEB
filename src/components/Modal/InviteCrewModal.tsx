@@ -1,7 +1,4 @@
 import Modal from "@components/Modal"
-import CheckedIcon from "@assets/icons/crew-checked-icon.svg?react"
-import UnCheckedIcon from "@assets/icons/crew-unckecked-icon.svg?react"
-import { useState } from "react"
 
 interface CreateCrewModalProps {
   isOpen: boolean
