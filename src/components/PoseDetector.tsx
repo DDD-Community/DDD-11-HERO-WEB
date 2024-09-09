@@ -15,6 +15,7 @@ import PostureMessage from "./Posture/PostureMessage"
 import Controls from "./Posture/Controls"
 import { useNotificationStore } from "@/store/NotificationStore"
 import { duration } from "@/api/notification"
+import { useCameraPermission } from "@/hooks/useCameraPermission"
 
 const PoseDetector: React.FC = () => {
   const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
@@ -54,7 +55,7 @@ const PoseDetector: React.FC = () => {
   const random = Math.random() < 0.5
 
   const { requestNotificationPermission } = usePushNotification()
-
+  const { hasPermission } = useCameraPermission()
   // webgl 설정
   const initializeBackend = async (): Promise<void> => {
     await window.ml5.setBackend("webgl")
@@ -140,11 +141,6 @@ const PoseDetector: React.FC = () => {
   const detect = useCallback(
     (results: pose[]): void => {
       resultRef.current = results
-
-      if (canvasRef.current) {
-        drawPose(results, canvasRef.current)
-      }
-
       if (snapRef.current) {
         const _isShoulderTwist = detectSlope(snapRef.current, results, false)
         const _isTextNeck = detectTextNeck(snapRef.current, results, true)
@@ -169,6 +165,10 @@ const PoseDetector: React.FC = () => {
         )
         managePoseTimer(_isTailboneSit, tailboneSitTimer, "TAILBONE_SIT", isSnapSaved, tailboneSitCnt, _isShowNoti)
         managePoseTimer(_isHandOnChin, chinUtpTimer, "CHIN_UTP", isSnapSaved, chinUtpCnt, _isShowNoti)
+        const isRight = !_isTextNeck && !_isHandOnChin && !_isShoulderTwist && !_isTailboneSit
+        if (canvasRef.current) drawPose(results, canvasRef.current, isRight)
+      } else {
+        if (canvasRef.current) drawPose(results, canvasRef.current)
       }
     },
     [setIsShoulderTwist, setIsTextNeck, setIsHandOnChin, setIsTailboneSit, isSnapSaved, managePoseTimer, userNoti]
@@ -298,13 +298,13 @@ const PoseDetector: React.FC = () => {
   }, [isSnapSaved])
 
   useEffect(() => {
-    if (isModelLoaded) {
+    if (isModelLoaded && hasPermission) {
       const video = document.querySelector("video")
       if (video) {
         detectStart(video)
       }
     }
-  }, [isModelLoaded, detectStart])
+  }, [isModelLoaded, hasPermission, detectStart])
 
   useEffect(() => {
     if (snapshot) getUserSnap()
@@ -352,12 +352,14 @@ const PoseDetector: React.FC = () => {
                 isTextNeck={isTextNeck}
                 isHandOnChin={isHandOnChin}
                 isTailboneSit={isTailboneSit}
+                hasPermission={hasPermission}
               />
               <Controls
                 isSnapSaved={isSnapSaved}
                 getInitSnap={getInitSnap}
                 clearSnap={clearSnap}
                 handleShowPopup={handleShowPopup}
+                hasPermission={hasPermission}
               />
             </>
           )}

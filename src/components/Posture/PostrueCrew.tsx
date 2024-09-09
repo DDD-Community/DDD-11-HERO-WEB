@@ -8,6 +8,7 @@ import { useAuthStore } from "@/store"
 import { duration, notification } from "@/api/notification"
 import { useNotificationStore } from "@/store/NotificationStore"
 import { usePatchNoti } from "@/hooks/useNotiMutation"
+import usePushNotification from "@/hooks/usePushNotification"
 
 interface IPostureCrew {
   groupUserId: number
@@ -43,6 +44,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const userNoti = useNotificationStore((state) => state.notification)
   const setUserNoti = useNotificationStore((state) => state.setNotification)
   const patchNotiMutation = usePatchNoti()
+  const { hasPermission } = usePushNotification()
 
   const [isEnabled, setIsEnabled] = useState(userNoti?.isActive)
   const [notiAlarmTime, setNotiAlarmTime] = useState(NOTI_OPTIONS.find((n) => n.value === userNoti?.duration)?.label)
@@ -115,14 +117,19 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
           </div>
 
           <label className="relative inline-flex cursor-pointer items-center">
-            <input type="checkbox" className="peer sr-only" checked={isEnabled} onChange={onClickNotiAlarm} />
+            <input
+              type="checkbox"
+              className="peer sr-only"
+              checked={isEnabled && hasPermission}
+              onChange={onClickNotiAlarm}
+            />
             <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
           </label>
         </div>
 
         <div className="pb-8 pl-2 pr-2">
           <SelectBox
-            isDisabled={!userNoti?.isActive}
+            isDisabled={!userNoti?.isActive || !hasPermission}
             options={NOTI_OPTIONS}
             value={notiAlarmTime}
             onClick={onClickNotiAlarmTime}
