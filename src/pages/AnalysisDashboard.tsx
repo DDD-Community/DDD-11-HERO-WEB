@@ -1,28 +1,28 @@
-import { useState, useRef, useEffect } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { getTodayAnalysis, TodayAnalysisData } from "@/api/analysis"
 import { poseType } from "@/api/pose"
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { usePoseAnalysis } from "@/hooks/useDashBoard"
 
-import TurtleNeckImage from "@/assets/images/tutle-neck.png"
-import ShoulderTwistImage from "@/assets/images/shoulder-twist.png"
+import TotalCountChartIcon from "@/assets/icons/dash-board-total-count.svg?react"
 import ChinUpImage from "@/assets/images/chin-up.png"
+import ShoulderTwistImage from "@/assets/images/shoulder-twist.png"
 import TailBoneSitImage from "@/assets/images/tail-bone-sit.png"
+import TurtleNeckImage from "@/assets/images/tutle-neck.png"
+import PoseAnalysisChart from "@/components/Dashboard/Chart"
 
 const AnalysisDashboard = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const carouselRef = useRef(null)
 
-  const { data, isLoading, isError } = useQuery<TodayAnalysisData>({
-    queryKey: ["todayAnalysis"],
-    queryFn: getTodayAnalysis,
-  })
+  const { todayAnalysis, totalAnalysis, isLoading, isError } = usePoseAnalysis()
+
+  console.log("totalAnalysis: ", totalAnalysis)
 
   const getPoseCount = (type: poseType) => {
-    return data?.count.find((item: any) => item.type === type)?.count || 0
+    return todayAnalysis?.count.find((item: any) => item.type === type)?.count || 0
   }
 
-  const totalCount = data?.count.reduce((acc, item) => acc + item.count, 0) || 0
+  const totalCount = todayAnalysis?.count.reduce((acc, item) => acc + item.count, 0) || 0
 
   const carouselItems = [
     { title: "거북목", type: "TURTLE_NECK" as poseType, image: TurtleNeckImage },
@@ -75,14 +75,19 @@ const AnalysisDashboard = () => {
       {isLoading && <div>로딩 중입니다...</div>}
       {isError && <div>데이터를 불러오는 것에 실패했습니다</div>}
 
-      {!isLoading && !isError && data && (
+      {!isLoading && !isError && todayAnalysis && (
         <div className="relative mb-8 overflow-hidden">
           <div className="flex">
             {/* 고정된 전체 틀어짐 횟수 카드 */}
-            <div className="mr-4 w-1/4 flex-shrink-0 rounded-lg bg-black p-4 text-white">
-              <p className="text-sm text-blue-400">전체 틀어짐 횟수</p>
-              <p className="mt-2 text-3xl font-bold">{totalCount}회</p>
-              <div className="mt-2 h-24 bg-gray-700">{/* 차트 이미지 삽입 */}</div>
+            <div className="relative mr-3 flex w-60 flex-col items-center rounded-lg bg-black text-white">
+              <p className="mt-8 text-sm text-[#5A9CFF]">전체 틀어짐 횟수</p>
+              <div className="mt-2 flex items-center">
+                <span className="text-4xl font-bold">{totalCount}</span>
+                <span className="ml-1 text-sm">회</span>
+              </div>
+              <div className="absolute bottom-[25px] flex h-24 justify-center">
+                <TotalCountChartIcon />
+              </div>
             </div>
 
             {/* 캐러셀 컨테이너 */}
@@ -99,7 +104,7 @@ const AnalysisDashboard = () => {
                 style={{ width: `${(carouselItems.length / 3) * 100}%` }}
               >
                 {carouselItems.map(({ title, type, image }, index) => (
-                  <div key={index} className="w-1/3 flex-shrink-0 px-2">
+                  <div key={index} className="mr-3 w-1/5 flex-shrink-0">
                     <div className="relative overflow-hidden rounded-lg bg-gray-100">
                       <img src={image} alt={title} className="h-full w-full" />
                       <div className="absolute inset-0 flex flex-col items-center pt-8 text-black">
@@ -120,29 +125,24 @@ const AnalysisDashboard = () => {
               )}
             </div>
           </div>
+          <div className="mb-12 mt-8">
+            <hr />
+          </div>
           {/* 차트 섹션 */}
-          <div className="rounded-lg p-6 shadow">
+          <div className="rounded-lg shadow">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <button className="rounded-full bg-gray-800 px-4 py-2 text-sm text-white">7월 첫째주</button>
                 <ChevronLeft size={20} />
+                <span className="rounded-full bg-zinc-800 px-4 py-2 text-white">7월 첫째주 추이</span>
                 <ChevronRight size={20} />
               </div>
               <div className="flex items-center text-sm text-gray-600">
                 <Calendar size={16} className="mr-2" />
-                {data?.date}
+                {"2024-09-09"}
               </div>
             </div>
-            <div className="h-64 bg-gray-100">{/* 실제 차트 컴포넌트 삽입 */}</div>
-            <div className="mt-4 flex justify-center space-x-4">
-              {["거북목", "어깨 틀어짐", "턱 괴기", "고개숙여 보기"].map((item, index) => (
-                <div key={index} className="flex items-center">
-                  <div
-                    className={`mr-2 h-3 w-3 rounded-full bg-${["red", "blue", "green", "purple"][index]}-500`}
-                  ></div>
-                  <span className="text-sm">{item}</span>
-                </div>
-              ))}
+            <div className="h-[340px] rounded-[10px] border-[1px] border-solid border-gray-200 bg-white">
+              {totalAnalysis && <PoseAnalysisChart data={totalAnalysis} />}
             </div>
           </div>
         </div>
