@@ -4,6 +4,7 @@
   "LOGIN": "/login",
   "AUTH": "/auth",
   "CREW": "/crew",
+  "MYCREW": "/crew/my",
   "HOME": "/home",
   "SOCKET": "/socket"
 }

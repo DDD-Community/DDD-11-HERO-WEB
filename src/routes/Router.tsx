@@ -1,12 +1,13 @@
-import React from "react"
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom"
-import { AuthPage, MonitoringPage, HomePage, AnalysisDashboard, Crew } from "@/pages"
+import RoutePath from "@/constants/routes.json"
+import AnalysisLayout from "@/layouts/AnalysisLayout"
 import BaseLayout from "@/layouts/BaseLayout"
 import MonitoringLayout from "@/layouts/MonitoringLayout"
-import AnalysisLayout from "@/layouts/AnalysisLayout"
-import RoutePath from "@/constants/routes.json"
+import { AnalysisDashboard, AuthPage, Crew, HomePage, MonitoringPage } from "@/pages"
+import MyCrew from "@/pages/MyCrew"
 import AuthRoute from "@/routes/AuthRoute"
 import { useAuthStore } from "@/store/AuthStore"
+import React from "react"
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 const Router: React.FC = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
@@ -31,6 +32,10 @@ const Router: React.FC = () => {
 
             <Route element={<AnalysisLayout />}>
               <Route path={RoutePath.CREW} element={<Crew />} />
+            </Route>
+
+            <Route element={<AnalysisLayout />}>
+              <Route path={RoutePath.MYCREW} element={<MyCrew />} />
             </Route>
           </Route>
         </Route>
