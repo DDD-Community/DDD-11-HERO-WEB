@@ -1,12 +1,14 @@
-import { useState, useRef, useEffect, ReactElement } from "react"
+import { group, groupsReq } from "@/api"
+import EmptyCrewImage from "@/assets/images/crew-empty.png"
+import CrewItem from "@/components/Crew/CrewItem"
+import CreateCrewModal from "@/components/Modal/CreateCrewModal"
+import JoinCrewModal from "@/components/Modal/JoinCrewModal"
+import { useGetGroups } from "@/hooks/useGroupMutation"
 import CreateCrewIcon from "@assets/icons/crew-create-button-icon.svg?react"
 import SortCrewIcon from "@assets/icons/crew-sort-icon.svg?react"
-import EmptyCrewImage from "@/assets/images/crew-empty.png"
-import { useGetGroups } from "@/hooks/useGroupMutation"
-import { group, groupsReq } from "@/api"
-import CrewItem from "@/components/Crew/CrewItem"
-import JoinCrewModal from "@/components/Modal/JoinCrewModal"
-import CreateCrewModal from "@/components/Modal/CreateCrewModal"
+import { ReactElement, useEffect, useRef, useState } from "react"
+
+import MyCrewRankingContainer from "./MyCrewRankingContainer"
 
 const SORT_LIST = [
   { sort: "userCount,desc", label: "크루원 많은 순" },
@@ -15,6 +17,7 @@ const SORT_LIST = [
 
 const CrewList = (): ReactElement => {
   const [sort, setSort] = useState<number>(0)
+  const [mode] = useState<"my" | "list">("my")
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
   const [isJoinModalOpen, setIsJoinModalOpen] = useState<boolean>(false)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false)
@@ -90,16 +93,19 @@ const CrewList = (): ReactElement => {
 
   return (
     <div className="flex h-full w-full flex-col">
+      {mode === "my" && <MyCrewRankingContainer openCreateModal={openCreateModal} />}
       {/* header */}
       <div className="mb-[24px] flex w-full items-center">
         <div className="flex-grow text-[22px] font-bold text-zinc-900">전체크루(0)</div>
-        <div
-          className="flex w-[138px] cursor-pointer items-center justify-center gap-[10px] rounded-[33px] bg-zinc-800 p-[10px] text-sm font-semibold text-white"
-          onClick={openCreateModal}
-        >
-          <CreateCrewIcon />
-          <div>크루 만들기</div>
-        </div>
+        {mode === "list" && (
+          <div
+            className="flex w-[138px] cursor-pointer items-center justify-center gap-[10px] rounded-[33px] bg-zinc-800 p-[10px] text-sm font-semibold text-white"
+            onClick={openCreateModal}
+          >
+            <CreateCrewIcon />
+            <div>크루 만들기</div>
+          </div>
+        )}
       </div>
 
       {/* sort */}

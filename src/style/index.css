@@ -5,3 +5,11 @@
 .nav-item svg path {
   fill: #5f6368; /* 비활성화 상태의 흰색 */
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
