@@ -13,7 +13,7 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="flex h-full min-h-[981px] w-full min-w-[1440px] flex-col justify-start">
+    <div className="flex h-screen min-h-[981px] w-screen min-w-[1440px] flex-col justify-start">
       {/* header */}
       <div className="flex w-full flex-none border border-[#F0F2F9] px-[120px] py-5">
         {/* logo */}
@@ -52,7 +52,7 @@ const HomePage: React.FC = () => {
           </div>
         </div>
         {/* right */}
-        <div className="relative w-[57%] overflow-hidden bg-gradient-to-br from-[#F5F5FA] to-[#A0C1F2]">
+        <div className="relative w-[56.9%] overflow-hidden bg-gradient-to-br from-[#F5F5FA] to-[#A0C1F2]">
           <div className="absolute bottom-[-10px] left-[104px] h-[583px] w-[883px]">
             <img src={MonitoringImage} alt="Monitoring" />
           </div>

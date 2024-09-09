@@ -8,8 +8,9 @@ const BaseLayout: React.FC = () => {
         <SideNav />
 
         {/* Main Content */}
-        <main className="min-w-[652px] flex-1 overflow-y-auto">
+        <main className="relative min-w-[652px] flex-1 overflow-y-auto">
           <Outlet />
+          <div id="modal-root"></div>
         </main>
       </div>
     </div>
