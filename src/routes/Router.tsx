@@ -29,7 +29,7 @@ const Router: React.FC = () => {
               <Route path={RoutePath.ANALYSIS} element={<AnalysisDashboard />} />
             </Route>
 
-            <Route element={<MonitoringLayout />}>
+            <Route element={<AnalysisLayout />}>
               <Route path={RoutePath.CREW} element={<Crew />} />
             </Route>
           </Route>
