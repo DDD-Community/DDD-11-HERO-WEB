@@ -3,7 +3,7 @@ import SideNav from "@/components/SideNav"
 
 const BaseLayout: React.FC = () => {
   return (
-    <div className="flex min-h-screen w-screen bg-gray-100">
+    <div className="flex h-screen w-screen bg-gray-100">
       <div className="flex w-full">
         <SideNav />
 
