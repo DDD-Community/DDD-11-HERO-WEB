@@ -19,13 +19,16 @@ const RankPillar = ({ rank, name, score, height }: any) => {
     },
   ]
 
+  const style = rankStyleMap[rank - 1]
+
   return (
     <div className="flex flex-col items-center text-zinc-800" style={{ height }}>
       <div
-        className={`flex w-[180px] flex-grow flex-col items-center justify-end py-6 gap-${
-          rankStyleMap[rank - 1].gap
-        } rounded-[12px] bg-[${rankStyleMap[rank - 1].bgColor}]`}
-        style={{ minHeight: "100px" }} // 최소 높이 설정
+        className={`flex w-[180px] flex-grow flex-col items-center justify-end py-6 gap-${style.gap} rounded-[12px]`}
+        style={{
+          minHeight: "100px",
+          backgroundColor: style.bgColor,
+        }}
       >
         <div className="flex flex-col items-center">
           {rank === 1 && <Crew1stCrownIcon className="mb-2 h-6 w-6" />}
