@@ -33,7 +33,7 @@ export const getTodayPoseAnalysis = async (): Promise<TodayAnalysisData> => {
 
 export const getTotalPoseAnalysis = async (): Promise<TodayAnalysisData[]> => {
   try {
-    const res = await axiosInstance.get("/pose-counts?sort=date,desc")
+    const res = await axiosInstance.get("/pose-counts?sort=date,asc")
     return res.data.data
   } catch (e) {
     throw e
