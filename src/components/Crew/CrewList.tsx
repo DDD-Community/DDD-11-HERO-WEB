@@ -1,14 +1,13 @@
 import { group, groupsReq } from "@/api"
 import EmptyCrewImage from "@/assets/images/crew-empty.png"
 import CrewItem from "@/components/Crew/CrewItem"
-import CreateCrewModal from "@/components/Modal/CreateCrewModal"
-import JoinCrewModal from "@/components/Modal/JoinCrewModal"
 import { useGetGroups } from "@/hooks/useGroupMutation"
 import CreateCrewIcon from "@assets/icons/crew-create-button-icon.svg?react"
 import SortCrewIcon from "@assets/icons/crew-sort-icon.svg?react"
 import { ReactElement, useEffect, useRef, useState } from "react"
-
+import { useModals } from "@/hooks/useModals"
 import MyCrewRankingContainer from "./MyCrewRankingContainer"
+import { modals } from "../Modal/Modals"
 
 const SORT_LIST = [
   { sort: "userCount,desc", label: "크루원 많은 순" },
@@ -19,8 +18,6 @@ const CrewList = (): ReactElement => {
   const [sort, setSort] = useState<number>(0)
   const [mode] = useState<"my" | "list">("my")
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
-  const [isJoinModalOpen, setIsJoinModalOpen] = useState<boolean>(false)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false)
 
   const [params] = useState<groupsReq>({
     page: 0,
@@ -30,11 +27,31 @@ const CrewList = (): ReactElement => {
 
   const { data, isLoading, isError } = useGetGroups(params)
 
-  const openJoinModal = (): void => setIsJoinModalOpen(true)
-  const closeJoinModal = (): void => setIsJoinModalOpen(false)
+  const { openModal } = useModals()
 
-  const openCreateModal = (): void => setIsCreateModalOpen(true)
-  const closeCreateModal = (): void => setIsCreateModalOpen(false)
+  const openCreateModal = (): void => {
+    openModal(modals.createCrewModal, {
+      onSubmit: () => {
+        console.log("open")
+      },
+    })
+  }
+
+  const openJoinCrewModal = (): void => {
+    openModal(modals.joinCrewModal, {
+      onSubmit: () => {
+        console.log("open")
+      },
+    })
+  }
+
+  const openInviteModal = (): void => {
+    openModal(modals.inviteCrewModal, {
+      onSubmit: () => {
+        console.log("open")
+      },
+    })
+  }
 
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -72,7 +89,7 @@ const CrewList = (): ReactElement => {
     return (
       <div className="flex flex-grow flex-col gap-[8px]">
         {_groups.map((g) => (
-          <CrewItem key={`crew-item-${g.id}`} group={g} onClickDetail={openJoinModal} />
+          <CrewItem key={`crew-item-${g.id}`} group={g} onClickDetail={openJoinCrewModal} />
         ))}
       </div>
     )
@@ -93,7 +110,7 @@ const CrewList = (): ReactElement => {
 
   return (
     <div className="flex h-full w-full flex-col">
-      {mode === "my" && <MyCrewRankingContainer openCreateModal={openCreateModal} />}
+      {mode === "my" && <MyCrewRankingContainer openCreateModal={openCreateModal} openInviteModal={openInviteModal} />}
       {/* header */}
       <div className="mb-[24px] flex w-full items-center">
         <div className="flex-grow text-[22px] font-bold text-zinc-900">전체크루(0)</div>
@@ -129,8 +146,6 @@ const CrewList = (): ReactElement => {
 
       {/* list */}
       {isLoading ? "로딩 중입니다..." : isError ? "데이터를 불러오는데 실패했습니다." : createGroupList(data?.data)}
-      <JoinCrewModal isOpen={isJoinModalOpen} onClose={closeJoinModal} id={0} onSubmit={(): void => {}} />
-      <CreateCrewModal isOpen={isCreateModalOpen} onClose={closeCreateModal} onSubmit={(): void => {}} />
     </div>
   )
 }

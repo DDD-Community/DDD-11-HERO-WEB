@@ -1,16 +1,11 @@
-import Modal from "@components/Modal"
+import { ModalProps } from "@/contexts/ModalsContext"
+import ModalContainer from "@components/ModalContainer"
 
-interface CreateCrewModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: () => void
-}
-
-const InviteCrewModal = (props: CreateCrewModalProps): React.ReactElement => {
-  const { isOpen, onClose, onSubmit } = props
+const InviteCrewModal = (props: ModalProps): React.ReactElement => {
+  const { onClose, onSubmit } = props
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <ModalContainer onClose={onClose}>
       <div className="flex flex-col items-center">
         {/* header */}
         <div className="mb-3 flex items-center gap-4">
@@ -32,7 +27,7 @@ const InviteCrewModal = (props: CreateCrewModalProps): React.ReactElement => {
           초대 링크 복사하기
         </button>
       </div>
-    </Modal>
+    </ModalContainer>
   )
 }
 

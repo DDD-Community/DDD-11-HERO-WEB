@@ -2,13 +2,16 @@
 import { Router } from "@/routes"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import ModalsProvider from "./providers/ModalsProvider"
 
 const queryClient = new QueryClient()
 
 const App = (): React.ReactElement => {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router></Router>
+      <ModalsProvider>
+        <Router></Router>
+      </ModalsProvider>
     </QueryClientProvider>
   )
 }
