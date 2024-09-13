@@ -1,17 +1,11 @@
-import Modal from "@components/Modal"
+import ModalContainer from "@components/ModalContainer"
 import CrewJoinUserIcon from "@assets/icons/crew-join-user-icon.svg?react"
 import PrivateCrewIcon from "@assets/icons/crew-private-icon.svg?react"
 import { useState } from "react"
+import { ModalProps } from "@/contexts/ModalsContext"
 
-interface JoinCrewModalProps {
-  id: number
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: () => void
-}
-
-const JoinCrewModal = (props: JoinCrewModalProps): React.ReactElement => {
-  const { isOpen, onClose, onSubmit } = props
+const JoinCrewModal = (props: ModalProps): React.ReactElement => {
+  const { onClose, onSubmit } = props
 
   const [joinCode, setJoinCode] = useState<string>("")
   const [isCodeError, setIsCodeError] = useState<boolean>(false)
@@ -22,7 +16,7 @@ const JoinCrewModal = (props: JoinCrewModalProps): React.ReactElement => {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <ModalContainer onClose={onClose}>
       <div className="flex w-full flex-col items-center">
         {/* header */}
         <div className="mb-[40px] flex w-full items-center gap-[16px]">
@@ -94,7 +88,7 @@ const JoinCrewModal = (props: JoinCrewModalProps): React.ReactElement => {
           크루 가입하기
         </button>
       </div>
-    </Modal>
+    </ModalContainer>
   )
 }
 

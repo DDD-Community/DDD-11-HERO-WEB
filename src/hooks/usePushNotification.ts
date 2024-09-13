@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react"
 
+interface UsePushNotificationResult {
+  hasPermission: boolean
+  isPermissionDenied: boolean
+  requestNotificationPermission: () => Promise<void>
+  showNotification: (body: string) => void
+}
+
 // 커스텀 훅: 알림 권한을 확인하고 권한 변경을 감지
-const usePushNotification = () => {
+const usePushNotification = (): UsePushNotificationResult => {
   const [hasPermission, setHasPermission] = useState(false) // 권한이 허용되었는지 여부
   const [isPermissionDenied, setIsPermissionDenied] = useState(false) // 권한이 거부되었는지 여부
 

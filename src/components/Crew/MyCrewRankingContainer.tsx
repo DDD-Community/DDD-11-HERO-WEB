@@ -8,10 +8,11 @@ import RoutePath from "@/constants/routes.json"
 
 interface MyCrewRankingContainerProps {
   openCreateModal: () => void
+  openInviteModal: () => void
 }
 
 export default function MyCrewRankingContainer(props: MyCrewRankingContainerProps) {
-  const { openCreateModal } = props
+  const { openCreateModal, openInviteModal } = props
   return (
     <div className="mb-12">
       <div className="mb-[24px] flex w-full items-center">
@@ -32,7 +33,10 @@ export default function MyCrewRankingContainer(props: MyCrewRankingContainerProp
               <CrewUserIcon />
               <span className="text-sm font-medium text-zinc-500">7/30명</span>
             </div>
-            <button className="rounded-full border-[1px] border-solid border-gray-200 bg-white">
+            <button
+              className="rounded-full border-[1px] border-solid border-gray-200 bg-white"
+              onClick={openInviteModal}
+            >
               <div className="flex items-center gap-1 px-2 py-1">
                 <SendInvitationIcon />
                 <span className="text-sm font-medium text-zinc-400">초대하기</span>

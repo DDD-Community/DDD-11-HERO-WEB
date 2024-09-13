@@ -1,16 +1,11 @@
-import Modal from "@components/Modal"
+import { ModalProps } from "@/contexts/ModalsContext"
+import ModalContainer from "@components/ModalContainer"
 
-interface CreateCrewModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: () => void
-}
-
-const WithdrawCrewModal = (props: CreateCrewModalProps): React.ReactElement => {
-  const { isOpen, onClose, onSubmit } = props
+const WithdrawCrewModal = (props: ModalProps): React.ReactElement => {
+  const { onClose, onSubmit } = props
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <ModalContainer onClose={onClose}>
       <div className="flex flex-col items-center">
         {/* header */}
         <div className="mb-12 flex items-center gap-4">
@@ -37,7 +32,7 @@ const WithdrawCrewModal = (props: CreateCrewModalProps): React.ReactElement => {
           </button>
         </div>
       </div>
-    </Modal>
+    </ModalContainer>
   )
 }
 

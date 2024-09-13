@@ -1,16 +1,11 @@
-import Modal from "@components/Modal"
+import ModalContainer from "@components/ModalContainer"
 import CheckedIcon from "@assets/icons/crew-checked-icon.svg?react"
 import UnCheckedIcon from "@assets/icons/crew-unckecked-icon.svg?react"
 import { useState } from "react"
+import { ModalProps } from "@/contexts/ModalsContext"
 
-interface CreateCrewModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: () => void
-}
-
-const CreateCrewModal = (props: CreateCrewModalProps): React.ReactElement => {
-  const { isOpen, onClose, onSubmit } = props
+const CreateCrewModal = (props: ModalProps): React.ReactElement => {
+  const { onClose, onSubmit } = props
 
   const [name, setName] = useState<string>("")
   const [description, setDescription] = useState<string>("")
@@ -46,7 +41,7 @@ const CreateCrewModal = (props: CreateCrewModalProps): React.ReactElement => {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <ModalContainer onClose={onClose}>
       <div className="flex flex-col items-center">
         {/* header */}
         <div className="mb-10 flex items-center gap-4">
@@ -116,7 +111,7 @@ const CreateCrewModal = (props: CreateCrewModalProps): React.ReactElement => {
           크루 만들기
         </button>
       </div>
-    </Modal>
+    </ModalContainer>
   )
 }
 

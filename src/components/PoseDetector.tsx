@@ -124,7 +124,8 @@ const PoseDetector: React.FC = () => {
               const req = { snapshot: { keypoints, score }, type: poseType }
               sendPoseMutation.mutate(req)
               cntRef.current = cntRef.current + 1
-              if (isShowNoti) showNotification(`척추 건강 위험! ${getPoseName(poseType)} 감지! 자세를 바르게 앉아주세요.`)
+              if (isShowNoti)
+                showNotification(`척추 건강 위험! ${getPoseName(poseType)} 감지! 자세를 바르게 앉아주세요.`)
             }
           }, 30 * 1000)
         }
