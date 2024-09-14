@@ -1,4 +1,3 @@
-import { DateValueType } from "react-tailwindcss-datepicker"
 import axiosInstance from "./axiosInstance"
 import { poseType } from "./pose"
 
