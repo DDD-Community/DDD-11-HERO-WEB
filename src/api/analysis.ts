@@ -1,3 +1,4 @@
+import { DateValueType } from "react-tailwindcss-datepicker"
 import axiosInstance from "./axiosInstance"
 import { poseType } from "./pose"
 
@@ -31,9 +32,10 @@ export const getTodayPoseAnalysis = async (): Promise<TodayAnalysisData> => {
   }
 }
 
-export const getTotalPoseAnalysis = async (): Promise<TodayAnalysisData[]> => {
+export const getTotalPoseAnalysis = async (params: { fromDate?: string; toDate?: string }) => {
+  const queryString = new URLSearchParams(params).toString()
   try {
-    const res = await axiosInstance.get("/pose-counts?sort=date,asc")
+    const res = await axiosInstance.get(`/pose-counts?${queryString ? `${queryString}` : ""}&sort=date,asc`)
     return res.data.data
   } catch (e) {
     throw e
