@@ -1,7 +1,9 @@
 import { getTodayPoseAnalysis, getTotalPoseAnalysis } from "@/api/analysis"
 import { useQueries } from "@tanstack/react-query"
+import dayjs from "dayjs"
+import { DateValueType } from "react-tailwindcss-datepicker"
 
-export const usePoseAnalysis = () => {
+export const usePoseAnalysis = (dateRange: DateValueType) => {
   const results = useQueries({
     queries: [
       {
@@ -9,8 +11,20 @@ export const usePoseAnalysis = () => {
         queryFn: getTodayPoseAnalysis,
       },
       {
-        queryKey: ["totalAnalysis"],
-        queryFn: getTotalPoseAnalysis,
+        queryKey: ["totalAnalysis", dateRange],
+        queryFn: () => {
+          const params: { fromDate?: string; toDate?: string } = {}
+
+          if (dateRange?.startDate) {
+            params.fromDate = dayjs(dateRange.startDate).format("YYYY-MM-DD")
+          }
+
+          if (dateRange?.endDate) {
+            params.toDate = dayjs(dateRange.endDate).format("YYYY-MM-DD")
+          }
+
+          return getTotalPoseAnalysis(params)
+        },
       },
     ],
   })

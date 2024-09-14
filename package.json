@@ -16,6 +16,7 @@
     "@tanstack/react-query": "^5.51.23",
     "axios": "1.7.3",
     "core-js": "^3.28.0",
+    "dayjs": "^1.11.13",
     "echarts": "^5.5.1",
     "echarts-for-react": "^3.0.2",
     "lucide-react": "^0.435.0",
@@ -23,6 +24,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.1",
+    "react-tailwindcss-datepicker": "^1.7.2",
     "socket.io-client": "^4.7.5",
     "zustand": "^4.5.5"
   },
