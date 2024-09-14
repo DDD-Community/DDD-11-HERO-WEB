@@ -1,4 +1,4 @@
-import { group, groupsReq } from "@/api"
+import { group, groupsReq, sort } from "@/api"
 import EmptyCrewImage from "@/assets/images/crew-empty.png"
 import CrewItem from "@/components/Crew/CrewItem"
 import { useGetGroups } from "@/hooks/useGroupMutation"
@@ -15,13 +15,12 @@ const SORT_LIST = [
 ]
 
 const CrewList = (): ReactElement => {
-  const [sort, setSort] = useState<number>(0)
   const [mode] = useState<"my" | "list">("my")
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
 
-  const [params] = useState<groupsReq>({
+  const [params, setParams] = useState<groupsReq>({
     page: 0,
-    size: 10,
+    size: 10000,
     sort: "userCount,desc",
   })
 
@@ -37,8 +36,9 @@ const CrewList = (): ReactElement => {
     })
   }
 
-  const openJoinCrewModal = (): void => {
+  const openJoinCrewModal = (id: number): void => {
     openModal(modals.joinCrewModal, {
+      id,
       onSubmit: () => {
         console.log("open")
       },
@@ -66,7 +66,7 @@ const CrewList = (): ReactElement => {
         key={`sort-list-${s.sort}`}
         className="cursor-pointer text-[13px] font-medium leading-[24px] text-zinc-400"
         onClick={() => {
-          setSort(i)
+          setParams({ ...params, sort: s.sort as sort })
           setIsDropdownOpen(false)
         }}
       >
@@ -89,7 +89,7 @@ const CrewList = (): ReactElement => {
     return (
       <div className="flex flex-grow flex-col gap-[8px]">
         {_groups.map((g) => (
-          <CrewItem key={`crew-item-${g.id}`} group={g} onClickDetail={openJoinCrewModal} />
+          <CrewItem key={`crew-item-${g.id}`} group={g} onClickDetail={() => openJoinCrewModal(g.id)} />
         ))}
       </div>
     )
@@ -113,7 +113,10 @@ const CrewList = (): ReactElement => {
       {mode === "my" && <MyCrewRankingContainer openCreateModal={openCreateModal} openInviteModal={openInviteModal} />}
       {/* header */}
       <div className="mb-[24px] flex w-full items-center">
-        <div className="flex-grow text-[22px] font-bold text-zinc-900">전체크루(0)</div>
+        <div className="flex-grow text-[22px] font-bold text-zinc-900">
+          <span>전체크루</span>
+          <span>{isLoading ? "" : `(${data?.totalCount})`}</span>
+        </div>
         {mode === "list" && (
           <div
             className="flex w-[138px] cursor-pointer items-center justify-center gap-[10px] rounded-[33px] bg-zinc-800 p-[10px] text-sm font-semibold text-white"
@@ -129,7 +132,7 @@ const CrewList = (): ReactElement => {
       <div className="relative mb-[12px] text-sm font-medium text-zinc-500" ref={dropdownRef}>
         <div className="flex cursor-pointer items-center" onClick={toggleDropdown}>
           <SortCrewIcon />
-          <div>{SORT_LIST[sort].label}</div>
+          <div>{SORT_LIST.find((s) => s.sort === params.sort)?.label}</div>
         </div>
 
         {/* dropdown */}
