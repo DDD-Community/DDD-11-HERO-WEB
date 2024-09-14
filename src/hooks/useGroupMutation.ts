@@ -16,7 +16,7 @@ export const useGetGroups = (params: groupsReq): UseQueryResult<groupsRes, Error
   return useQuery<groupsRes, Error>({ queryKey: ["groups", params], queryFn: () => getGroups(params) })
 }
 
-export const useGetGroup = (id: number): UseQueryResult<group, Error> => {
+export const useGetGroup = (id: number | undefined): UseQueryResult<group, Error> => {
   // eslint-disable-next-line max-len
   return useQuery<group, Error>({ queryKey: ["group", id], queryFn: () => getGroup(id) })
 }
