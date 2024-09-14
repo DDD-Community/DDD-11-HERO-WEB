@@ -60,7 +60,7 @@ const CrewList = (): ReactElement => {
   }
 
   const createSortList = (): JSX.Element[] => {
-    return SORT_LIST.map((s, i) => (
+    return SORT_LIST.map((s) => (
       // eslint-disable-next-line max-len
       <div
         key={`sort-list-${s.sort}`}

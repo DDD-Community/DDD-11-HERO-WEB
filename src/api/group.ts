@@ -63,7 +63,7 @@ export const getGroups = async (groupsReq: groupsReq): Promise<groupsRes> => {
   }
 }
 
-export const getGroup = async (id: number): Promise<group> => {
+export const getGroup = async (id: number | undefined): Promise<group> => {
   try {
     const res = await axiosInstance.get(`/groups/${id}`)
     return res.data.data
