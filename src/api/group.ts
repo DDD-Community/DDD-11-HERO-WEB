@@ -63,11 +63,31 @@ export const getGroups = async (groupsReq: groupsReq): Promise<groupsRes> => {
   }
 }
 
+export const getGroup = async (id: number): Promise<group> => {
+  try {
+    const res = await axiosInstance.get(`/groups/${id}`)
+    return res.data.data
+  } catch (e) {
+    throw e
+  }
+}
+
 export const joinGroup = async (groupJoinReq: groupJoinReq): Promise<groupJoinRes> => {
   try {
     // eslint-disable-next-line max-len
     const res = await axiosInstance.post(`groups/${groupJoinReq.groupId}/join`, { joinCode: groupJoinReq.joinCode })
     return res.data
+  } catch (e) {
+    throw e
+  }
+}
+
+export const checkGroupName = async (name: string): Promise<boolean> => {
+  try {
+    // eslint-disable-next-line max-len
+    const res = await axiosInstance.post(`groups/check`, { name })
+    const errorMessage = res.data?.errorMessage
+    return errorMessage ? false : true
   } catch (e) {
     throw e
   }
