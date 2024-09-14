@@ -69,6 +69,13 @@ export default function Camera(props: CameraProps): React.ReactElement {
     }
   }, [hasPermission, isPermissionDenied])
 
+  useEffect(() => {
+    startVideo()
+    return () => {
+      stopVideo() // 컴포넌트가 언마운트될 때 비디오 중지
+    }
+  }, [])
+
   return (
     <div
       style={{
