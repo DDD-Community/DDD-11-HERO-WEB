@@ -1,7 +1,7 @@
 import { poseType } from "@/api/pose"
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
 import { usePoseAnalysis } from "@/hooks/useDashBoard"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 import TotalCountChartIcon from "@/assets/icons/dash-board-total-count.svg?react"
 import ChinUpImage from "@/assets/images/chin-up.png"
@@ -9,14 +9,19 @@ import ShoulderTwistImage from "@/assets/images/shoulder-twist.png"
 import TailBoneSitImage from "@/assets/images/tail-bone-sit.png"
 import TurtleNeckImage from "@/assets/images/tutle-neck.png"
 import PoseAnalysisChart from "@/components/Dashboard/Chart"
+import Datepicker, { DateValueType } from "react-tailwindcss-datepicker"
 
 const AnalysisDashboard = () => {
-  const [currentIndex, setCurrentIndex] = useState(0)
   const carouselRef = useRef(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [dateRange, setDateRange] = useState<DateValueType>({
+    startDate: null,
+    endDate: null,
+  })
 
-  const { todayAnalysis, totalAnalysis, isLoading, isError } = usePoseAnalysis()
+  const { todayAnalysis, totalAnalysis, isLoading, isError } = usePoseAnalysis(dateRange)
 
-  console.log("totalAnalysis: ", totalAnalysis)
+  console.log("totalAnalysis: ", dateRange)
 
   const getPoseCount = (type: poseType) => {
     return todayAnalysis?.count.find((item: any) => item.type === type)?.count || 0
@@ -125,28 +130,25 @@ const AnalysisDashboard = () => {
               )}
             </div>
           </div>
-          <div className="mb-12 mt-8">
-            <hr />
-          </div>
-          {/* 차트 섹션 */}
-          <div className="rounded-lg shadow">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <ChevronLeft size={20} />
-                <span className="rounded-full bg-zinc-800 px-4 py-2 text-white">7월 첫째주 추이</span>
-                <ChevronRight size={20} />
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <Calendar size={16} className="mr-2" />
-                {"2024-09-09"}
-              </div>
-            </div>
-            <div className="h-[340px] rounded-[10px] border-[1px] border-solid border-gray-200 bg-white">
-              {totalAnalysis && <PoseAnalysisChart data={totalAnalysis} />}
-            </div>
-          </div>
         </div>
       )}
+      <div className="mb-12 mt-8">
+        <hr />
+      </div>
+      {/* 차트 섹션 */}
+      <div className="mb-4 flex items-end justify-end">
+        <div className="text-sm text-gray-600">
+          <Datepicker
+            inputClassName="w-[270px] py-2 rounded-full bg-zinc-800 text-white px-[24px]"
+            maxDate={new Date()}
+            value={dateRange}
+            onChange={(value) => setDateRange(value)}
+          />
+        </div>
+      </div>
+      <div className="h-[340px] rounded-[10px] border-[1px] border-solid border-gray-200 bg-white">
+        {totalAnalysis && <PoseAnalysisChart data={totalAnalysis} />}
+      </div>
     </div>
   )
 }
