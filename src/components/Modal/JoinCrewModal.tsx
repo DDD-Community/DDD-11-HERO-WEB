@@ -5,10 +5,11 @@ import { ReactNode, useState } from "react"
 import { ModalProps } from "@/contexts/ModalsContext"
 import { useGetGroup, useJoinGroup } from "@/hooks/useGroupMutation"
 import { groupJoinReq } from "@/api"
+import useMyGroup from "@/hooks/useMyGroup"
 
 const JoinCrewModal = (props: ModalProps): React.ReactElement => {
   const { onClose, onSubmit, id } = props
-
+  const { myGroupData } = useMyGroup()
   const [joinCode, setJoinCode] = useState<string>("")
   const [isCodeError, setIsCodeError] = useState<boolean>(false)
 
@@ -17,7 +18,12 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
 
   const onChangeJoinCode = (e: React.ChangeEvent<HTMLInputElement>): void => {
     if (isCodeError) setIsCodeError(false)
-    if (e.target.value.length <= 4) setJoinCode(e.target.value)
+
+    const { value } = e.target
+    // 숫자만 남기고 업데이트
+    if (/^\d*$/.test(value)) {
+      if (value.length <= 4) setJoinCode(value)
+    }
   }
 
   const handleSubmit = (): void => {
@@ -121,12 +127,17 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
 
           {/* button */}
           <button
-            className="w-[256px] rounded-[40px] bg-[#1A75FF] px-10 py-3 text-base font-semibold text-white"
+            className={`w-[256px] rounded-[40px] bg-[#1A75FF] px-10 py-3 text-base font-semibold text-white ${
+              myGroupData ? "bg-zinc-300" : "bg-[#1A75FF]"
+            }`}
             onClick={handleSubmit}
+            disabled={!!myGroupData}
           >
             크루 가입하기
           </button>
-          <div className="mt-3 text-sm font-medium text-red-500 ">1개의 크루에만 가입할 수 있어요.</div>
+          {myGroupData && (
+            <div className="mt-3 text-sm font-medium text-red-500 ">1개의 크루에만 가입할 수 있어요.</div>
+          )}
         </div>
       )}
     </ModalContainer>
