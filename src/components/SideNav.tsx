@@ -81,7 +81,7 @@ export default function SideNav(): React.ReactElement {
           <nav className="mt-10">
             <ul>
               {navItems.map(({ icon: Icon, label, link }) => {
-                const isActive = location.pathname === link
+                const isActive = location.pathname.includes(link)
                 return (
                   <li key={label} className={`mb-1 rounded-r-md ${isActive ? "bg-gray-700" : "hover:bg-gray-700"}`}>
                     <Link to={link} className={`nav-item flex w-full items-center p-3 ${isActive ? "active" : ""}`}>

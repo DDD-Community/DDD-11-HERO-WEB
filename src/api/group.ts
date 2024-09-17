@@ -31,6 +31,11 @@ export interface groupUserRank {
   score: number
 }
 
+export interface GroupUserRankData {
+  groupId: number
+  ranks: groupUserRank[]
+}
+
 export interface groupsReq {
   page: number
   size: number
@@ -55,6 +60,15 @@ export interface groupJoinRes {
   groupId: number
   uid: number
   groupUserId: number
+}
+
+export interface MyGroupData {
+  id: string
+  name: string
+  description: string
+  userCount: number
+  userCapacity: number
+  ownerNickname: string
 }
 
 export const getGroups = async (groupsReq: groupsReq): Promise<groupsRes> => {
@@ -108,6 +122,37 @@ export const createGroup = async (group: group): Promise<group> => {
   try {
     const res = await axiosInstance.post(`groups`, { ...group })
     return res.data.data
+  } catch (e) {
+    throw e
+  }
+}
+
+export const getGroupScores = async (groupdId: string | number): Promise<{ data: GroupUserRankData }> => {
+  try {
+    const res = await axiosInstance.get(`/group-scores?groupId=${groupdId}`)
+    return res.data
+  } catch (e) {
+    throw e
+  }
+}
+
+export const getMyGroup = async (): Promise<{ data: MyGroupData }> => {
+  try {
+    const res = await axiosInstance.get(`/groups/my-group`)
+    return res.data
+  } catch (e) {
+    throw e
+  }
+}
+
+export const withdrawMyGroup = async (id: string | number | undefined): Promise<any> => {
+  if (!id) {
+    throw new Error("잘못된 크루 id 입니다.")
+  }
+  try {
+    const res = await axiosInstance.delete(`/groups/${id}/withdraw`)
+    console.log("res: ", res)
+    return res
   } catch (e) {
     throw e
   }
