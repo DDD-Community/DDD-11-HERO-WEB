@@ -24,14 +24,14 @@ const CrewList = (): ReactElement => {
     sort: "userCount,desc",
   })
 
-  const { data, isLoading, isError } = useGetGroups(params)
+  const { data, isLoading, isError, refetch } = useGetGroups(params)
 
   const { openModal } = useModals()
 
   const openCreateModal = (): void => {
     openModal(modals.createCrewModal, {
       onSubmit: () => {
-        console.log("open")
+        refetch()
       },
     })
   }

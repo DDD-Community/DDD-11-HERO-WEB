@@ -3,7 +3,8 @@ import CrewJoinUserIcon from "@assets/icons/crew-join-user-icon.svg?react"
 import PrivateCrewIcon from "@assets/icons/crew-private-icon.svg?react"
 import { ReactNode, useState } from "react"
 import { ModalProps } from "@/contexts/ModalsContext"
-import { useGetGroup } from "@/hooks/useGroupMutation"
+import { useGetGroup, useJoinGroup } from "@/hooks/useGroupMutation"
+import { groupJoinReq } from "@/api"
 
 const JoinCrewModal = (props: ModalProps): React.ReactElement => {
   const { onClose, onSubmit, id } = props
@@ -12,21 +13,49 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
   const [isCodeError, setIsCodeError] = useState<boolean>(false)
 
   const { data, isLoading, isError } = useGetGroup(id)
+  const joinGroupMutation = useJoinGroup()
 
   const onChangeJoinCode = (e: React.ChangeEvent<HTMLInputElement>): void => {
     if (isCodeError) setIsCodeError(false)
     if (e.target.value.length <= 4) setJoinCode(e.target.value)
   }
 
+  const handleSubmit = (): void => {
+    if (!data?.id) return
+    let groupJoinReq: groupJoinReq = { groupId: data.id }
+    if (data?.isHidden) groupJoinReq = { ...groupJoinReq, joinCode }
+    joinGroupMutation.mutate(groupJoinReq, {
+      onSuccess: (): void => {
+        if (onSubmit && typeof onSubmit === "function") onSubmit()
+      },
+      onError: (e): void => {
+        console.log(e)
+      },
+    })
+  }
+
   const createRank = (): ReactNode => {
+    if (!data?.ranks) return
+    if (data.ranks.length === 0) return
     return (
-      <div className="flex gap-[7px]">
-        {data?.ranks.map((r) => (
-          <div className="flex h-[108px] w-[106px] flex-col items-center justify-center  rounded-xl border border-gray-200 p-3">
-            <div className="mb-2 text-sm font-semibold text-zinc-700">{`${r.rank}등`}</div>
-            <div className="mb-1 max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-lg font-semibold text-zinc-700">{`${r.name}`}</div>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <div className="text-[15px] font-semibold">오늘 바른자세 랭킹</div>
+          <div className="text-[14px] font-medium text-[#1A75FF]">크루에 가입하면 볼 수 있어요</div>
+        </div>
+        <div className="flex gap-[7px]">
+          <div className="flex gap-[7px]">
+            {data?.ranks.map((r, i) => (
+              <div
+                key={`join-modal-rank-${i}`}
+                className="flex h-[108px] w-[106px] flex-col items-center justify-center  rounded-xl border border-gray-200 p-3"
+              >
+                <div className="mb-2 text-sm font-semibold text-zinc-700">{`${r.rank}등`}</div>
+                <div className="mb-1 max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-lg font-semibold text-zinc-700">{`${r.name}`}</div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     )
   }
@@ -57,7 +86,7 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
               <div className="flex flex-col gap-1">
                 <div className="text-[15px] font-semibold">크루장</div>
                 <div className="rounded-xl border border-gray-200 bg-zinc-100 p-[12px] text-[15px] font-normal text-zinc-900">
-                  {data?.ownerUid}
+                  {data?.ownerName}
                 </div>
               </div>
 
@@ -70,15 +99,7 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
               </div>
 
               {/* crew rank */}
-              {data?.ranks && (
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <div className="text-[15px] font-semibold">오늘 바른자세 랭킹</div>
-                    <div className="text-[14px] font-medium text-[#1A75FF]">크루에 가입하면 볼 수 있어요</div>
-                  </div>
-                  <div className="flex gap-[7px]">{createRank()}</div>
-                </div>
-              )}
+              {createRank()}
             </div>
           ) : (
             // private crew
@@ -101,10 +122,11 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
           {/* button */}
           <button
             className="w-[256px] rounded-[40px] bg-[#1A75FF] px-10 py-3 text-base font-semibold text-white"
-            onClick={onSubmit}
+            onClick={handleSubmit}
           >
             크루 가입하기
           </button>
+          <div className="mt-3 text-sm font-medium text-red-500 ">1개의 크루에만 가입할 수 있어요.</div>
         </div>
       )}
     </ModalContainer>

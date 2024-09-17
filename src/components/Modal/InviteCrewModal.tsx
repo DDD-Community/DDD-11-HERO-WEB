@@ -26,6 +26,7 @@ const InviteCrewModal = (props: ModalProps): React.ReactElement => {
         >
           초대 링크 복사하기
         </button>
+        <div className="mt-3 text-sm font-medium text-[#1A75FF]">초대 링크가 복사되었어요.</div>
       </div>
     </ModalContainer>
   )
