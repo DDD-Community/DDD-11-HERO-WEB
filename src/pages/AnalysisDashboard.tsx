@@ -11,6 +11,9 @@ import TurtleNeckImage from "@/assets/images/tutle-neck.png"
 import PoseAnalysisChart from "@/components/Dashboard/Chart"
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker"
 
+const START_FROM = new Date()
+START_FROM.setMonth(START_FROM.getMonth() - 1)
+
 const AnalysisDashboard = () => {
   const carouselRef = useRef(null)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -140,6 +143,7 @@ const AnalysisDashboard = () => {
         <div className="text-sm text-gray-600">
           <Datepicker
             inputClassName="w-[270px] py-2 rounded-full bg-zinc-800 text-white px-[24px]"
+            startFrom={START_FROM}
             maxDate={new Date()}
             value={dateRange}
             onChange={(value) => setDateRange(value)}

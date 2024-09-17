@@ -10,7 +10,7 @@ const App = (): React.ReactElement => {
   return (
     <QueryClientProvider client={queryClient}>
       <ModalsProvider>
-        <Router></Router>
+        <Router />
       </ModalsProvider>
     </QueryClientProvider>
   )

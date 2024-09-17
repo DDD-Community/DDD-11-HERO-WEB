@@ -2,12 +2,13 @@ import { group, groupsReq, sort } from "@/api"
 import EmptyCrewImage from "@/assets/images/crew-empty.png"
 import CrewItem from "@/components/Crew/CrewItem"
 import { useGetGroups } from "@/hooks/useGroupMutation"
+import { useModals } from "@/hooks/useModals"
+import useMyGroup from "@/hooks/useMyGroup"
 import CreateCrewIcon from "@assets/icons/crew-create-button-icon.svg?react"
 import SortCrewIcon from "@assets/icons/crew-sort-icon.svg?react"
 import { ReactElement, useEffect, useRef, useState } from "react"
-import { useModals } from "@/hooks/useModals"
-import MyCrewRankingContainer from "./MyCrewRankingContainer"
 import { modals } from "../Modal/Modals"
+import MyCrewRankingContainer from "./MyCrew/MyCrewRankingContainer"
 
 const SORT_LIST = [
   { sort: "userCount,desc", label: "크루원 많은 순" },
@@ -15,9 +16,9 @@ const SORT_LIST = [
 ]
 
 const CrewList = (): ReactElement => {
-  const [mode] = useState<"my" | "list">("my")
+  const { myGroupData, ranks, myRank } = useMyGroup()
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
-
+  console.log("myGroupData: ", myGroupData)
   const [params, setParams] = useState<groupsReq>({
     page: 0,
     size: 10000,
@@ -110,22 +111,31 @@ const CrewList = (): ReactElement => {
 
   return (
     <div className="flex h-full w-full flex-col">
-      {mode === "my" && <MyCrewRankingContainer openCreateModal={openCreateModal} openInviteModal={openInviteModal} />}
+      {myGroupData && Object.keys(myGroupData).length > 0 && (
+        <MyCrewRankingContainer
+          myGroupData={myGroupData}
+          ranks={ranks}
+          myRank={myRank}
+          openCreateModal={openCreateModal}
+          openInviteModal={openInviteModal}
+        />
+      )}
       {/* header */}
       <div className="mb-[24px] flex w-full items-center">
         <div className="flex-grow text-[22px] font-bold text-zinc-900">
           <span>전체크루</span>
           <span>{isLoading ? "" : `(${data?.totalCount})`}</span>
         </div>
-        {mode === "list" && (
-          <div
-            className="flex w-[138px] cursor-pointer items-center justify-center gap-[10px] rounded-[33px] bg-zinc-800 p-[10px] text-sm font-semibold text-white"
-            onClick={openCreateModal}
-          >
-            <CreateCrewIcon />
-            <div>크루 만들기</div>
-          </div>
-        )}
+        {!myGroupData ||
+          (myGroupData && Object.keys(myGroupData).length === 0 && (
+            <div
+              className="flex w-[138px] cursor-pointer items-center justify-center gap-[10px] rounded-[33px] bg-zinc-800 p-[10px] text-sm font-semibold text-white"
+              onClick={openCreateModal}
+            >
+              <CreateCrewIcon />
+              <div>크루 만들기</div>
+            </div>
+          ))}
       </div>
 
       {/* sort */}
