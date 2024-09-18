@@ -50,7 +50,9 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <div className="text-[15px] font-semibold">오늘 바른자세 랭킹</div>
-          <div className="text-[14px] font-medium text-[#1A75FF]">크루에 가입하면 볼 수 있어요</div>
+          {myGroupData?.id !== id && (
+            <div className="text-[14px] font-medium text-[#1A75FF]">크루에 가입하면 볼 수 있어요</div>
+          )}
         </div>
         <div className="flex gap-[7px]">
           <div className="flex gap-[7px]">
@@ -60,7 +62,9 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
                 className="flex h-[108px] w-[106px] flex-col items-center justify-center  rounded-xl border border-gray-200 p-3"
               >
                 <div className="mb-2 text-sm font-semibold text-zinc-700">{`${r.rank}등`}</div>
-                <div className="mb-1 max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-lg font-semibold text-zinc-700">{`${r.name}`}</div>
+                <div className="mb-1 max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-lg font-semibold text-zinc-700">
+                  {myGroupData?.id === id ? `${r.name}` : "?"}
+                </div>
               </div>
             ))}
           </div>
