@@ -47,7 +47,7 @@ export interface pose {
  * movenet detect 결과값으로 부터 point 객체 추출
  * @param poses {pose[]} movenet 결과값
  * @param name {string} keypoint중 추출하고자 하는 key name
- * @returns {point} {x,y}
+ * @returns {point} {x,y, confidence}
  */
 export const getXYfromPose = (poses: pose[], name: string): point | null => {
   try {
@@ -116,23 +116,47 @@ export const detectTextNeck = (refer: pose[], comp: pose[], isSnapShotMode = tru
     // 1. 귀의 중점이 어깨의 중점보다 앞쪽에 있는지 (x 좌표 비교)
     // 2. 코가 귀의 중점보다 어깨 쪽에 가까운지 (거리 비교)
 
-    console.log(earMidpoint.x, " / ", shoulderMidpoint.x)
     const isEarForwardOfShoulder = earMidpoint.x > shoulderMidpoint.x
     // const isNoseCloserToShoulder = noseToShoulderDistance < earToShoulderDistance
     // 두 조건이 모두 참이면 거북목으로 판단
     return isEarForwardOfShoulder
   }
 
-  const referDistance = getDistanceFromLine(
-    referLeftShoulder,
-    referRightShoulder,
-    getMidPoint(referLeftEar, referRightEar)
-  )
-  const referEearsDistance = getDistance(referLeftEar, referRightEar)
-  const compDistance = getDistanceFromLine(compLeftShoulder, compRightShoulder, getMidPoint(compLeftEar, compRightEar))
-  const compEearsDistance = getDistance(compLeftEar, compRightEar)
-  if (referDistance * 0.95 > compDistance && referEearsDistance < compEearsDistance) return true
-  else return false
+  // 귀의 중점 계산
+  const referEarMidpoint = getMidPoint(referLeftEar, referRightEar)
+  // 어깨의 중점 계산
+  const referShoulderMidpoint = getMidPoint(referLeftShoulder, referRightShoulder)
+  // 귀의 중점 계산
+  const compEarMidpoint = getMidPoint(compLeftEar, compRightEar)
+  // 어깨의 중점 계산
+  const compShoulderMidpoint = getMidPoint(compLeftShoulder, compRightShoulder)
+
+  const referForwardHeadDistance = referShoulderMidpoint.y - referEarMidpoint.y
+  const compForwardHeadDistance = compShoulderMidpoint.y - compEarMidpoint.y
+
+  // 양쪽 귀를 잇는 선의 기울기 계산
+  const earSlope = (compRightEar.y - compLeftEar.y) / (compRightEar.x - compLeftEar.x)
+
+  // 양쪽 어깨를 잇는 선의 기울기 계산
+  // eslint-disable-next-line max-len
+  const shoulderSlope = (compRightShoulder.y - compLeftShoulder.y) / (compRightShoulder.x - compLeftShoulder.x)
+
+  // 기울기 차이 계산
+  const slopeDifference = Math.abs(earSlope - shoulderSlope)
+
+  const referShoulderDistance = getDistance(referLeftShoulder, referRightShoulder)
+  const compShoulderDistance = getDistance(compLeftShoulder, compRightShoulder)
+
+  const referRatio = referForwardHeadDistance / referShoulderDistance
+  const compRatio = compForwardHeadDistance / compShoulderDistance
+
+  const SLOPE_DIFF_THRESHOLD = 0.3
+  const RATIO_DIFF_THRESHOLD = 0.9
+  if (slopeDifference <= SLOPE_DIFF_THRESHOLD && referRatio * RATIO_DIFF_THRESHOLD > compRatio) {
+    return true
+  } else {
+    return false
+  }
 }
 
 /**
