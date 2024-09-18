@@ -9,6 +9,7 @@ import CrewUserIcon from "@assets/icons/crew-user-icon.svg?react"
 import dayjs from "dayjs"
 import { modals } from "@/components/Modal/Modals"
 import { useNavigate } from "react-router-dom"
+import { useCallback } from "react"
 
 export default function MyCrew() {
   const { myGroupData, ranks, myRank, withdrawFromGroup } = useMyGroup()
@@ -37,6 +38,15 @@ export default function MyCrew() {
     })
   }
 
+  const openInviteModal = useCallback((): void => {
+    openModal(modals.inviteCrewModal, {
+      id: Number(myGroupData?.id),
+      onSubmit: () => {
+        console.log("open")
+      },
+    })
+  }, [myGroupData, openModal])
+
   return (
     <>
       <MyCrewHeader openCreateModal={() => {}} />
@@ -55,7 +65,7 @@ export default function MyCrew() {
               {myGroupData?.userCount}/{myGroupData?.userCapacity}명
             </span>
           </div>
-          <button className="rounded-full border-[1px] border-solid border-gray-200 bg-white">
+          <button className="rounded-full border-[1px] border-solid border-gray-200 bg-white" onClick={openInviteModal}>
             <div className="flex items-center gap-1 px-2 py-1">
               <SendInvitationIcon />
               <span className="text-sm font-medium text-zinc-400">초대하기</span>

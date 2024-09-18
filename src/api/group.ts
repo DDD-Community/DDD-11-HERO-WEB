@@ -1,5 +1,6 @@
 import qs from "qs"
 import axiosInstance from "./axiosInstance"
+import { AxiosError } from "axios"
 
 export type sort = "userCount,desc" | "createdAt,desc"
 
@@ -10,15 +11,17 @@ export interface sortRes {
 }
 
 export interface group {
-  id: number
-  name: string
-  description: string
-  ownerUid: number
-  isHidden: boolean
-  joinCode: string
-  userCount: number
-  userCapacity: number
-  ranks: groupUserRank[]
+  id?: number
+  name?: string
+  description?: string
+  ownerUid?: number
+  ownerName?: string
+  isHidden?: boolean
+  joinCode?: string
+  userCount?: number
+  userCapacity?: number
+  hasJoined?: boolean
+  ranks?: groupUserRank[]
 }
 
 export interface groupUserRank {
@@ -50,7 +53,7 @@ export interface groupsRes {
 
 export interface groupJoinReq {
   groupId: number
-  joinCode: string
+  joinCode?: string
 }
 
 export interface groupJoinRes {
@@ -88,9 +91,14 @@ export const getGroup = async (id: number | undefined): Promise<group> => {
 
 export const joinGroup = async (groupJoinReq: groupJoinReq): Promise<groupJoinRes> => {
   try {
-    // eslint-disable-next-line max-len
-    const res = await axiosInstance.post(`groups/${groupJoinReq.groupId}/join`, { joinCode: groupJoinReq.joinCode })
-    return res.data
+    const res = await axiosInstance.post(
+      `groups/${groupJoinReq.groupId}/join`,
+      {}, // POST 요청에 body가 없다면 빈 객체 전달
+      {
+        params: groupJoinReq.joinCode ? { joinCode: groupJoinReq.joinCode } : {}, // query string으로 joinCode 전달
+      }
+    )
+    return res.data.data
   } catch (e) {
     throw e
   }
@@ -100,8 +108,20 @@ export const checkGroupName = async (name: string): Promise<boolean> => {
   try {
     // eslint-disable-next-line max-len
     const res = await axiosInstance.post(`groups/check`, { name })
-    const errorMessage = res.data?.errorMessage
-    return errorMessage ? false : true
+    const errorCode = res.data?.errorCode
+    return !errorCode
+  } catch (e) {
+    const { response } = e as AxiosError
+    const data = response?.data as { errorCode: string; reason: string }
+    if (data.errorCode) return false
+    throw e
+  }
+}
+
+export const createGroup = async (group: group): Promise<group> => {
+  try {
+    const res = await axiosInstance.post(`groups`, { ...group })
+    return res.data.data
   } catch (e) {
     throw e
   }

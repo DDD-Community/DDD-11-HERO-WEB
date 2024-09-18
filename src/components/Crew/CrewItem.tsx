@@ -31,10 +31,13 @@ const CrewItem = (props: CrewItemProps): ReactElement => {
       </div>
       {/* detail button */}
       <button
-        className="flex w-[114px] cursor-pointer justify-center rounded-full bg-[#1A75FF] py-[6px] text-sm font-semibold text-white"
+        className={`flex w-[114px] justify-center rounded-full py-[6px] text-sm font-semibold text-white ${
+          group.hasJoined ? "bg-zinc-800" : group.userCapacity === group.userCount ? "bg-gray-200" : "bg-[#1A75FF]"
+        }`}
         onClick={onClickDetail}
+        disabled={group.hasJoined || group.userCapacity === group.userCount}
       >
-        크루 상세보기
+        {group.hasJoined ? "나의 크루" : "크루 상세보기"}
       </button>
     </div>
   )

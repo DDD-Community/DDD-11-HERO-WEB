@@ -6,9 +6,11 @@ import { useModals } from "@/hooks/useModals"
 import useMyGroup from "@/hooks/useMyGroup"
 import CreateCrewIcon from "@assets/icons/crew-create-button-icon.svg?react"
 import SortCrewIcon from "@assets/icons/crew-sort-icon.svg?react"
-import { ReactElement, useEffect, useRef, useState } from "react"
+import { ReactElement, useCallback, useEffect, useRef, useState, useMemo } from "react"
 import { modals } from "../Modal/Modals"
 import MyCrewRankingContainer from "./MyCrew/MyCrewRankingContainer"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import RoutePath from "@/constants/routes.json"
 
 const SORT_LIST = [
   { sort: "userCount,desc", label: "크루원 많은 순" },
@@ -16,85 +18,111 @@ const SORT_LIST = [
 ]
 
 const CrewList = (): ReactElement => {
-  const { myGroupData, ranks, myRank } = useMyGroup()
+  const navigate = useNavigate()
+  const { myGroupData, ranks, myRank, refetchAll } = useMyGroup()
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
-  console.log("myGroupData: ", myGroupData)
+  const [searchParams, setSearchParams] = useSearchParams()
+
   const [params, setParams] = useState<groupsReq>({
     page: 0,
     size: 10000,
     sort: "userCount,desc",
   })
 
-  const { data, isLoading, isError } = useGetGroups(params)
-
+  const { data, isLoading, isError, refetch } = useGetGroups(params)
   const { openModal } = useModals()
 
-  const openCreateModal = (): void => {
-    openModal(modals.createCrewModal, {
-      onSubmit: () => {
-        console.log("open")
-      },
-    })
-  }
+  // openCreateModal 메모이제이션
+  const openCreateModal = useCallback((): void => {
+    if (myGroupData) {
+      openModal(modals.ToWithdrawModal, {
+        onSubmit: () => {
+          navigate(RoutePath.MYCREW)
+        },
+      })
+    } else {
+      openModal(modals.createCrewModal, {
+        onSubmit: () => {
+          refetch()
+          refetchAll()
+        },
+      })
+    }
+  }, [myGroupData, navigate, openModal, refetch, refetchAll])
 
-  const openJoinCrewModal = (id: number): void => {
-    openModal(modals.joinCrewModal, {
-      id,
-      onSubmit: () => {
-        console.log("open")
-      },
-    })
-  }
+  // openJoinCrewModal 메모이제이션
+  const openJoinCrewModal = useCallback(
+    (id: number | undefined): void => {
+      openModal(modals.joinCrewModal, {
+        id,
+        onSubmit: () => {
+          console.log("open")
+        },
+      })
+    },
+    [openModal]
+  )
 
-  const openInviteModal = (): void => {
+  // openInviteModal 메모이제이션
+  const openInviteModal = useCallback((): void => {
     openModal(modals.inviteCrewModal, {
+      id: Number(myGroupData?.id),
       onSubmit: () => {
         console.log("open")
       },
     })
-  }
+  }, [myGroupData, openModal])
 
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
+  // toggleDropdown 함수
   const toggleDropdown = (): void => {
     setIsDropdownOpen((prev) => !prev)
   }
 
-  const createSortList = (): JSX.Element[] => {
+  // createSortList 메모이제이션
+  const createSortList = useMemo(() => {
     return SORT_LIST.map((s) => (
-      // eslint-disable-next-line max-len
       <div
         key={`sort-list-${s.sort}`}
         className="cursor-pointer text-[13px] font-medium leading-[24px] text-zinc-400"
         onClick={() => {
-          setParams({ ...params, sort: s.sort as sort })
+          setParams((prev) => ({ ...prev, sort: s.sort as sort }))
           setIsDropdownOpen(false)
         }}
       >
         {s.label}
       </div>
     ))
-  }
+  }, [])
 
-  const createGroupList = (_groups: group[] | undefined): JSX.Element | null => {
-    if (!_groups) return null
+  // createGroupList 메모이제이션
+  const createGroupList = useCallback(
+    (_groups: group[] | undefined): JSX.Element | null => {
+      if (!_groups) return null
 
-    if (_groups.length === 0) {
+      if (_groups.length === 0) {
+        return (
+          <div className="flex flex-grow flex-col items-center justify-center">
+            <img src={EmptyCrewImage} alt="empty crew" />
+            <div className="text-center text-[14px] font-semibold leading-[22px]">
+              {"만들어진 크루가 아직 없습니다."}
+            </div>
+          </div>
+        )
+      }
+
       return (
-        <div className="flex flex-grow flex-col items-center justify-center">
-          <img src={EmptyCrewImage} alt="empty crew" />
-          <div className="text-center text-[14px] font-semibold leading-[22px]">{"만들어진 크루가 아직 없습니다."}</div>
+        <div className="flex flex-grow flex-col gap-[8px]">
+          {_groups.map((g) => (
+            <CrewItem key={`crew-item-${g.id}`} group={g} onClickDetail={() => openJoinCrewModal(g.id)} />
+          ))}
         </div>
       )
-    }
-    return (
-      <div className="flex flex-grow flex-col gap-[8px]">
-        {_groups.map((g) => (
-          <CrewItem key={`crew-item-${g.id}`} group={g} onClickDetail={() => openJoinCrewModal(g.id)} />
-        ))}
-      </div>
-    )
-  }
+    },
+    [openJoinCrewModal]
+  )
+
+  // Dropdown 외부 클릭 감지 메모이제이션
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent): void => {
@@ -107,7 +135,21 @@ const CrewList = (): ReactElement => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [dropdownRef])
+  }, [])
+
+  // URL에서 groupId 추출 후 모달 열기
+  useEffect(() => {
+    const groupId = searchParams.get("groupId")
+
+    if (groupId) {
+      openJoinCrewModal(Number(groupId))
+      const removeGroupIdFromUrl = (): void => {
+        searchParams.delete("groupId")
+        setSearchParams(searchParams)
+      }
+      removeGroupIdFromUrl()
+    }
+  }, [openJoinCrewModal, searchParams, setSearchParams])
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -120,22 +162,22 @@ const CrewList = (): ReactElement => {
           openInviteModal={openInviteModal}
         />
       )}
+
       {/* header */}
       <div className="mb-[24px] flex w-full items-center">
         <div className="flex-grow text-[22px] font-bold text-zinc-900">
           <span>전체크루</span>
           <span>{isLoading ? "" : `(${data?.totalCount})`}</span>
         </div>
-        {!myGroupData ||
-          (myGroupData && Object.keys(myGroupData).length === 0 && (
-            <div
-              className="flex w-[138px] cursor-pointer items-center justify-center gap-[10px] rounded-[33px] bg-zinc-800 p-[10px] text-sm font-semibold text-white"
-              onClick={openCreateModal}
-            >
-              <CreateCrewIcon />
-              <div>크루 만들기</div>
-            </div>
-          ))}
+        {(!myGroupData || (myGroupData && Object.keys(myGroupData).length === 0)) && (
+          <div
+            className="flex w-[138px] cursor-pointer items-center justify-center gap-[10px] rounded-[33px] bg-zinc-800 p-[10px] text-sm font-semibold text-white"
+            onClick={openCreateModal}
+          >
+            <CreateCrewIcon />
+            <div>크루 만들기</div>
+          </div>
+        )}
       </div>
 
       {/* sort */}
@@ -153,7 +195,7 @@ const CrewList = (): ReactElement => {
               : "pointer-events-none -translate-y-2 scale-95 opacity-0"
           }`}
         >
-          {createSortList()}
+          {createSortList}
         </div>
       </div>
 

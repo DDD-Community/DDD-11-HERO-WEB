@@ -3,6 +3,10 @@ import CheckedIcon from "@assets/icons/crew-checked-icon.svg?react"
 import UnCheckedIcon from "@assets/icons/crew-unckecked-icon.svg?react"
 import { useState } from "react"
 import { ModalProps } from "@/contexts/ModalsContext"
+import { useCheckGroupName, useCreateGroup } from "@/hooks/useGroupMutation"
+import { group } from "@/api"
+
+type TPossible = "POSSIBLE" | "IMPOSSIBLE" | "NONCHECKED"
 
 const CreateCrewModal = (props: ModalProps): React.ReactElement => {
   const { onClose, onSubmit } = props
@@ -11,9 +15,14 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
   const [description, setDescription] = useState<string>("")
   const [isHidden, setIsHidden] = useState<boolean>(false)
   const [joinCode, setJoinCode] = useState<string>("")
+  const [isPossible, setIsPossible] = useState<TPossible | null>(null)
+
+  const checkGroupNameMutation = useCheckGroupName()
+  const createGroupMutation = useCreateGroup()
 
   const onChangeName = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setName(e.target.value)
+    setIsPossible(null)
   }
 
   const onChangeDescription = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
@@ -40,6 +49,38 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
     setJoinCode("")
   }
 
+  const onCheckGroupName = async (): Promise<void> => {
+    const _isPossible = await checkGroupNameMutation.mutateAsync(name)
+    setIsPossible(_isPossible ? "POSSIBLE" : "IMPOSSIBLE")
+  }
+
+  const getNameCheckedMsg = (_isPossible: TPossible | null): string => {
+    if (_isPossible === "POSSIBLE") return "사용가능한 크루명입니다."
+    if (_isPossible === "IMPOSSIBLE") return "이미 사용중인 크루명이에요. 다른 크루명을 사용해주세요."
+    if (_isPossible === "NONCHECKED") return "중복체크를 해주세요."
+    return ""
+  }
+
+  const canCreate = (): string | boolean => {
+    return name && description && ((isHidden && joinCode.length === 4) || !isHidden)
+  }
+
+  const handleSubmit = (): void => {
+    if (isPossible === null) {
+      setIsPossible("NONCHECKED")
+      return
+    }
+    if (isPossible === "NONCHECKED") return
+
+    let newGroup: group = { name, description }
+    if (isHidden) newGroup = { ...newGroup, joinCode, isHidden }
+    createGroupMutation.mutate(newGroup, {
+      onSuccess: (): void => {
+        if (onSubmit && typeof onSubmit === "function") onSubmit()
+      },
+    })
+  }
+
   return (
     <ModalContainer onClose={onClose}>
       <div className="flex flex-col items-center">
@@ -48,21 +89,36 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
           <div className="text-xl font-bold text-zinc-900">{"크루 만들기"}</div>
         </div>
 
-        <div className="mb-6 flex w-full flex-col gap-5 text-[15px]">
+        <div className="mb-6 flex w-full flex-col text-[15px]">
           {/* crew owner */}
-          <div className="flex flex-col gap-1">
+          <div className="mb-4 flex flex-col gap-1">
             <div className="font-semibold text-[#1A75FF]">크루명</div>
-            <div className="flex gap-4">
+            <div className="mb-1 flex gap-4">
               <input
                 type="text"
-                className={`w-full rounded-xl border border-gray-200 px-3 py-2 outline-none`}
+                className={`w-full rounded-xl border border-gray-200 px-3 py-2 outline-none ${
+                  isPossible === "IMPOSSIBLE" || isPossible === "NONCHECKED" ? "border-red-500" : "border-gray-200"
+                }`}
                 value={name}
                 onChange={onChangeName}
                 placeholder="크루명을 입력해주세요."
               />
-              <button className="h-[44px] w-[116px] rounded-[33px] bg-[#1A75FF] px-[22px] py-1.5 text-sm font-semibold text-white">
+              <button
+                className={`h-[44px] w-[116px] rounded-[33px] px-[22px] py-1.5 text-sm font-semibold text-white ${
+                  name.length === 0 || isPossible === "POSSIBLE" ? "bg-gray-200" : "bg-[#1A75FF]"
+                }`}
+                onClick={onCheckGroupName}
+                disabled={name.length === 0 || isPossible === "POSSIBLE"}
+              >
                 중복체크
               </button>
+            </div>
+            <div
+              className={`h-[24px] text-sm font-semibold ${
+                isPossible === "POSSIBLE" ? "text-[#1A75FF]" : "text-red-500"
+              }`}
+            >
+              {getNameCheckedMsg(isPossible)}
             </div>
           </div>
 
@@ -105,8 +161,11 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
 
         {/* button */}
         <button
-          className="w-[256px] rounded-[40px] bg-[#1A75FF] px-10 py-3 text-base font-semibold text-white"
-          onClick={onSubmit}
+          className={`w-[256px] rounded-[40px] px-10 py-3 text-base font-semibold text-white ${
+            canCreate() ? "bg-[#1A75FF]" : "bg-gray-200"
+          }`}
+          onClick={handleSubmit}
+          disabled={!canCreate()}
         >
           크루 만들기
         </button>
