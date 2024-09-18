@@ -151,7 +151,7 @@ export const detectTextNeck = (refer: pose[], comp: pose[], isSnapShotMode = tru
   const compRatio = compForwardHeadDistance / compShoulderDistance
 
   const SLOPE_DIFF_THRESHOLD = 0.3
-  const RATIO_DIFF_THRESHOLD = 0.9
+  const RATIO_DIFF_THRESHOLD = 0.98
   if (slopeDifference <= SLOPE_DIFF_THRESHOLD && referRatio * RATIO_DIFF_THRESHOLD > compRatio) {
     return true
   } else {
