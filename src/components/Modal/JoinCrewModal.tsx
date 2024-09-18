@@ -6,6 +6,7 @@ import { ModalProps } from "@/contexts/ModalsContext"
 import { useGetGroup, useJoinGroup } from "@/hooks/useGroupMutation"
 import { groupJoinReq } from "@/api"
 import useMyGroup from "@/hooks/useMyGroup"
+import { AxiosError } from "axios"
 
 const JoinCrewModal = (props: ModalProps): React.ReactElement => {
   const { onClose, onSubmit, id } = props
@@ -35,7 +36,9 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
         if (onSubmit && typeof onSubmit === "function") onSubmit()
       },
       onError: (e): void => {
-        console.log(e)
+        const { response } = e as AxiosError
+        const data = response?.data as { errorCode: string; reason: string }
+        if (data.errorCode === "IMPOSSIBLE_TO_JOIN_GROUP_ERROR") setIsCodeError(true)
       },
     })
   }
