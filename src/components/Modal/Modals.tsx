@@ -1,10 +1,11 @@
 import { ModalsDispatchContext, ModalsStateContext } from "@/contexts/ModalsContext"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import CreateCrewModal from "./CreateCrewModal"
 import InviteCrewModal from "./InviteCrewModal"
 import JoinCrewModal from "./JoinCrewModal"
 import WithdrawCrewModal from "./WithdrawCrewModal"
 import ToWithdrawModal from "./ToWithdrawModal"
+import { useLocation } from "react-router-dom"
 
 export const modals = {
   createCrewModal: CreateCrewModal,
@@ -17,6 +18,15 @@ export const modals = {
 const Modals = (): React.ReactNode => {
   const openedModals = useContext(ModalsStateContext)
   const { close } = useContext(ModalsDispatchContext)
+
+  const location = useLocation() // 페이지 이동 감지
+
+  // 페이지 이동 시 모든 모달 닫기 (context 상태 초기화)
+  useEffect(() => {
+    if (openedModals.length > 0) {
+      openedModals.forEach((modal) => close(modal.Component))
+    }
+  }, [location.pathname]) // 경로가 변경될 때마다 실행
 
   return openedModals.map((modal, index) => {
     const { Component, props } = modal

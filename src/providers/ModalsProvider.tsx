@@ -1,4 +1,3 @@
-import Modals from "@/components/Modal/Modals"
 import {
   ModalsDispatchContext,
   ModalsStateContext,
@@ -30,10 +29,7 @@ const ModalsProvider = ({ children }: PropsWithChildren): React.ReactNode => {
 
   return (
     <ModalsStateContext.Provider value={openedModals}>
-      <ModalsDispatchContext.Provider value={dispatch}>
-        {children}
-        <Modals />
-      </ModalsDispatchContext.Provider>
+      <ModalsDispatchContext.Provider value={dispatch}>{children}</ModalsDispatchContext.Provider>
     </ModalsStateContext.Provider>
   )
 }
