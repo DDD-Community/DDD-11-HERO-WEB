@@ -1,3 +1,4 @@
+import Modals from "@/components/Modal/Modals"
 import RoutePath from "@/constants/routes.json"
 import AnalysisLayout from "@/layouts/AnalysisLayout"
 import BaseLayout from "@/layouts/BaseLayout"
@@ -42,6 +43,7 @@ const Router: React.FC = () => {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Modals />
     </BrowserRouter>
   )
 }
