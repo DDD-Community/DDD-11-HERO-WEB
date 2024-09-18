@@ -21,6 +21,8 @@ const CrewList = (): ReactElement => {
   const navigate = useNavigate()
   const { myGroupData, ranks, myRank, refetchAll } = useMyGroup()
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
+  // Dropdown 외부 클릭 감지 메모이제이션
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [params, setParams] = useState<groupsReq>({
@@ -31,6 +33,14 @@ const CrewList = (): ReactElement => {
 
   const { data, isLoading, isError, refetch } = useGetGroups(params)
   const { openModal } = useModals()
+
+  // 가입 혹은 그룹 생성 후 최상단으로 이동
+  const scrollToTop = useCallback((): void => {
+    const el = document.getElementById("main-content")
+    if (el) {
+      el.scrollTo({ top: 0, behavior: "smooth" })
+    }
+  }, [])
 
   // openCreateModal 메모이제이션
   const openCreateModal = useCallback((): void => {
@@ -45,6 +55,7 @@ const CrewList = (): ReactElement => {
         onSubmit: () => {
           refetch()
           refetchAll()
+          scrollToTop()
         },
       })
     }
@@ -56,7 +67,9 @@ const CrewList = (): ReactElement => {
       openModal(modals.joinCrewModal, {
         id,
         onSubmit: () => {
-          console.log("open")
+          refetch()
+          refetchAll()
+          scrollToTop()
         },
       })
     },
@@ -67,9 +80,6 @@ const CrewList = (): ReactElement => {
   const openInviteModal = useCallback((): void => {
     openModal(modals.inviteCrewModal, {
       id: Number(myGroupData?.id),
-      onSubmit: () => {
-        console.log("open")
-      },
     })
   }, [myGroupData, openModal])
 
@@ -120,9 +130,6 @@ const CrewList = (): ReactElement => {
     },
     [openJoinCrewModal]
   )
-
-  // Dropdown 외부 클릭 감지 메모이제이션
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent): void => {
