@@ -124,35 +124,28 @@ export const detectTextNeck = (refer: pose[], comp: pose[], isSnapShotMode = tru
 
   // 귀의 중점 계산
   const referEarMidpoint = getMidPoint(referLeftEar, referRightEar)
-  // 어깨의 중점 계산
-  const referShoulderMidpoint = getMidPoint(referLeftShoulder, referRightShoulder)
   // 귀의 중점 계산
   const compEarMidpoint = getMidPoint(compLeftEar, compRightEar)
-  // 어깨의 중점 계산
-  const compShoulderMidpoint = getMidPoint(compLeftShoulder, compRightShoulder)
 
-  const referForwardHeadDistance = referShoulderMidpoint.y - referEarMidpoint.y
-  const compForwardHeadDistance = compShoulderMidpoint.y - compEarMidpoint.y
+  const referForwardHeadDistance = Math.max(referLeftShoulder.y, referRightShoulder.y) - referEarMidpoint.y
+  const compForwardHeadDistance = Math.max(compLeftShoulder.y, compRightShoulder.y) - compEarMidpoint.y
 
-  // 양쪽 귀를 잇는 선의 기울기 계산
-  const earSlope = (compRightEar.y - compLeftEar.y) / (compRightEar.x - compLeftEar.x)
-
-  // 양쪽 어깨를 잇는 선의 기울기 계산
-  // eslint-disable-next-line max-len
-  const shoulderSlope = (compRightShoulder.y - compLeftShoulder.y) / (compRightShoulder.x - compLeftShoulder.x)
-
-  // 기울기 차이 계산
-  const slopeDifference = Math.abs(earSlope - shoulderSlope)
+  const referEarDistance = getDistance(referLeftEar, referRightEar)
+  const compEarDistance = getDistance(compLeftEar, compRightEar)
 
   const referShoulderDistance = getDistance(referLeftShoulder, referRightShoulder)
   const compShoulderDistance = getDistance(compLeftShoulder, compRightShoulder)
 
-  const referRatio = referForwardHeadDistance / referShoulderDistance
-  const compRatio = compForwardHeadDistance / compShoulderDistance
+  const RATIO_DIFF_THRESHOLD = 0.88
 
-  const SLOPE_DIFF_THRESHOLD = 0.3
-  const RATIO_DIFF_THRESHOLD = 0.98
-  if (slopeDifference <= SLOPE_DIFF_THRESHOLD && referRatio * RATIO_DIFF_THRESHOLD > compRatio) {
+  const referRatio =
+    (0.0001 * referForwardHeadDistance + 1.5 * referShoulderDistance) /
+    (0.0002 * referShoulderDistance + 0.005 * referEarDistance)
+  const compRatio =
+    (0.0001 * compForwardHeadDistance + 1.5 * compShoulderDistance) /
+    (0.0002 * compShoulderDistance + 0.005 * compEarDistance)
+
+  if (referRatio * RATIO_DIFF_THRESHOLD > compRatio) {
     return true
   } else {
     return false
