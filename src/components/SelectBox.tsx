@@ -8,7 +8,7 @@ interface SelectBoxOption {
 interface SelectBoxProps {
   value: string | undefined
   options: SelectBoxOption[]
-  isDisabled: boolean
+  isDisabled?: boolean
   onClick: (selectedOption: SelectBoxOption) => void
 }
 

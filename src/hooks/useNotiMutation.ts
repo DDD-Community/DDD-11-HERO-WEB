@@ -1,4 +1,4 @@
-import { getNotification, modifyNotification, notification, patchNotification } from "@/api/notification"
+import { getNotification, registerNotification, notification, updateNotification } from "@/api/notification"
 import { useMutation, UseMutationResult } from "@tanstack/react-query"
 
 export const useGetNoti = (): UseMutationResult<notification | null, unknown, void, unknown> => {
@@ -15,7 +15,7 @@ export const useGetNoti = (): UseMutationResult<notification | null, unknown, vo
 export const useModifyNoti = (): UseMutationResult<notification, unknown, notification, unknown> => {
   return useMutation({
     mutationFn: (notification: notification) => {
-      return modifyNotification(notification)
+      return registerNotification(notification)
     },
     onSuccess: (data) => {
       console.log(data)
@@ -26,7 +26,7 @@ export const useModifyNoti = (): UseMutationResult<notification, unknown, notifi
 export const usePatchNoti = (): UseMutationResult<notification, unknown, notification, unknown> => {
   return useMutation({
     mutationFn: (notification: notification) => {
-      return patchNotification(notification)
+      return updateNotification(notification)
     },
     onSuccess: (data) => {
       console.log(data)

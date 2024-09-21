@@ -12,7 +12,7 @@ const MonitoringPage: React.FC = () => {
   const setSnap = useSnapshotStore((state) => state.setSnapshot)
   const snapshot = useSnapshotStore((state) => state.snapshot)
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
 
   const toggleSidebar = (): void => {
     setIsSidebarOpen((prev) => !prev)

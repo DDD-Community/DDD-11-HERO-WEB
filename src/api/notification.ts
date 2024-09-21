@@ -21,7 +21,7 @@ export const getNotification = async (): Promise<notification | null> => {
   }
 }
 
-export const modifyNotification = async (notification: notification): Promise<notification> => {
+export const registerNotification = async (notification: notification): Promise<notification> => {
   try {
     const res = await axiosInstance.post(`/pose-notifications`, { ...notification })
     const { id, duration } = res.data.data
@@ -31,7 +31,7 @@ export const modifyNotification = async (notification: notification): Promise<no
   }
 }
 
-export const patchNotification = async (notification: notification): Promise<notification> => {
+export const updateNotification = async (notification: notification): Promise<notification> => {
   try {
     const res = await axiosInstance.patch(`/pose-notifications/${notification.id}`, { ...notification })
     const { id, isActive, duration } = res.data.data
