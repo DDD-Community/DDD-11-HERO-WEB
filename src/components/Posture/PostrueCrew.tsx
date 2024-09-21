@@ -2,7 +2,7 @@ import CloseCrewPanelIcon from "@assets/icons/crew-panel-close-button.svg?react"
 import QuestionIcon from "@assets/icons/question-info-icon.svg?react"
 import PostureGuide from "@assets/icons/posture-guide-button-icon.svg?react"
 import RankingGuideToolTip from "@assets/images/ranking-guide.png"
-import { ReactElement, useEffect, useState } from "react"
+import { ReactElement, useCallback, useEffect, useState } from "react"
 import SelectBox from "@components/SelectBox"
 import { useAuthStore } from "@/store"
 import { duration, notification } from "@/api/notification"
@@ -35,11 +35,16 @@ const NOTI_OPTIONS: NotiOption[] = [
   { value: "MIN_60", label: "1시간 간격" },
 ]
 
+const MAX_RECONNECT_ATTEMPTS = 5
+const INITIAL_RECONNECT_DELAY = 1000 //
+
 export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const { toggleSidebar } = props
   const accessToken = useAuthStore((state) => state.accessToken)
   const [crews, setCrews] = useState<IPostureCrew[]>([])
   const [isConnected, setIsConnected] = useState<"loading" | "success" | "disconnected">("loading")
+  const [socket, setSocket] = useState<WebSocket | null>(null)
+  const [reconnectAttempts, setReconnectAttempts] = useState(0)
 
   const userNoti = useNotificationStore((state) => state.notification)
   const setUserNoti = useNotificationStore((state) => state.setNotification)
@@ -49,32 +54,52 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const [isEnabled, setIsEnabled] = useState(userNoti?.isActive)
   const [notiAlarmTime, setNotiAlarmTime] = useState(NOTI_OPTIONS.find((n) => n.value === userNoti?.duration)?.label)
 
-  useEffect(() => {
-    const socket = new WebSocket(`wss://api.alignlab.site/ws/v1/groups/1/users?X-HERO-AUTH-TOKEN=${accessToken}`)
+  const connectWebSocket = useCallback(() => {
+    const newSocket = new WebSocket(`wss://api.alignlab.site/ws/v1/groups/1/users?X-HERO-AUTH-TOKEN=${accessToken}`)
 
-    socket.onopen = () => {
+    newSocket.onopen = () => {
       console.log("WebSocket connected")
       setIsConnected("success")
+      setReconnectAttempts(0)
     }
 
-    socket.onmessage = (event) => {
+    newSocket.onmessage = (event) => {
       const data = JSON.parse(event.data)
       setCrews(data.groupUsers || [])
     }
 
-    socket.onerror = (error) => {
+    newSocket.onerror = (error) => {
       console.error("WebSocket error:", error)
     }
 
-    socket.onclose = (event) => {
+    newSocket.onclose = (event) => {
       console.log("WebSocket disconnected. Code:", event.code, "Reason:", event.reason)
       setIsConnected("disconnected")
+
+      if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+        const delay = INITIAL_RECONNECT_DELAY * Math.pow(2, reconnectAttempts)
+        console.log(`Attempting to reconnect in ${delay}ms...`)
+        setTimeout(() => {
+          setReconnectAttempts((prev) => prev + 1)
+          connectWebSocket()
+        }, delay)
+      } else {
+        console.log("Max reconnection attempts reached. Please try again later.")
+      }
     }
 
+    setSocket(newSocket)
+  }, [accessToken, reconnectAttempts])
+
+  useEffect(() => {
+    connectWebSocket()
+
     return () => {
-      socket.close()
+      if (socket) {
+        socket.close()
+      }
     }
-  }, [])
+  }, [connectWebSocket])
 
   const onClickCloseSideNavButton = (): void => {
     toggleSidebar()
