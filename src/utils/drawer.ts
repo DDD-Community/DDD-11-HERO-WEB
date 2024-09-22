@@ -10,6 +10,7 @@ export const drawPose = (poses: pose[], canvas: HTMLCanvasElement, isRight = tru
       const leftShoulder = pose.keypoints.find((kp) => kp.name === "left_shoulder")
       const rightShoulder = pose.keypoints.find((kp) => kp.name === "right_shoulder")
       const color = isRight ? "#00C670" : "#EF4444"
+
       // 왼쪽과 오른쪽 어깨 이어주는 선 그리기
       if (leftShoulder && rightShoulder && leftShoulder.confidence > 0.2 && rightShoulder.confidence > 0.2) {
         ctx.beginPath()
@@ -20,15 +21,25 @@ export const drawPose = (poses: pose[], canvas: HTMLCanvasElement, isRight = tru
         ctx.stroke()
       }
 
+      // 특정 부위에만 원 그리기 (양쪽 손목 추가)
+      const targetParts = [
+        "left_ear",
+        "right_ear",
+        "left_shoulder",
+        "right_shoulder",
+        "nose",
+        "left_wrist",
+        "right_wrist",
+      ]
       pose.keypoints.forEach((keypoint) => {
-        if (keypoint.confidence > 0.25) {
+        if (keypoint.confidence > 0.25 && targetParts.includes(keypoint.name)) {
           ctx.beginPath()
           ctx.arc(keypoint.x, keypoint.y, 5, 0, 2 * Math.PI)
           ctx.fillStyle = "white"
           ctx.fill()
-          ctx.strokeStyle = color // 초록색 테두리
-          ctx.lineWidth = 2 // 테두리 두께
-          ctx.stroke() // 테
+          ctx.strokeStyle = color
+          ctx.lineWidth = 2
+          ctx.stroke()
         }
       })
     })

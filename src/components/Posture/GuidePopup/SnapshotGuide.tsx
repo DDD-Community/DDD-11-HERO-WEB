@@ -20,25 +20,25 @@ export default function SnapshotGuide() {
             <span className="flex h-6 w-6 justify-center rounded-full bg-[#5A9CFF] text-center font-semibold text-white">
               1
             </span>
-            <span className="font-[20px] font-semibold text-green-900">머리와 목을 일직선으로 곧게 펴기</span>
+            <span className="font-[20px] font-semibold text-zinc-800">머리와 목을 일직선으로 곧게 펴기</span>
           </div>
           <div className="flex gap-3">
             <span className="flex h-6 w-6 justify-center rounded-full bg-[#5A9CFF] text-center font-semibold text-white">
               2
             </span>
-            <span className="font-[20px] font-semibold text-green-900">양쪽 어깨 일직선 유지하기</span>
+            <span className="font-[20px] font-semibold text-zinc-800">양쪽 어깨 일직선 유지하기</span>
           </div>
           <div className="flex gap-3">
             <span className="flex h-6 w-6 justify-center rounded-full bg-[#5A9CFF] text-center font-semibold text-white">
               3
             </span>
-            <span className="font-[20px] font-semibold text-green-900">팔은 책상 위에 수평으로 두기</span>
+            <span className="font-[20px] font-semibold text-zinc-800">팔은 책상 위에 수평으로 두기</span>
           </div>
           <div className="flex gap-3">
             <span className="flex h-6 w-6 justify-center rounded-full bg-[#5A9CFF] text-center font-semibold text-white">
               4
             </span>
-            <span className="font-[20px] font-semibold text-green-900">등과 허리는 등받이에 지지하기</span>
+            <span className="font-[20px] font-semibold text-zinc-800">등과 허리는 등받이에 지지하기</span>
           </div>
         </div>
       </div>
