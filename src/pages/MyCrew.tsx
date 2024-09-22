@@ -9,10 +9,10 @@ import CrewUserIcon from "@assets/icons/crew-user-icon.svg?react"
 import dayjs from "dayjs"
 import { modals } from "@/components/Modal/Modals"
 import { useNavigate } from "react-router-dom"
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
 
 export default function MyCrew() {
-  const { myGroupData, ranks, myRank, withdrawFromGroup } = useMyGroup()
+  const { myGroupData, ranks, myRank, withdrawFromGroup, isLoading } = useMyGroup()
   const { openModal } = useModals()
   const naviagte = useNavigate()
 
@@ -37,6 +37,12 @@ export default function MyCrew() {
       },
     })
   }
+
+  useEffect(() => {
+    if (!myGroupData && !isLoading) {
+      naviagte("/crew")
+    }
+  }, [myGroupData, isLoading])
 
   const openInviteModal = useCallback((): void => {
     openModal(modals.inviteCrewModal, {
