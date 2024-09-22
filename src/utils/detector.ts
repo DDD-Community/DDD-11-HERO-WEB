@@ -294,6 +294,11 @@ export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null =
   // 귀의 중점 계산
   const compEarMidpoint = getMidPoint(compLeftEar, compRightEar)
 
+  // 귀의 중점 계산
+  const referShoulderMidpoint = getMidPoint(referLeftShoulder, referRightShoulder)
+  // 귀의 중점 계산
+  const compShoulderMidpoint = getMidPoint(compLeftShoulder, compRightShoulder)
+
   const referForwardHeadDistance = Math.max(referLeftShoulder.y, referRightShoulder.y) - referEarMidpoint.y
   const compForwardHeadDistance = Math.max(compLeftShoulder.y, compRightShoulder.y) - compEarMidpoint.y
 
@@ -327,9 +332,12 @@ export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null =
   const referRatio = 0.7 * referCorrectRatio + 0.3 * referAngleRatio
   const compRatio = 0.7 * compCorrectRatio + 0.3 * compAngleRatio
 
+  const referShoulderMidPointY = referShoulderMidpoint?.y || 1 // 기본값 설정 (1로 설정하여 0으로 나누기 방지)
+  const compShoulderMidPointY = compShoulderMidpoint?.y || 1 // 기본값 설정
+
   const RATIO_DIFF_THRESHOLD = 0.88
 
-  if (referRatio * RATIO_DIFF_THRESHOLD > compRatio) {
+  if (referRatio * RATIO_DIFF_THRESHOLD > compRatio && referShoulderMidPointY < compShoulderMidPointY) {
     return true
   } else {
     return false
