@@ -16,6 +16,7 @@ import Controls from "./Posture/Controls"
 import { useNotificationStore } from "@/store/NotificationStore"
 import { duration } from "@/api/notification"
 import { useCameraPermission } from "@/hooks/useCameraPermission"
+import { useLocation } from "react-router-dom"
 
 const PoseDetector: React.FC = () => {
   const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
@@ -54,6 +55,8 @@ const PoseDetector: React.FC = () => {
 
   const { requestNotificationPermission } = usePushNotification()
   const { hasPermission } = useCameraPermission()
+
+  const location = useLocation() // 페이지 이동 감지
   // webgl 설정
   const initializeBackend = async (): Promise<void> => {
     await window.ml5.setBackend("webgl")
@@ -118,7 +121,9 @@ const PoseDetector: React.FC = () => {
     ): void => {
       if (condition && isSnapSaved) {
         if (!timerRef.current) {
+          console.log(poseType, "start")
           timerRef.current = setInterval(() => {
+            console.log("start")
             if (resultRef.current) {
               const { keypoints, score } = resultRef.current[0]
               const req = { snapshot: { keypoints, score }, type: poseType }
@@ -273,15 +278,18 @@ const PoseDetector: React.FC = () => {
     }
   }
 
+  // 페이지가 변경될 때마다 타이머를 제거
+  useEffect(() => {
+    return () => {
+      worker.postMessage({ type: "terminate", data: {} })
+      clearTimers()
+      clearCnt()
+    }
+  }, [location])
+
   useEffect(() => {
     requestNotificationPermission()
     getScript()
-    clearTimers()
-    return () => {
-      clearTimers()
-      clearCnt()
-      worker.postMessage({ type: "terminate", data: {} })
-    }
   }, [])
 
   useEffect(() => {

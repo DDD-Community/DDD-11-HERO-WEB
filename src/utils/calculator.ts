@@ -123,6 +123,12 @@ export const getMidPoint = (p1: point, p2: point): point => {
   return { x, y }
 }
 
+// 두 직선의 기울기를 바탕으로 교각을 구하는 함수
+export const getAngleBetweenLines = (slope1: number, slope2: number): number => {
+  const radian = Math.atan(Math.abs((slope1 - slope2) / (1 + slope1 * slope2)))
+  return radian * (180 / Math.PI) // 각도를 도(degree)로 변환
+}
+
 // /**
 //  * x=axisX를 기준으로 point를 대칭 이동 시킴
 //  *

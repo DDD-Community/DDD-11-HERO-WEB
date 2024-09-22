@@ -1,4 +1,4 @@
-import { getSlopeFromPoints, getMidPoint, getDistance } from "@/utils/calculator"
+import { getSlopeFromPoints, getMidPoint, getDistance, getAngleBetweenLines } from "@/utils/calculator"
 import type { point } from "@/utils/calculator"
 
 export interface keypoint {
@@ -283,27 +283,55 @@ export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null =
   )
     return null
 
-  // 현재(comp)와 스냅샷(refer) 데이터의 귀 중간 좌표를 계산
-  const compEarMid = getMidPoint(compLeftEar, compRightEar)
-  const referEarMid = getMidPoint(referLeftEar, referRightEar)
+  const referEarDistance = getDistance(referLeftEar, referRightEar)
+  const compEarDistance = getDistance(compLeftEar, compRightEar)
 
-  // 현재(comp)와 스냅샷(refer) 데이터의 어깨 중간 좌표를 계산
-  const compShoulderMid = getMidPoint(compLeftShoulder, compRightShoulder)
-  const referShoulderMid = getMidPoint(referLeftShoulder, referRightShoulder)
-
-  // 귀와 어깨 사이의 거리 계산
   const referShoulderDistance = getDistance(referLeftShoulder, referRightShoulder)
-  const referEarsDistance = getDistance(referLeftEar, referRightEar)
   const compShoulderDistance = getDistance(compLeftShoulder, compRightShoulder)
-  const compEearsDistance = getDistance(compLeftEar, compRightEar)
 
-  // 조건 1: 현재(comp)의 귀 중간 y좌표가 스냅샷(refer)보다 아래에 있고,
-  // 현재(comp)의 어깨 중간 y좌표도 스냅샷(refer)보다 아래에 있는지 확인
-  const compY = compEarMid.y - referEarMid.y > 20 && compShoulderMid.y - referShoulderMid.y > 20
+  // 귀의 중점 계산
+  const referEarMidpoint = getMidPoint(referLeftEar, referRightEar)
+  // 귀의 중점 계산
+  const compEarMidpoint = getMidPoint(compLeftEar, compRightEar)
 
-  // 조건 2: 현재(comp)의 귀 거리와 어깨 거리가 참조(refer)의 90%보다 짧은지 확인
-  const compDistance = compEearsDistance < referEarsDistance * 0.9 && compShoulderDistance < referShoulderDistance * 0.9
+  const referForwardHeadDistance = Math.max(referLeftShoulder.y, referRightShoulder.y) - referEarMidpoint.y
+  const compForwardHeadDistance = Math.max(compLeftShoulder.y, compRightShoulder.y) - compEarMidpoint.y
 
-  // 두 조건을 모두 만족하면 true 반환, 그렇지 않으면 false 반환
-  return compY && compDistance
+  const referShoulderSlope = getSlopeFromPoints(referLeftShoulder, referRightShoulder)
+
+  // 2. 왼쪽 어깨-왼쪽 귀를 잇는 직선의 기울기
+  const referLeftShoulderEarSlope = getSlopeFromPoints(referLeftShoulder, referLeftEar)
+
+  // 3. 오른쪽 어깨-오른쪽 귀를 잇는 직선의 기울기
+  const referRightShoulderEarSlope = getSlopeFromPoints(referRightShoulder, referRightEar)
+
+  const compShoulderSlope = getSlopeFromPoints(compLeftShoulder, compRightShoulder)
+
+  // 2. 왼쪽 어깨-왼쪽 귀를 잇는 직선의 기울기
+  const compLeftShoulderEarSlope = getSlopeFromPoints(compLeftShoulder, compLeftEar)
+
+  // 3. 오른쪽 어깨-오른쪽 귀를 잇는 직선의 기울기
+  const compRightShoulderEarSlope = getSlopeFromPoints(compRightShoulder, compRightEar)
+
+  const referLeftAngle = getAngleBetweenLines(referShoulderSlope, referLeftShoulderEarSlope)
+  const referRightAngle = getAngleBetweenLines(referShoulderSlope, referRightShoulderEarSlope)
+
+  const compLeftAngle = getAngleBetweenLines(compShoulderSlope, compLeftShoulderEarSlope)
+  const compRightAngle = getAngleBetweenLines(compShoulderSlope, compRightShoulderEarSlope)
+
+  const referAngleRatio = 1 / (referLeftAngle + referRightAngle)
+  const compAngleRatio = 1 / (compLeftAngle + compRightAngle)
+  const referCorrectRatio = (0.4 * referForwardHeadDistance) / (1.5 * referEarDistance + 0.3 * referShoulderDistance)
+  const compCorrectRatio = (0.4 * compForwardHeadDistance) / (1.5 * compEarDistance + 0.3 * compShoulderDistance)
+
+  const referRatio = 0.7 * referCorrectRatio + 0.3 * referAngleRatio
+  const compRatio = 0.7 * compCorrectRatio + 0.3 * compAngleRatio
+
+  const RATIO_DIFF_THRESHOLD = 0.88
+
+  if (referRatio * RATIO_DIFF_THRESHOLD > compRatio) {
+    return true
+  } else {
+    return false
+  }
 }

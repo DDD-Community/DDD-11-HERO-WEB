@@ -39,9 +39,9 @@ const PostureMessage: React.FC<{
         ? "브라우저의 카메라 권한을 허용해주세요."
         : !isSnapSaved
         ? "바른 자세를 취한 후, 하단의 버튼을 눌러주세요."
-        : getIsRight(isShoulderTwist, isTextNeck, isHandOnChin, isTailboneSit)
+        : getIsRight(isShoulderTwist, isTextNeck, isTailboneSit, isHandOnChin)
         ? "올바른 자세입니다."
-        : getMessage(isShoulderTwist, isTextNeck, isHandOnChin, isTailboneSit)}
+        : getMessage(isShoulderTwist, isTextNeck, isTailboneSit, isHandOnChin)}
     </div>
   )
 }
