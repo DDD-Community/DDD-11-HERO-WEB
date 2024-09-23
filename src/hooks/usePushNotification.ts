@@ -43,7 +43,7 @@ const usePushNotification = (): UsePushNotificationResult => {
   // 알림 표시 함수
   const showNotification = (body: string): void => {
     if (hasPermission) {
-      new Notification("알림 제목", {
+      new Notification("자세공작소", {
         body: body,
       })
     }

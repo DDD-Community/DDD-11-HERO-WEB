@@ -208,7 +208,7 @@ export const detectSlope = (refer: pose[], comp: pose[], isSnapShotMode = true):
  * @param poses 현재 포즈 데이터 배열
  * @returns 손을 턱에 대고 있으면 true, 아니면 false, 판단할 수 없으면 null
  */
-export const detectHandOnChin = (poses: pose[]): boolean | null => {
+export const detectHandOnChin = (refer: pose[], poses: pose[]): boolean | null => {
   if (!poses || poses.length === 0) return null
 
   // 필요한 키포인트 추출
@@ -222,6 +222,9 @@ export const detectHandOnChin = (poses: pose[]): boolean | null => {
 
   // 키포인트가 없으면 null 반환
   if (!nose || !leftEar || !rightEar || !leftWrist || !rightWrist || !leftShoulder || !rightShoulder) return null
+
+  // 손목 모두가 confidence가 없으면 false
+  if (!leftWrist?.confidence && !rightWrist?.confidence) return false
 
   // 턱의 위치를 추정 (코와 귀 중간점의 중간점)
   const earMidpoint = getMidPoint(leftEar, rightEar)
@@ -239,8 +242,21 @@ export const detectHandOnChin = (poses: pose[]): boolean | null => {
   const leftWristToChinDistance = getDistance(leftWrist, estimatedChin)
   const rightWristToChinDistance = getDistance(rightWrist, estimatedChin)
 
+  // 바른자세에서 손만 올린 경우도 턱괴기로 감지 하는 것을 방지
+  const isTextNeck = detectTextNeck(refer, poses, true)
   // 왼손이나 오른손 중 하나라도 턱 근처에 있으면 true 반환
-  if (leftWristToChinDistance < chinProximityThreshold || rightWristToChinDistance < chinProximityThreshold) {
+  if (
+    (leftWristToChinDistance < chinProximityThreshold &&
+      leftWrist?.confidence &&
+      leftWrist.confidence > 0.2 &&
+      leftWrist.y > estimatedChin.y &&
+      isTextNeck) ||
+    (rightWristToChinDistance < chinProximityThreshold &&
+      rightWrist?.confidence &&
+      rightWrist.confidence > 0.2 &&
+      rightWrist.y > estimatedChin.y &&
+      isTextNeck)
+  ) {
     return true
   }
 
