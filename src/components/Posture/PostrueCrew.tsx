@@ -1,14 +1,19 @@
-import CloseCrewPanelIcon from "@assets/icons/crew-panel-close-button.svg?react"
-import QuestionIcon from "@assets/icons/question-info-icon.svg?react"
-import PostureGuide from "@assets/icons/posture-guide-button-icon.svg?react"
-import RankingGuideToolTip from "@assets/images/ranking-guide.png"
-import { ReactElement, useCallback, useEffect, useState } from "react"
-import SelectBox from "@components/SelectBox"
-import { useAuthStore } from "@/store"
 import { duration, notification } from "@/api/notification"
-import { useNotificationStore } from "@/store/NotificationStore"
+import { useModals } from "@/hooks/useModals"
 import { usePatchNoti } from "@/hooks/useNotiMutation"
 import usePushNotification from "@/hooks/usePushNotification"
+import { useAuthStore } from "@/store"
+import { useNotificationStore } from "@/store/NotificationStore"
+import CloseCrewPanelIcon from "@assets/icons/crew-panel-close-button.svg?react"
+import PostureGuide from "@assets/icons/posture-guide-button-icon.svg?react"
+import PostureRetakeIcon from "@assets/icons/posture-snapshot-retake-icon.svg?react"
+import QuestionIcon from "@assets/icons/question-info-icon.svg?react"
+import RankingGuideToolTip from "@assets/images/ranking-guide.png"
+import SelectBox from "@components/SelectBox"
+import { ReactElement, useCallback, useEffect, useRef, useState } from "react"
+import { modals } from "../Modal/Modals"
+import { useSnapshotStore } from "@/store/SnapShotStore"
+import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
 
 interface IPostureCrew {
   groupUserId: number
@@ -36,15 +41,30 @@ const NOTI_OPTIONS: NotiOption[] = [
 ]
 
 const MAX_RECONNECT_ATTEMPTS = 5
-const INITIAL_RECONNECT_DELAY = 1000 //
+const INITIAL_RECONNECT_DELAY = 1000
+const UPDATE_INTERVAL = 1000 // 1초마다 상태 업데이트
 
 export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const { toggleSidebar } = props
   const accessToken = useAuthStore((state) => state.accessToken)
+  const { resetSnapShot } = useSnapshotStore()
+  const { openModal } = useModals()
+  const createSnapMutation = useCreateSnaphot()
   const [crews, setCrews] = useState<IPostureCrew[]>([])
   const [isConnected, setIsConnected] = useState<"loading" | "success" | "disconnected">("loading")
   const [socket, setSocket] = useState<WebSocket | null>(null)
   const [reconnectAttempts, setReconnectAttempts] = useState(0)
+  const latestCrewsRef = useRef<IPostureCrew[]>([])
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const throttledUpdateCrews = useCallback(() => {
+    if (!updateTimeoutRef.current) {
+      updateTimeoutRef.current = setTimeout(() => {
+        setCrews(latestCrewsRef.current)
+        updateTimeoutRef.current = null
+      }, UPDATE_INTERVAL)
+    }
+  }, [])
 
   const userNoti = useNotificationStore((state) => state.notification)
   const setUserNoti = useNotificationStore((state) => state.setNotification)
@@ -65,7 +85,11 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
 
     newSocket.onmessage = (event) => {
       const data = JSON.parse(event.data)
-      setCrews(data.groupUsers || [])
+      console.log("Received message:", data)
+      if (data.groupUsers) {
+        latestCrewsRef.current = data.groupUsers
+        throttledUpdateCrews()
+      }
     }
 
     newSocket.onerror = (error) => {
@@ -89,7 +113,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
     }
 
     setSocket(newSocket)
-  }, [accessToken, reconnectAttempts])
+  }, [accessToken, reconnectAttempts, throttledUpdateCrews])
 
   useEffect(() => {
     connectWebSocket()
@@ -97,6 +121,9 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
     return () => {
       if (socket) {
         socket.close()
+      }
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current)
       }
     }
   }, [connectWebSocket])
@@ -128,6 +155,17 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
         },
       }
     )
+  }
+
+  const onClickPostureGuide = () => {
+    openModal(modals.postureGuideModal, {})
+  }
+
+  const onClickReTakeSnapShot = () => {
+    resetSnapShot()
+    createSnapMutation.mutate({
+      points: [],
+    })
   }
 
   return (
@@ -200,11 +238,19 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
           )}
         </div>
       </div>
-      <div className="mt-auto pb-0.5 pl-0.5">
-        <div className="flex cursor-pointer items-center gap-3">
-          <PostureGuide />
-          <span>바른자세 가이드</span>
-        </div>
+      <div className="mt-auto pb-[7px] pl-0.5">
+        <button className="pb-[10px]" onClick={onClickReTakeSnapShot}>
+          <div className="flex gap-[10px]">
+            <PostureRetakeIcon />
+            <div>스냅샷 재촬영</div>
+          </div>
+        </button>
+        <button onClick={onClickPostureGuide}>
+          <div className="flex gap-[10px]">
+            <PostureGuide />
+            <div>바른자세 가이드</div>
+          </div>
+        </button>
       </div>
     </div>
   )

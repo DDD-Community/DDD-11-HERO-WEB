@@ -1,11 +1,11 @@
 const PostureMessage: React.FC<{
-  isSnapSaved: boolean
+  isSnapShotSaved: boolean
   isShoulderTwist: boolean | null
   isTextNeck: boolean | null
   isHandOnChin: boolean | null
   isTailboneSit: boolean | null
   hasPermission: boolean
-}> = ({ isSnapSaved, isShoulderTwist, isTextNeck, isHandOnChin, isTailboneSit, hasPermission }) => {
+}> = ({ isSnapShotSaved, isShoulderTwist, isTextNeck, isHandOnChin, isTailboneSit, hasPermission }) => {
   const getIsRight = (
     _isShoulderTwist: boolean | null,
     _isTextNeck: boolean | null,
@@ -37,7 +37,7 @@ const PostureMessage: React.FC<{
     >
       {!hasPermission
         ? "브라우저의 카메라 권한을 허용해주세요."
-        : !isSnapSaved
+        : !isSnapShotSaved
         ? "바른 자세를 취한 후, 하단의 버튼을 눌러주세요."
         : getIsRight(isShoulderTwist, isTextNeck, isTailboneSit, isHandOnChin)
         ? "올바른 자세입니다."

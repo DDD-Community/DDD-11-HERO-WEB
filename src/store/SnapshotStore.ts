@@ -3,15 +3,19 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
 interface SnapshotState {
+  isSnapShotSaved: boolean
   snapshot: keypoint[] | null
-  setSnapshot: (snapshot: keypoint[] | null) => void
+  setSnapShot: (snapshot: keypoint[] | null) => void
+  resetSnapShot: () => void
 }
 
 export const useSnapshotStore = create(
   persist<SnapshotState>(
     (set) => ({
+      isSnapShotSaved: false,
       snapshot: null,
-      setSnapshot: (snapshot: keypoint[] | null) => set({ snapshot }),
+      setSnapShot: (snapshot: keypoint[] | null) => set({ snapshot, isSnapShotSaved: true }),
+      resetSnapShot: () => set({ snapshot: null, isSnapShotSaved: false }),
     }),
     { name: "snapshotStorage" }
   )
