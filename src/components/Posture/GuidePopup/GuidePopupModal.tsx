@@ -2,7 +2,7 @@ import { ReactElement, useState } from "react"
 import ServiceIntroduction from "./ServiceIntroduction"
 import SnapshotGuide from "./SnapshotGuide"
 
-const GuidePopup = ({ onClose }: { onClose: () => void }): ReactElement => {
+const GuidePopupModal = ({ onClose }: { onClose: () => void }): ReactElement => {
   const [step, setStep] = useState(0)
   const onClickNext = () => {
     setStep(1)
@@ -35,4 +35,4 @@ const GuidePopup = ({ onClose }: { onClose: () => void }): ReactElement => {
   )
 }
 
-export default GuidePopup
+export default GuidePopupModal

@@ -1,11 +1,12 @@
 import { ModalsDispatchContext, ModalsStateContext } from "@/contexts/ModalsContext"
 import { useContext, useEffect } from "react"
+import { useLocation } from "react-router-dom"
 import CreateCrewModal from "./CreateCrewModal"
+import GoodPostureGuidePopupModal from "./GoodPostureGuideModal"
 import InviteCrewModal from "./InviteCrewModal"
 import JoinCrewModal from "./JoinCrewModal"
-import WithdrawCrewModal from "./WithdrawCrewModal"
 import ToWithdrawModal from "./ToWithdrawModal"
-import { useLocation } from "react-router-dom"
+import WithdrawCrewModal from "./WithdrawCrewModal"
 
 export const modals = {
   createCrewModal: CreateCrewModal,
@@ -13,6 +14,7 @@ export const modals = {
   joinCrewModal: JoinCrewModal,
   withdrawCrewModal: WithdrawCrewModal,
   ToWithdrawModal: ToWithdrawModal,
+  postureGuideModal: GoodPostureGuidePopupModal,
 }
 
 const Modals = (): React.ReactNode => {

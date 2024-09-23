@@ -1,22 +1,23 @@
+import { position } from "@/api"
+import { duration } from "@/api/notification"
+import { poseType } from "@/api/pose"
+import { useCameraPermission } from "@/hooks/useCameraPermission"
+import { useGuidePopup } from "@/hooks/useGuidePopup"
+import { useSendPose } from "@/hooks/usePoseMutation"
 import usePushNotification from "@/hooks/usePushNotification"
+import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
+import { useNotificationStore } from "@/store/NotificationStore"
+import { useSnapshotStore } from "@/store/SnapShotStore"
 import type { pose } from "@/utils/detector"
-import { detectHandOnChin, detectSlope, detectTextNeck, detectTailboneSit } from "@/utils/detector"
+import { detectHandOnChin, detectSlope, detectTailboneSit, detectTextNeck } from "@/utils/detector"
 import { drawPose } from "@/utils/drawer"
 import { worker } from "@/utils/worker"
 import { useCallback, useEffect, useRef, useState } from "react"
-import Camera from "./Camera"
-import GuidePopup from "./Posture/GuidePopup/GuidePopup"
-import { useSnapshotStore } from "@/store/SnapshotStore"
-import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
-import { position } from "@/api"
-import { useSendPose } from "@/hooks/usePoseMutation"
-import { poseType } from "@/api/pose"
-import PostureMessage from "./Posture/PostureMessage"
-import Controls from "./Posture/Controls"
-import { useNotificationStore } from "@/store/NotificationStore"
-import { duration } from "@/api/notification"
-import { useCameraPermission } from "@/hooks/useCameraPermission"
 import { useLocation } from "react-router-dom"
+import Camera from "./Camera"
+import Controls from "./Posture/Controls"
+import GuidePopupModal from "./Posture/GuidePopup/GuidePopupModal"
+import PostureMessage from "./Posture/PostureMessage"
 
 const PoseDetector: React.FC = () => {
   const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
@@ -26,10 +27,12 @@ const PoseDetector: React.FC = () => {
   const [isTailboneSit, setIsTailboneSit] = useState<boolean | null>(null)
   const [isHandOnChin, setIsHandOnChin] = useState<boolean | null>(null)
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false)
-  const [isSnapSaved, setIsSnapSaved] = useState<boolean>(false)
-  const [isPopupVisible, setIsPopupVisible] = useState<boolean>(true)
+  // const [isSnapShotSaved, setIsSnapSaved] = useState<boolean>(false)
 
   const { showNotification } = usePushNotification()
+
+  const { isPopupOpen, handleClosePopup, openPopup } = useGuidePopup()
+
   const modelRef = useRef<any>(null)
   const snapRef = useRef<pose[] | null>(null)
   const resultRef = useRef<pose[] | null>(null)
@@ -46,11 +49,10 @@ const PoseDetector: React.FC = () => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const snapshot = useSnapshotStore((state) => state.snapshot)
+  const { isSnapShotSaved, snapshot, setSnapShot } = useSnapshotStore()
   const createSnapMutation = useCreateSnaphot()
   const sendPoseMutation = useSendPose()
 
-  const setSnap = useSnapshotStore((state) => state.setSnapshot)
   const userNoti = useNotificationStore((state) => state.notification)
 
   const { requestNotificationPermission } = usePushNotification()
@@ -115,11 +117,11 @@ const PoseDetector: React.FC = () => {
       condition: boolean | null,
       timerRef: React.MutableRefObject<any>,
       poseType: poseType,
-      isSnapSaved: boolean,
+      isSnapShotSaved: boolean,
       cntRef: React.MutableRefObject<any>,
       isShowNoti: boolean | undefined
     ): void => {
-      if (condition && isSnapSaved) {
+      if (condition && isSnapShotSaved) {
         if (!timerRef.current) {
           console.log(poseType, "start")
           timerRef.current = setInterval(() => {
@@ -158,24 +160,24 @@ const PoseDetector: React.FC = () => {
         if (_isTailboneSit !== null) setIsTailboneSit(_isTailboneSit)
 
         // 공통 타이머 관리 함수 호출
-        managePoseTimer(_isTextNeck, turtleNeckTimer, "TURTLE_NECK", isSnapSaved, turtleNeckCnt, _isShowNoti)
+        managePoseTimer(_isTextNeck, turtleNeckTimer, "TURTLE_NECK", isSnapShotSaved, turtleNeckCnt, _isShowNoti)
         managePoseTimer(
           _isShoulderTwist,
           shoulderTwistTimer,
           "SHOULDER_TWIST",
-          isSnapSaved,
+          isSnapShotSaved,
           shoulderTwistCnt,
           _isShowNoti
         )
-        managePoseTimer(_isTailboneSit, tailboneSitTimer, "TAILBONE_SIT", isSnapSaved, tailboneSitCnt, _isShowNoti)
-        managePoseTimer(_isHandOnChin, chinUtpTimer, "CHIN_UTP", isSnapSaved, chinUtpCnt, _isShowNoti)
+        managePoseTimer(_isTailboneSit, tailboneSitTimer, "TAILBONE_SIT", isSnapShotSaved, tailboneSitCnt, _isShowNoti)
+        managePoseTimer(_isHandOnChin, chinUtpTimer, "CHIN_UTP", isSnapShotSaved, chinUtpCnt, _isShowNoti)
         const isRight = !_isTextNeck && !_isHandOnChin && !_isShoulderTwist && !_isTailboneSit
         if (canvasRef.current) drawPose(results, canvasRef.current, isRight)
       } else {
         if (canvasRef.current) drawPose(results, canvasRef.current)
       }
     },
-    [setIsShoulderTwist, setIsTextNeck, setIsHandOnChin, setIsTailboneSit, isSnapSaved, managePoseTimer, userNoti]
+    [setIsShoulderTwist, setIsTextNeck, setIsHandOnChin, setIsTailboneSit, isSnapShotSaved, managePoseTimer, userNoti]
   )
 
   const detectStart = useCallback(
@@ -204,8 +206,8 @@ const PoseDetector: React.FC = () => {
             {
               onSuccess: () => {
                 if (snapRef.current) {
-                  setSnap(snapRef.current[0].keypoints)
-                  setIsSnapSaved(true)
+                  setSnapShot(snapRef.current[0].keypoints)
+                  // setIsSnapSaved(true)
                 }
               },
             }
@@ -213,12 +215,12 @@ const PoseDetector: React.FC = () => {
         }
       }
     }
-  }, [createSnapMutation, snapshot, setSnap])
+  }, [createSnapMutation, snapshot, setSnapShot])
 
   const getUserSnap = (): void => {
     if (snapshot) {
       snapRef.current = [{ keypoints: snapshot }]
-      setIsSnapSaved(true)
+      // setIsSnapSaved(true)
     }
   }
 
@@ -233,15 +235,6 @@ const PoseDetector: React.FC = () => {
     tailboneSitTimer.current = null
     chinUtpTimer.current = null
     notificationTimer.current = null
-  }
-
-  const clearSnap = (): void => {
-    if (snapshot) {
-      snapRef.current = null
-      setIsSnapSaved(false)
-      setSnap(null)
-      clearTimers() // 타이머들을 초기화
-    }
   }
 
   const clearCnt = (): void => {
@@ -293,11 +286,11 @@ const PoseDetector: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    if (!isSnapSaved || !hasPermission) {
+    if (!isSnapShotSaved || !hasPermission) {
       clearTimers() // 스냅샷이 저장되지 않았을 때 타이머들을 초기화
       clearCnt() // 횟수도 초기화
     }
-  }, [isSnapSaved, hasPermission])
+  }, [isSnapShotSaved, hasPermission])
 
   useEffect(() => {
     if (isModelLoaded && hasPermission) {
@@ -313,7 +306,7 @@ const PoseDetector: React.FC = () => {
   }, [snapshot])
 
   useEffect(() => {
-    if (!isSnapSaved || !userNoti) return
+    if (!isSnapShotSaved || !userNoti) return
 
     clearCnt()
     clearInterval(notificationTimer.current)
@@ -328,16 +321,11 @@ const PoseDetector: React.FC = () => {
         }
       }, 1000 * 60 * t)
     }
-  }, [userNoti, isSnapSaved])
+  }, [userNoti, isSnapShotSaved])
 
   // 팝업 열기
   const handleShowPopup = (): void => {
-    setIsPopupVisible(true)
-  }
-
-  // 팝업 닫기
-  const handleClosePopup = (): void => {
-    setIsPopupVisible(false)
+    openPopup()
   }
 
   return (
@@ -351,24 +339,22 @@ const PoseDetector: React.FC = () => {
           <Camera detectStart={detectStart} canvasRef={canvasRef} />
           {isModelLoaded && (
             <>
-              <PostureMessage
-                isSnapSaved={isSnapSaved}
-                isShoulderTwist={isShoulderTwist}
-                isTextNeck={isTextNeck}
-                isHandOnChin={isHandOnChin}
-                isTailboneSit={isTailboneSit}
-                hasPermission={hasPermission}
-              />
-              <Controls
-                isSnapSaved={isSnapSaved}
-                getInitSnap={getInitSnap}
-                clearSnap={clearSnap}
-                handleShowPopup={handleShowPopup}
-                hasPermission={hasPermission}
-              />
+              {!isPopupOpen && (
+                <PostureMessage
+                  isSnapShotSaved={isSnapShotSaved}
+                  isShoulderTwist={isShoulderTwist}
+                  isTextNeck={isTextNeck}
+                  isHandOnChin={isHandOnChin}
+                  isTailboneSit={isTailboneSit}
+                  hasPermission={hasPermission}
+                />
+              )}
+              {!isSnapShotSaved && hasPermission && (
+                <Controls getInitSnap={getInitSnap} handleShowPopup={handleShowPopup} />
+              )}
             </>
           )}
-          {isPopupVisible && <GuidePopup onClose={handleClosePopup} />}
+          {isPopupOpen && <GuidePopupModal onClose={handleClosePopup} />}
         </div>
       )}
     </>
