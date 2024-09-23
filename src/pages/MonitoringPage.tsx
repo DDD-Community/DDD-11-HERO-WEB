@@ -3,7 +3,7 @@ import PostrueCrew from "@/components/Posture/PostrueCrew"
 import GroupSideIcon from "@assets/icons/group-side-nav-button.svg?react"
 import React, { useEffect, useState } from "react"
 import { useGetRecentSnapshot } from "@/hooks/useSnapshotMutation"
-import { useSnapshotStore } from "@/store/SnapShotStore"
+import { useSnapShotStore } from "@/store/SnapshotStore"
 import usePushNotification from "@/hooks/usePushNotification"
 import { useGuidePopup } from "@/hooks/useGuidePopup"
 
@@ -12,7 +12,7 @@ const MonitoringPage: React.FC = () => {
   const getRecentSnapMutation = useGetRecentSnapshot()
 
   const { isPopupOpen } = useGuidePopup()
-  const { snapshot, setSnapShot } = useSnapshotStore()
+  const { snapshot, setSnapShot } = useSnapShotStore()
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true)
 

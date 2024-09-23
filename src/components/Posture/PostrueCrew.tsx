@@ -12,7 +12,7 @@ import RankingGuideToolTip from "@assets/images/ranking-guide.png"
 import SelectBox from "@components/SelectBox"
 import { ReactElement, useCallback, useEffect, useRef, useState } from "react"
 import { modals } from "../Modal/Modals"
-import { useSnapshotStore } from "@/store/SnapShotStore"
+import { useSnapShotStore } from "@/store/SnapshotStore"
 import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
 
 interface IPostureCrew {
@@ -47,7 +47,7 @@ const UPDATE_INTERVAL = 1000 // 1초마다 상태 업데이트
 export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const { toggleSidebar } = props
   const accessToken = useAuthStore((state) => state.accessToken)
-  const { resetSnapShot } = useSnapshotStore()
+  const { resetSnapShot } = useSnapShotStore()
   const { openModal } = useModals()
   const createSnapMutation = useCreateSnaphot()
   const [crews, setCrews] = useState<IPostureCrew[]>([])

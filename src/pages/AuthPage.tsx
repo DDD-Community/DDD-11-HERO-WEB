@@ -4,7 +4,7 @@ import Login from "@/components/Login"
 import { useOauth, useSignUp, useSignIn, useGetIsSignUp } from "@/hooks/useAuthMutation"
 import RoutePath from "@/constants/routes.json"
 import { useAuthStore } from "@/store/AuthStore"
-import { useSnapshotStore } from "@/store/SnapShotStore"
+import { useSnapShotStore } from "@/store/SnapshotStore"
 import { useGetRecentSnapshot } from "@/hooks/useSnapshotMutation"
 import { useGetNoti } from "@/hooks/useNotiMutation"
 import { useNotificationStore } from "@/store/NotificationStore"
@@ -22,7 +22,7 @@ const AuthPage: React.FC = () => {
   const [isError, setIsError] = useState(false)
 
   const setUser = useAuthStore((state) => state.setUser)
-  const setSnap = useSnapshotStore((state) => state.setSnapShot)
+  const setSnap = useSnapShotStore((state) => state.setSnapShot)
   const setNoti = useNotificationStore((state) => state.setNotification)
 
   useEffect(() => {

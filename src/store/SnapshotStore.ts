@@ -2,15 +2,15 @@ import { keypoint } from "@/utils"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
-interface SnapshotState {
+interface SnapShotState {
   isSnapShotSaved: boolean
   snapshot: keypoint[] | null
   setSnapShot: (snapshot: keypoint[] | null) => void
   resetSnapShot: () => void
 }
 
-export const useSnapshotStore = create(
-  persist<SnapshotState>(
+export const useSnapShotStore = create(
+  persist<SnapShotState>(
     (set) => ({
       isSnapShotSaved: false,
       snapshot: null,
