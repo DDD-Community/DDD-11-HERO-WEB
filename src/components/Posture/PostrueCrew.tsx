@@ -12,7 +12,7 @@ import RankingGuideToolTip from "@assets/images/ranking-guide.png"
 import SelectBox from "@components/SelectBox"
 import { ReactElement, useCallback, useEffect, useRef, useState } from "react"
 import { modals } from "../Modal/Modals"
-import { useSnapshotStore } from "@/store/SnapㄴhotStore"
+import { useSnapshotStore } from "@/store/SnapShotStore"
 import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
 
 interface IPostureCrew {
