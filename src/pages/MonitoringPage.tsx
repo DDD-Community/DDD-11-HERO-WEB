@@ -3,7 +3,7 @@ import PostrueCrew from "@/components/Posture/PostrueCrew"
 import GroupSideIcon from "@assets/icons/group-side-nav-button.svg?react"
 import React, { useEffect, useState } from "react"
 import { useGetRecentSnapshot } from "@/hooks/useSnapshotMutation"
-import { useSnapshotStore } from "@/store/SnapShotStore"
+import { useSnapshotStore } from "@/store/SnapㄴhotStore"
 import usePushNotification from "@/hooks/usePushNotification"
 import { useGuidePopup } from "@/hooks/useGuidePopup"
 
