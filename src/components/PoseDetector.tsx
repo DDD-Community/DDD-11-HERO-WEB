@@ -7,7 +7,7 @@ import { useSendPose } from "@/hooks/usePoseMutation"
 import usePushNotification from "@/hooks/usePushNotification"
 import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
 import { useNotificationStore } from "@/store/NotificationStore"
-import { useSnapshotStore } from "@/store/SnapShotStore"
+import { useSnapShotStore } from "@/store/SnapshotStore"
 import type { pose } from "@/utils/detector"
 import { detectHandOnChin, detectSlope, detectTailboneSit, detectTextNeck } from "@/utils/detector"
 import { drawPose } from "@/utils/drawer"
@@ -49,7 +49,7 @@ const PoseDetector: React.FC = () => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const { isSnapShotSaved, snapshot, setSnapShot } = useSnapshotStore()
+  const { isSnapShotSaved, snapshot, setSnapShot } = useSnapShotStore()
   const createSnapMutation = useCreateSnaphot()
   const sendPoseMutation = useSendPose()
 
