@@ -1,13 +1,12 @@
+import { clearAccessToken } from "@/api/axiosInstance"
 import { useAuthStore } from "@/store/AuthStore"
+import { useSnapShotStore } from "@/store/SnapshotStore"
 import MainCraftIcon from "@assets/icons/posture-craft-side-nav-icon.svg?react"
 import AnalysisIcon from "@assets/icons/side-nav-analysis-icon.svg?react"
 import CrewIcon from "@assets/icons/side-nav-crew-icon.svg?react"
 import MonitoringIcon from "@assets/icons/side-nav-monitor-icon.svg?react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { useSnapShotStore } from "@/store/SnapshotStore"
 import { useMemo } from "react"
-import { clearAccessToken } from "@/api/axiosInstance"
-import { useNotificationStore } from "@/store/NotificationStore"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 
 const navItems = [
   {
@@ -36,12 +35,12 @@ export default function SideNav(): React.ReactElement {
   const logoutHandler = (): void => {
     const clearUser = useAuthStore.persist.clearStorage
     const clearSnapshot = useSnapShotStore.persist.clearStorage
-    const clearNotification = useNotificationStore.persist.clearStorage
+    // const clearNotification = useNotificationStore.persist.clearStorage
 
     clearUser()
     clearSnapshot()
     clearAccessToken()
-    clearNotification()
+    // clearNotification()
 
     logout(() => {
       navigate("/")
