@@ -149,7 +149,7 @@ const PoseDetector: React.FC = () => {
       resultRef.current = results
       if (snapRef.current) {
         const _isShoulderTwist = detectSlope(snapRef.current, results, false)
-        const _isTextNeck = detectTextNeck(snapRef.current, results, true)
+        const _isTextNeck = detectTextNeck(snapRef.current, results, true, 0.88)
         const _isHandOnChin = detectHandOnChin(snapRef.current, results)
         const _isTailboneSit = detectTailboneSit(snapRef.current, results)
         const _isShowNoti = userNoti?.duration === "IMMEDIATELY" && userNoti?.isActive
