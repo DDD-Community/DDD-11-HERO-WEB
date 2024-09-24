@@ -1,4 +1,4 @@
-import CrewRanking from "@/components/Crew/MyCrew/CrewRanking"
+import CrewRanking from "@/components/Crew/CrewRanking"
 import MyCrewHeader from "@/components/Crew/MyCrew/MyCrewHeader"
 import { useModals } from "@/hooks/useModals"
 import useMyGroup from "@/hooks/useMyGroup"
@@ -106,7 +106,7 @@ export default function MyCrew() {
       {/*  랭킹 헤더  */}
       <div className="mt-10">
         <div className="flex items-center justify-between">
-          <span className="text-xl font-semibold text-zinc-700">바른자세 랭킹</span>
+          <span className="text-[20px] font-semibold text-zinc-700">바른자세 랭킹</span>
           <div className="flex gap-2 text-[13px] font-normal text-zinc-400">
             <span>최근 1시간</span>
             <span>|</span>
