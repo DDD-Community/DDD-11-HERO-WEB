@@ -18,6 +18,7 @@ import Camera from "./Camera"
 import Controls from "./Posture/Controls"
 import GuidePopupModal from "./Posture/GuidePopup/GuidePopupModal"
 import PostureMessage from "./Posture/PostureMessage"
+import useNotification from "@/hooks/useNotification"
 
 const PoseDetector: React.FC = () => {
   const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
@@ -53,7 +54,8 @@ const PoseDetector: React.FC = () => {
   const createSnapMutation = useCreateSnaphot()
   const sendPoseMutation = useSendPose()
 
-  const userNoti = useNotificationStore((state) => state.notification)
+  // const userNoti = useNotificationStore((state) => state.notification)
+  const { notification } = useNotification()
 
   const { requestNotificationPermission } = usePushNotification()
   const { hasPermission } = useCameraPermission()
@@ -152,7 +154,7 @@ const PoseDetector: React.FC = () => {
         const _isTextNeck = detectTextNeck(snapRef.current, results, true, 0.88)
         const _isHandOnChin = detectHandOnChin(snapRef.current, results)
         const _isTailboneSit = detectTailboneSit(snapRef.current, results)
-        const _isShowNoti = userNoti?.duration === "IMMEDIATELY" && userNoti?.isActive
+        const _isShowNoti = notification?.duration === "IMMEDIATELY" && notification?.isActive
 
         if (_isShoulderTwist !== null) setIsShoulderTwist(_isShoulderTwist)
         if (_isTextNeck !== null) setIsTextNeck(_isTextNeck)
@@ -177,7 +179,15 @@ const PoseDetector: React.FC = () => {
         if (canvasRef.current) drawPose(results, canvasRef.current)
       }
     },
-    [setIsShoulderTwist, setIsTextNeck, setIsHandOnChin, setIsTailboneSit, isSnapShotSaved, managePoseTimer, userNoti]
+    [
+      setIsShoulderTwist,
+      setIsTextNeck,
+      setIsHandOnChin,
+      setIsTailboneSit,
+      isSnapShotSaved,
+      managePoseTimer,
+      notification,
+    ]
   )
 
   const detectStart = useCallback(
@@ -306,22 +316,20 @@ const PoseDetector: React.FC = () => {
   }, [snapshot])
 
   useEffect(() => {
-    if (!isSnapShotSaved || !userNoti) return
+    if (!isSnapShotSaved || !notification) return
 
     clearCnt()
     clearInterval(notificationTimer.current)
     notificationTimer.current = null
 
-    if (userNoti.isActive && userNoti.duration && userNoti.duration !== "IMMEDIATELY") {
-      const t = getDurationInMinutes(userNoti?.duration)
+    if (notification.isActive && notification.duration && notification.duration !== "IMMEDIATELY") {
+      const t = getDurationInMinutes(notification.duration)
       notificationTimer.current = setInterval(() => {
-        if (userNoti.duration) {
-          sendNotification()
-          clearCnt()
-        }
+        sendNotification()
+        clearCnt()
       }, 1000 * 60 * t)
     }
-  }, [userNoti, isSnapShotSaved])
+  }, [notification, isSnapShotSaved])
 
   // 팝업 열기
   const handleShowPopup = (): void => {

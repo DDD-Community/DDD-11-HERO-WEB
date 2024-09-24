@@ -1,9 +1,11 @@
 import { duration, notification } from "@/api/notification"
 import { useModals } from "@/hooks/useModals"
-import { usePatchNoti } from "@/hooks/useNotiMutation"
+import useNotification from "@/hooks/useNotification"
+import { useModifyNoti } from "@/hooks/useNotiMutation"
 import usePushNotification from "@/hooks/usePushNotification"
+import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
 import { useAuthStore } from "@/store"
-import { useNotificationStore } from "@/store/NotificationStore"
+import { useSnapShotStore } from "@/store/SnapshotStore"
 import CloseCrewPanelIcon from "@assets/icons/crew-panel-close-button.svg?react"
 import PostureGuide from "@assets/icons/posture-guide-button-icon.svg?react"
 import PostureRetakeIcon from "@assets/icons/posture-snapshot-retake-icon.svg?react"
@@ -12,8 +14,6 @@ import RankingGuideToolTip from "@assets/images/ranking-guide.png"
 import SelectBox from "@components/SelectBox"
 import { ReactElement, useCallback, useEffect, useRef, useState } from "react"
 import { modals } from "../Modal/Modals"
-import { useSnapShotStore } from "@/store/SnapshotStore"
-import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
 
 interface IPostureCrew {
   groupUserId: number
@@ -40,9 +40,84 @@ const NOTI_OPTIONS: NotiOption[] = [
   { value: "MIN_60", label: "1시간 간격" },
 ]
 
-const MAX_RECONNECT_ATTEMPTS = 5
-const INITIAL_RECONNECT_DELAY = 1000
-const UPDATE_INTERVAL = 1000 // 1초마다 상태 업데이트
+const NOTI_VALUE_MAP = (value: string | undefined) => {
+  switch (value) {
+    case "IMMEDIATELY":
+      return "틀어진 즉시"
+    case "MIN_15":
+      return "15분 간격"
+    case "MIN_30":
+      return "30분 간격"
+    case "MIN_45":
+      return "45분 간격"
+    case "MIN_60":
+      return "1시간 간격"
+  }
+  return "틀어진 즉시"
+}
+
+const useWebSocket = (url: string) => {
+  const [isConnected, setIsConnected] = useState<"loading" | "success" | "disconnected">("loading")
+  const [crews, setCrews] = useState<IPostureCrew[]>([])
+  const socketRef = useRef<WebSocket | null>(null)
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const connect = useCallback(() => {
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      return
+    }
+
+    socketRef.current = new WebSocket(url)
+
+    socketRef.current.onopen = () => {
+      console.log("WebSocket connected")
+      setIsConnected("success")
+    }
+
+    socketRef.current.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      console.log("Received message:", data)
+      if (data.groupUsers) {
+        setCrews(data.groupUsers)
+      }
+    }
+
+    socketRef.current.onerror = (error) => {
+      console.error("WebSocket error:", error)
+    }
+
+    socketRef.current.onclose = (event) => {
+      console.log("WebSocket disconnected. Code:", event.code, "Reason:", event.reason)
+      setIsConnected("disconnected")
+      reconnect()
+    }
+  }, [url])
+
+  const reconnect = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current)
+    }
+    reconnectTimeoutRef.current = setTimeout(() => {
+      console.log("Attempting to reconnect...")
+      connect()
+    }, 5000) // 5초 후 재연결 시도
+  }, [connect])
+
+  useEffect(() => {
+    connect()
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close()
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+      }
+    }
+  }, [connect])
+
+  return { isConnected, crews }
+}
 
 export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const { toggleSidebar } = props
@@ -50,108 +125,35 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const { resetSnapShot } = useSnapShotStore()
   const { openModal } = useModals()
   const createSnapMutation = useCreateSnaphot()
-  const [crews, setCrews] = useState<IPostureCrew[]>([])
-  const [isConnected, setIsConnected] = useState<"loading" | "success" | "disconnected">("loading")
-  const [socket, setSocket] = useState<WebSocket | null>(null)
-  const [reconnectAttempts, setReconnectAttempts] = useState(0)
-  const latestCrewsRef = useRef<IPostureCrew[]>([])
-  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const wsUrl = `wss://api.alignlab.site/ws/v1/groups/1/users?X-HERO-AUTH-TOKEN=${accessToken}`
+  const { isConnected, crews } = useWebSocket(wsUrl)
 
-  const throttledUpdateCrews = useCallback(() => {
-    if (!updateTimeoutRef.current) {
-      updateTimeoutRef.current = setTimeout(() => {
-        setCrews(latestCrewsRef.current)
-        updateTimeoutRef.current = null
-      }, UPDATE_INTERVAL)
-    }
-  }, [])
-
-  const userNoti = useNotificationStore((state) => state.notification)
-  const setUserNoti = useNotificationStore((state) => state.setNotification)
-  const patchNotiMutation = usePatchNoti()
+  const { notification, setNotification } = useNotification()
+  const updateNotiMutation = useModifyNoti()
   const { hasPermission } = usePushNotification()
-
-  const [isEnabled, setIsEnabled] = useState(userNoti?.isActive)
-  const [notiAlarmTime, setNotiAlarmTime] = useState(NOTI_OPTIONS.find((n) => n.value === userNoti?.duration)?.label)
-
-  const connectWebSocket = useCallback(() => {
-    const newSocket = new WebSocket(`wss://api.alignlab.site/ws/v1/groups/1/users?X-HERO-AUTH-TOKEN=${accessToken}`)
-
-    newSocket.onopen = () => {
-      console.log("WebSocket connected")
-      setIsConnected("success")
-      setReconnectAttempts(0)
-    }
-
-    newSocket.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      console.log("Received message:", data)
-      if (data.groupUsers) {
-        latestCrewsRef.current = data.groupUsers
-        throttledUpdateCrews()
-      }
-    }
-
-    newSocket.onerror = (error) => {
-      console.error("WebSocket error:", error)
-    }
-
-    newSocket.onclose = (event) => {
-      console.log("WebSocket disconnected. Code:", event.code, "Reason:", event.reason)
-      setIsConnected("disconnected")
-
-      if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-        const delay = INITIAL_RECONNECT_DELAY * Math.pow(2, reconnectAttempts)
-        console.log(`Attempting to reconnect in ${delay}ms...`)
-        setTimeout(() => {
-          setReconnectAttempts((prev) => prev + 1)
-          connectWebSocket()
-        }, delay)
-      } else {
-        console.log("Max reconnection attempts reached. Please try again later.")
-      }
-    }
-
-    setSocket(newSocket)
-  }, [accessToken, reconnectAttempts, throttledUpdateCrews])
-
-  useEffect(() => {
-    connectWebSocket()
-
-    return () => {
-      if (socket) {
-        socket.close()
-      }
-      if (updateTimeoutRef.current) {
-        clearTimeout(updateTimeoutRef.current)
-      }
-    }
-  }, [connectWebSocket])
 
   const onClickCloseSideNavButton = (): void => {
     toggleSidebar()
   }
 
   const onClickNotiAlarmTime = (option: NotiOption): void => {
-    setNotiAlarmTime(option.label)
-    patchNotiMutation.mutate(
-      { id: userNoti?.id, duration: option.value },
+    updateNotiMutation.mutate(
+      { isActive: notification?.isActive, duration: option.value },
       {
         onSuccess: (data: notification) => {
-          setNotiAlarmTime(option.label)
-          setUserNoti(data)
+          setNotification(data)
         },
       }
     )
   }
 
   const onClickNotiAlarm = (): void => {
-    patchNotiMutation.mutate(
-      { id: userNoti?.id, isActive: !userNoti?.isActive },
+    updateNotiMutation.mutate(
+      { isActive: !notification?.isActive, duration: notification?.duration },
       {
         onSuccess: (data: notification) => {
-          setIsEnabled(data.isActive)
-          setUserNoti(data)
+          console.log("#### : ", data)
+          setNotification(data)
         },
       }
     )
@@ -168,6 +170,8 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
     })
   }
 
+  console.log("notification: ", notification)
+
   return (
     <div className="flex h-full flex-col rounded-lg bg-[#FAFAFA] p-4">
       <button onClick={onClickCloseSideNavButton} className="mb-8 p-1">
@@ -183,7 +187,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
             <input
               type="checkbox"
               className="peer sr-only"
-              checked={isEnabled && hasPermission}
+              checked={notification ? notification?.isActive && hasPermission : false}
               onChange={onClickNotiAlarm}
             />
             <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
@@ -192,9 +196,9 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
 
         <div className="pb-8 pl-2 pr-2">
           <SelectBox
-            isDisabled={!userNoti?.isActive || !hasPermission}
+            isDisabled={!notification?.isActive || !hasPermission}
             options={NOTI_OPTIONS}
-            value={notiAlarmTime}
+            value={NOTI_VALUE_MAP(notification?.duration)}
             onClick={onClickNotiAlarmTime}
           />
         </div>
