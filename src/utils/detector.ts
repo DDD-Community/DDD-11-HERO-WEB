@@ -355,8 +355,12 @@ export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null =
 
   const referAngle = getAngleBetweenLines(referRightShoulderEarSlope, referLeftShoulderEarSlope)
   const compAngle = getAngleBetweenLines(compLeftShoulderEarSlope, compRightShoulderEarSlope)
-  
-  if (referRatio * RATIO_DIFF_THRESHOLD > compRatio && referShoulderMidPointY < compShoulderMidPointY && referAngle * 1.2 < compAngle) {
+
+  if (
+    referRatio * RATIO_DIFF_THRESHOLD > compRatio &&
+    referShoulderMidPointY < compShoulderMidPointY &&
+    referAngle * 1.2 < compAngle
+  ) {
     return true
   } else {
     return false
