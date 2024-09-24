@@ -4,7 +4,7 @@ import AnalysisIcon from "@assets/icons/side-nav-analysis-icon.svg?react"
 import CrewIcon from "@assets/icons/side-nav-crew-icon.svg?react"
 import MonitoringIcon from "@assets/icons/side-nav-monitor-icon.svg?react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { useSnapshotStore } from "@/store/SnapShotStore"
+import { useSnapShotStore } from "@/store/SnapshotStore"
 import { useMemo } from "react"
 import { clearAccessToken } from "@/api/axiosInstance"
 import { useNotificationStore } from "@/store/NotificationStore"
@@ -35,7 +35,7 @@ export default function SideNav(): React.ReactElement {
 
   const logoutHandler = (): void => {
     const clearUser = useAuthStore.persist.clearStorage
-    const clearSnapshot = useSnapshotStore.persist.clearStorage
+    const clearSnapshot = useSnapShotStore.persist.clearStorage
     const clearNotification = useNotificationStore.persist.clearStorage
 
     clearUser()
