@@ -73,7 +73,7 @@ export const getXYfromPose = (poses: pose[], name: string): point | null => {
  * @param isSnapShotMode 스냅샷 촬영후, 해당 기준으로 자세를 측정할 지 아니면 자동으로 측정할 지
  * @returns 거북목 상태라고 판단되면 true, 판단되지 않으면 false, 비교할 수 없는 경우 null을 반환
  */
-export const detectTextNeck = (refer: pose[], comp: pose[], isSnapShotMode = true): boolean | null => {
+export const detectTextNeck = (refer: pose[], comp: pose[], isSnapShotMode = true, threshold = 1): boolean | null => {
   if (!comp) return null
 
   const referLeftEar = getXYfromPose(refer, "left_ear")
@@ -136,7 +136,7 @@ export const detectTextNeck = (refer: pose[], comp: pose[], isSnapShotMode = tru
   const referShoulderDistance = getDistance(referLeftShoulder, referRightShoulder)
   const compShoulderDistance = getDistance(compLeftShoulder, compRightShoulder)
 
-  const RATIO_DIFF_THRESHOLD = 0.88
+  const RATIO_DIFF_THRESHOLD = threshold
 
   const referRatio =
     (0.0001 * referForwardHeadDistance + 1.5 * referShoulderDistance) /
@@ -353,7 +353,14 @@ export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null =
 
   const RATIO_DIFF_THRESHOLD = 0.88
 
-  if (referRatio * RATIO_DIFF_THRESHOLD > compRatio && referShoulderMidPointY < compShoulderMidPointY) {
+  const referAngle = getAngleBetweenLines(referRightShoulderEarSlope, referLeftShoulderEarSlope)
+  const compAngle = getAngleBetweenLines(compLeftShoulderEarSlope, compRightShoulderEarSlope)
+
+  if (
+    referRatio * RATIO_DIFF_THRESHOLD > compRatio &&
+    referShoulderMidPointY < compShoulderMidPointY &&
+    referAngle * 1.2 < compAngle
+  ) {
     return true
   } else {
     return false
