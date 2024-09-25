@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 interface UsePushNotificationResult {
   hasPermission: boolean
@@ -11,6 +11,14 @@ interface UsePushNotificationResult {
 const usePushNotification = (): UsePushNotificationResult => {
   const [hasPermission, setHasPermission] = useState(false) // 권한이 허용되었는지 여부
   const [isPermissionDenied, setIsPermissionDenied] = useState(false) // 권한이 거부되었는지 여부
+
+  // 최신 상태 추적용 useRef
+  const hasPermissionRef = useRef(hasPermission)
+
+  useEffect(() => {
+    // 최신 hasPermission 값을 항상 유지
+    hasPermissionRef.current = hasPermission
+  }, [hasPermission])
 
   // 권한 변경을 처리하는 함수
   const handlePermissionChange = (permission: NotificationPermission): void => {
@@ -42,7 +50,7 @@ const usePushNotification = (): UsePushNotificationResult => {
 
   // 알림 표시 함수
   const showNotification = (body: string): void => {
-    if (hasPermission) {
+    if (hasPermissionRef.current) {
       new Notification("자세공작소", {
         body: body,
       })
