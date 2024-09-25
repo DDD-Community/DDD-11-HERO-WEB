@@ -7,6 +7,7 @@ import RoutePath from "@/constants/routes.json"
 import MyCrewHeader from "./MyCrewHeader"
 import { groupUserRank, MyGroupData } from "@/api"
 import dayjs from "dayjs"
+import NoRanksImage from "@/assets/images/mycrew-no-ranks.png"
 
 interface MyCrewRankingContainerProps {
   myGroupData: MyGroupData
@@ -58,7 +59,18 @@ export default function MyCrewRankingContainer(props: MyCrewRankingContainerProp
         </div>
 
         {/*  랭킹 표시  */}
-        <div className="mt-4">{ranks.length > 0 && myRank && <CrewRanking rankings={ranks} myRank={myRank} />}</div>
+        <div className="mt-4">
+          {ranks.length > 0 && myRank ? (
+            <CrewRanking rankings={ranks} myRank={myRank} />
+          ) : (
+            <div className="flex justify-center">
+              <div className="flex w-fit flex-col items-center gap-2">
+                <img src={NoRanksImage} />
+                <div>표시할 랭킹이 없습니다.</div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

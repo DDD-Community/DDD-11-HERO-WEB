@@ -8,21 +8,21 @@ const Controls: React.FC<{
   return (
     <div className="absolute bottom-0 flex w-full items-center justify-center gap-[16px] p-[50px] text-white">
       <button
-        className="flex w-[260px] items-center justify-center rounded rounded-full bg-white bg-opacity-80 px-10 py-3 font-semibold leading-[32px] text-zinc-900"
+        className="flex w-[230px] items-center justify-center rounded rounded-full bg-white bg-opacity-80 px-10 py-3 font-semibold leading-[32px] text-zinc-900"
         onClick={handleShowPopup}
       >
         <div className="flex flex-row items-center gap-2">
           <GuideIcon />
-          <span>가이드 다시 볼게요!</span>
+          <span>가이드 다시 보기</span>
         </div>
       </button>
       <button
-        className="flex w-[260px] items-center justify-center rounded rounded-full bg-[#1A75FF] bg-opacity-80 px-10 py-3 font-semibold leading-[32px] text-white"
+        className="flex w-[230px] items-center justify-center rounded rounded-full bg-[#1A75FF] px-10 py-3 font-semibold leading-[32px] text-white"
         onClick={getInitSnap}
       >
         <div className="flex flex-row items-center gap-2">
           <PostureCheckIcon />
-          바른자세를 취했어요!
+          스냅샷 촬영하기
         </div>
       </button>
     </div>
