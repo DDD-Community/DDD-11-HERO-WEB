@@ -1,30 +1,42 @@
-import { getNotification, notification } from "@/api/notification"
+import { getNotification } from "@/api/notification"
 import { useNotificationStore } from "@/store/NotificationStore"
-import { useQuery } from "@tanstack/react-query"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 export default function useNotification() {
   const { notification, setNotification } = useNotificationStore()
+  const [isLoading, setIsLoading] = useState(true)
 
   // Fetch group data
-  const { data, isLoading, error } = useQuery<{ data: notification }, Error>({
-    queryKey: ["notification"],
-    queryFn: getNotification,
-    staleTime: 60 * 1000,
-    retry: false,
-    enabled: !notification,
-  })
+  // const { data, isLoading, error } = useQuery<{ data: notification }, Error>({
+  //   queryKey: ["notification"],
+  //   queryFn: getNotification,
+  //   staleTime: 60 * 1000,
+  // })
+
+  // useEffect(() => {
+  //   if (data) {
+  //     setNotification(data.data)
+  //   }
+  // }, [data])
 
   useEffect(() => {
-    if (data) {
-      setNotification(data.data)
+    if (!notification) {
+      getNotification()
+        .then(({ data }) => {
+          setNotification(data)
+          setIsLoading(false)
+        })
+        .catch((error) => {
+          console.log("useNotification Error: ", error)
+          setIsLoading(false)
+        })
     }
-  }, [data])
+  }, [notification])
 
   return {
     notification,
     setNotification,
     isLoading,
-    error,
+    // error,
   }
 }
