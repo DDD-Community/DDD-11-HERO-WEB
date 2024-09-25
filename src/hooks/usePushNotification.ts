@@ -52,8 +52,7 @@ const usePushNotification = (): UsePushNotificationResult => {
   useEffect(() => {
     // 컴포넌트가 마운트될 때 권한 상태 확인
     if ("Notification" in window) {
-      handlePermissionChange(Notification.permission)
-
+      requestNotificationPermission()
       // 권한 변경 감지
       navigator.permissions
         .query({ name: "notifications" as PermissionName })
