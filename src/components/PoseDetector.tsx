@@ -6,7 +6,6 @@ import { useGuidePopup } from "@/hooks/useGuidePopup"
 import { useSendPose } from "@/hooks/usePoseMutation"
 import usePushNotification from "@/hooks/usePushNotification"
 import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
-import { useNotificationStore } from "@/store/NotificationStore"
 import { useSnapShotStore } from "@/store/SnapshotStore"
 import type { pose } from "@/utils/detector"
 import { detectHandOnChin, detectSlope, detectTailboneSit, detectTextNeck } from "@/utils/detector"
@@ -125,9 +124,7 @@ const PoseDetector: React.FC = () => {
     ): void => {
       if (condition && isSnapShotSaved) {
         if (!timerRef.current) {
-          console.log(poseType, "start")
           timerRef.current = setInterval(() => {
-            console.log("start")
             if (resultRef.current) {
               const { keypoints, score } = resultRef.current[0]
               const req = { snapshot: { keypoints, score }, type: poseType }
@@ -336,6 +333,9 @@ const PoseDetector: React.FC = () => {
     openPopup()
   }
 
+  useEffect(() => {
+    console.log(notification)
+  }, [notification])
   return (
     <>
       {isScriptError ? (
