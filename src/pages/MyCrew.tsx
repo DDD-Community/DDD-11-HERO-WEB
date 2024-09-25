@@ -6,6 +6,7 @@ import FlagIcon from "@assets/icons/crew-my-crew-header-flag.svg?react"
 import CrewLeader from "@assets/icons/crew-my-crew-leader-icon.svg?react"
 import SendInvitationIcon from "@assets/icons/crew-send-invitation.svg?react"
 import CrewUserIcon from "@assets/icons/crew-user-icon.svg?react"
+import NoRanksImage from "@/assets/images/mycrew-no-ranks.png"
 import dayjs from "dayjs"
 import { modals } from "@/components/Modal/Modals"
 import { useNavigate } from "react-router-dom"
@@ -119,7 +120,16 @@ export default function MyCrew() {
       <div className="mt-6 h-[280px] w-full rounded-[12px] border-[1px] border-solid border-gray-200 bg-white px-8 py-[30px]">
         {/*  랭킹 표시  */}
         <div className="h-[220px]">
-          {ranks.length > 0 && myRank && <CrewRanking rankings={ranks} myRank={myRank} />}
+          {ranks.length > 0 && myRank ? (
+            <CrewRanking rankings={ranks} myRank={myRank} />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <div className="flex w-fit flex-col items-center gap-2">
+                <img src={NoRanksImage} />
+                <div>표시할 랭킹이 없습니다.</div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -14,6 +14,10 @@ import RankingGuideToolTip from "@assets/images/ranking-guide.png"
 import SelectBox from "@components/SelectBox"
 import { ReactElement, useCallback, useEffect, useRef, useState } from "react"
 import { modals } from "../Modal/Modals"
+import useMyGroup from "@/hooks/useMyGroup"
+import EmptyGroupImage from "@/assets/images/crew-empty.png"
+import { useNavigate } from "react-router-dom"
+import RoutePath from "@/constants/routes.json"
 
 interface IPostureCrew {
   groupUserId: number
@@ -131,6 +135,8 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const { notification, setNotification } = useNotification()
   const updateNotiMutation = useModifyNoti()
   const { hasPermission } = usePushNotification()
+  const { myGroupData } = useMyGroup()
+  const navigate = useNavigate()
 
   const onClickCloseSideNavButton = (): void => {
     toggleSidebar()
@@ -227,12 +233,12 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
           </div>
         </div>
         <div>
-          {isConnected === "loading" && <p>서버와 연결 중입니다.</p>}
-          {isConnected === "disconnected" && <p>서버와 연결 끊어졌습니다.</p>}
-          {isConnected === "success" && crews.length === 0 && (
+          {isConnected === "loading" && myGroupData && <p>서버와 연결 중입니다.</p>}
+          {isConnected === "disconnected" && myGroupData && <p>서버와 연결 끊어졌습니다.</p>}
+          {isConnected === "success" && myGroupData && crews.length === 0 && (
             <p className="text-center text-gray-500">접속자가 없습니다.</p>
           )}
-          {isConnected === "success" && crews.length > 0 && (
+          {isConnected === "success" && myGroupData && crews.length > 0 && (
             <ul className="space-y-2">
               {crews.map((user, index) => (
                 <li key={index} className="flex h-14 w-[200px] items-center justify-between rounded-full bg-white">
@@ -253,17 +259,35 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
               ))}
             </ul>
           )}
+          {!myGroupData && (
+            <div className="flex flex-col items-center justify-center rounded-2xl bg-zinc-100 px-4 py-8">
+              <div className="text-center text-sm font-medium">
+                아직 가입한
+                <br />
+                크루가 없어요
+              </div>
+              <img src={EmptyGroupImage} />
+              <button
+                className="flex w-[144px] justify-center rounded-full bg-[#1A75FF] py-[10px] text-sm font-semibold text-white"
+                onClick={() => {
+                  navigate(RoutePath.CREW)
+                }}
+              >
+                크루 가입하기
+              </button>
+            </div>
+          )}
         </div>
       </div>
       <div className="mt-auto pb-[7px] pl-0.5">
         <button className="pb-[10px]" onClick={onClickReTakeSnapShot}>
-          <div className="flex gap-[10px]">
+          <div className="flex items-center gap-[10px]">
             <PostureRetakeIcon />
             <div>스냅샷 재촬영</div>
           </div>
         </button>
         <button onClick={onClickPostureGuide}>
-          <div className="flex gap-[10px]">
+          <div className="flex items-center gap-[10px]">
             <PostureGuide />
             <div>바른자세 가이드</div>
           </div>

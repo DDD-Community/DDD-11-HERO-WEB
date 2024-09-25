@@ -31,9 +31,9 @@ const PostureMessage: React.FC<{
 
   return (
     <div
-      className={`absolute top-0 flex w-full items-center justify-center rounded-t-3xl bg-[#1A1B1D] bg-opacity-75 py-[27px] text-lg font-medium ${
-        !hasPermission ? "text-orange-400" : "text-white"
-      }`}
+      className={`absolute top-0 flex w-full items-center justify-center rounded-t-3xl backdrop-blur ${
+        isSnapShotSaved ? "bg-[#1A1B1D] bg-opacity-60" : "bg-[#1A75FF66] bg-opacity-40"
+      } py-[27px] text-lg font-medium ${!hasPermission ? "text-orange-400" : "text-white"}`}
     >
       {!hasPermission
         ? "브라우저의 카메라 권한을 허용해주세요."
