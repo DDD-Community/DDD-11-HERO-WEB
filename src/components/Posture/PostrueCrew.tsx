@@ -201,6 +201,9 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
             value={NOTI_VALUE_MAP(notification?.duration)}
             onClick={onClickNotiAlarmTime}
           />
+          {!hasPermission && (
+            <div className="pt-2 text-sm text-amber-500">브라우저의 알람 권한 설정이 필요 합니다.</div>
+          )}
         </div>
 
         <div className="group relative">

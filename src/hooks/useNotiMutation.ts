@@ -13,9 +13,6 @@ export const useModifyNoti = (): UseMutationResult<notification, unknown, notifi
     mutationFn: (notification: notification) => {
       return registerNotification(notification)
     },
-    onSuccess: (data) => {
-      console.log(data)
-    },
   })
 }
 
