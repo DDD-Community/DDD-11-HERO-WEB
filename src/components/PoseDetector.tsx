@@ -29,7 +29,7 @@ const PoseDetector: React.FC = () => {
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false)
   // const [isSnapShotSaved, setIsSnapSaved] = useState<boolean>(false)
 
-  const { showNotification } = usePushNotification()
+  const { showNotification, hasPermission: hasNotiPermisson } = usePushNotification()
 
   const { isPopupOpen, handleClosePopup, openPopup } = useGuidePopup()
 
@@ -46,7 +46,7 @@ const PoseDetector: React.FC = () => {
   const shoulderTwistCnt = useRef<number>(0)
   const chinUtpCnt = useRef<number>(0)
   const tailboneSitCnt = useRef<number>(0)
-
+  const isShowImmediNotiRef = useRef<boolean>(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const { isSnapShotSaved, snapshot, setSnapShot } = useSnapShotStore()
@@ -56,7 +56,6 @@ const PoseDetector: React.FC = () => {
   // const userNoti = useNotificationStore((state) => state.notification)
   const { notification } = useNotification()
 
-  const { requestNotificationPermission } = usePushNotification()
   const { hasPermission } = useCameraPermission()
 
   const location = useLocation() // 페이지 이동 감지
@@ -119,8 +118,7 @@ const PoseDetector: React.FC = () => {
       timerRef: React.MutableRefObject<any>,
       poseType: poseType,
       isSnapShotSaved: boolean,
-      cntRef: React.MutableRefObject<any>,
-      isShowNoti: boolean | undefined
+      cntRef: React.MutableRefObject<any>
     ): void => {
       if (condition && isSnapShotSaved) {
         if (!timerRef.current) {
@@ -130,7 +128,7 @@ const PoseDetector: React.FC = () => {
               const req = { snapshot: { keypoints, score }, type: poseType }
               sendPoseMutation.mutate(req)
               cntRef.current = cntRef.current + 1
-              if (isShowNoti)
+              if (isShowImmediNotiRef.current)
                 showNotification(`척추 건강 위험! ${getPoseName(poseType)} 감지! 자세를 바르게 앉아주세요.`)
             }
           }, 30 * 1000)
@@ -151,7 +149,6 @@ const PoseDetector: React.FC = () => {
         const _isTextNeck = detectTextNeck(snapRef.current, results, true, 0.88)
         const _isHandOnChin = detectHandOnChin(snapRef.current, results)
         const _isTailboneSit = detectTailboneSit(snapRef.current, results)
-        const _isShowNoti = notification?.duration === "IMMEDIATELY" && notification?.isActive
 
         if (_isShoulderTwist !== null) setIsShoulderTwist(_isShoulderTwist)
         if (_isTextNeck !== null) setIsTextNeck(_isTextNeck)
@@ -159,17 +156,10 @@ const PoseDetector: React.FC = () => {
         if (_isTailboneSit !== null) setIsTailboneSit(_isTailboneSit)
 
         // 공통 타이머 관리 함수 호출
-        managePoseTimer(_isTextNeck, turtleNeckTimer, "TURTLE_NECK", isSnapShotSaved, turtleNeckCnt, _isShowNoti)
-        managePoseTimer(
-          _isShoulderTwist,
-          shoulderTwistTimer,
-          "SHOULDER_TWIST",
-          isSnapShotSaved,
-          shoulderTwistCnt,
-          _isShowNoti
-        )
-        managePoseTimer(_isTailboneSit, tailboneSitTimer, "TAILBONE_SIT", isSnapShotSaved, tailboneSitCnt, _isShowNoti)
-        managePoseTimer(_isHandOnChin, chinUtpTimer, "CHIN_UTP", isSnapShotSaved, chinUtpCnt, _isShowNoti)
+        managePoseTimer(_isTextNeck, turtleNeckTimer, "TURTLE_NECK", isSnapShotSaved, turtleNeckCnt)
+        managePoseTimer(_isShoulderTwist, shoulderTwistTimer, "SHOULDER_TWIST", isSnapShotSaved, shoulderTwistCnt)
+        managePoseTimer(_isTailboneSit, tailboneSitTimer, "TAILBONE_SIT", isSnapShotSaved, tailboneSitCnt)
+        managePoseTimer(_isHandOnChin, chinUtpTimer, "CHIN_UTP", isSnapShotSaved, chinUtpCnt)
         const isRight = !_isTextNeck && !_isHandOnChin && !_isShoulderTwist && !_isTailboneSit
         if (canvasRef.current) drawPose(results, canvasRef.current, isRight)
       } else {
@@ -288,7 +278,6 @@ const PoseDetector: React.FC = () => {
   }, [location])
 
   useEffect(() => {
-    requestNotificationPermission()
     getScript()
   }, [])
 
@@ -327,6 +316,12 @@ const PoseDetector: React.FC = () => {
       }, 1000 * 60 * t)
     }
   }, [notification, isSnapShotSaved])
+
+  // 즉시 알림을 사용 하는 경우, 푸시를 보낼지 여부를 저장
+  useEffect(() => {
+    isShowImmediNotiRef.current =
+      notification?.duration === "IMMEDIATELY" && (notification?.isActive as boolean) && hasNotiPermisson
+  }, [notification?.duration, notification?.isActive, hasNotiPermisson])
 
   // 팝업 열기
   const handleShowPopup = (): void => {
