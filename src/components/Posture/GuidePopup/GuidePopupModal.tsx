@@ -25,8 +25,11 @@ const GuidePopupModal = ({ onClose }: { onClose: () => void }): ReactElement => 
         {step === 1 && (
           <>
             <SnapshotGuide />
-            <button className="w-[354px] rounded-full bg-[#1A75FF] px-4 py-3 text-white" onClick={onClose}>
-              모니터링 시작하기
+            <button
+              className="h-[50px] w-[354px] rounded-full bg-[#1A75FF] px-[39px] py-3 text-white"
+              onClick={onClose}
+            >
+              확인
             </button>
           </>
         )}

@@ -8,14 +8,10 @@ export interface notification {
   duration?: duration
 }
 
-export const getNotification = async (): Promise<notification | null> => {
+export const getNotification = async (): Promise<{ data: notification }> => {
   try {
     const res = await axiosInstance.get(`/pose-notifications`)
-
-    if (!res.data?.data) return null
-
-    const { id, duration } = res.data.data
-    return { id, duration }
+    return res.data
   } catch (e) {
     throw e
   }
@@ -24,19 +20,18 @@ export const getNotification = async (): Promise<notification | null> => {
 export const registerNotification = async (notification: notification): Promise<notification> => {
   try {
     const res = await axiosInstance.post(`/pose-notifications`, { ...notification })
-    const { id, duration } = res.data.data
-    return { id, duration }
+    return res.data.data
   } catch (e) {
     throw e
   }
 }
 
-export const updateNotification = async (notification: notification): Promise<notification> => {
-  try {
-    const res = await axiosInstance.patch(`/pose-notifications/${notification.id}`, { ...notification })
-    const { id, isActive, duration } = res.data.data
-    return { id, isActive, duration }
-  } catch (e) {
-    throw e
-  }
-}
+// export const updateNotification = async (notification: notification): Promise<notification> => {
+//   try {
+//     const res = await axiosInstance.patch(`/pose-notifications/${notification.id}`, { ...notification })
+//     const { id, isActive, duration } = res.data.data
+//     return { id, isActive, duration }
+//   } catch (e) {
+//     throw e
+//   }
+// }

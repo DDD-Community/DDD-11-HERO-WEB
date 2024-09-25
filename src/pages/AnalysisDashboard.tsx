@@ -99,15 +99,15 @@ const AnalysisDashboard = () => {
       {isError && <div>데이터를 불러오는 것에 실패했습니다</div>}
 
       {!isLoading && !isError && todayAnalysis && (
-        <div className=" mb-8">
+        <div className="mb-8">
           <div className="flex">
             {/* 고정된 전체 틀어짐 횟수 카드 */}
             <div className="relative">
               <div className="mr-[15px] flex h-[266px] w-[230px] flex-col items-center rounded-lg bg-zinc-800 text-white">
-                <p className="mt-8 text-sm text-[#5A9CFF]">전체 자세 경고 횟수</p>
-                <div className="mt-2 flex items-center">
-                  <span className="text-4xl font-bold">{totalCount}</span>
-                  <span className="ml-1 text-sm">회</span>
+                <span className="mt-8 text-[15px] text-[#5A9CFF]">전체 자세 경고 횟수</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-[40px] font-medium">{totalCount}</span>
+                  <span className="text-[15px] font-semibold">회</span>
                 </div>
                 <div className="absolute bottom-[25px] flex h-24 justify-center">
                   <TotalCountChartIcon />
@@ -133,10 +133,10 @@ const AnalysisDashboard = () => {
                     <div className="relative overflow-hidden rounded-lg bg-gray-100">
                       <img src={image} alt={title} className="h-full w-full" />
                       <div className="absolute inset-0 flex flex-col items-center pt-8 text-black">
-                        <p className="text-lg font-semibold">{title}</p>
+                        <span className="text-[15px] font-semibold">{title}</span>
                         <div className="flex items-center gap-1">
-                          <div className="mb-2 pt-2 text-4xl font-bold">{getPoseCount(type)}</div>
-                          <div className="text-lg">회</div>
+                          <div className="text-[40px] font-medium">{getPoseCount(type)}</div>
+                          <div className="text-[15px] font-semibold">회</div>
                         </div>
                       </div>
                     </div>

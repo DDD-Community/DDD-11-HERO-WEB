@@ -1,7 +1,7 @@
 import SendInvitationIcon from "@assets/icons/crew-send-invitation.svg?react"
 import CrewUserIcon from "@assets/icons/crew-user-icon.svg?react"
 import { Link } from "react-router-dom"
-import CrewRanking from "./CrewRanking"
+import CrewRanking from "../CrewRanking"
 
 import RoutePath from "@/constants/routes.json"
 import MyCrewHeader from "./MyCrewHeader"
@@ -58,9 +58,7 @@ export default function MyCrewRankingContainer(props: MyCrewRankingContainerProp
         </div>
 
         {/*  랭킹 표시  */}
-        <div className="mt-4 h-[220px]">
-          {ranks.length > 0 && myRank && <CrewRanking rankings={ranks} myRank={myRank} />}
-        </div>
+        <div className="mt-4">{ranks.length > 0 && myRank && <CrewRanking rankings={ranks} myRank={myRank} />}</div>
       </div>
     </div>
   )
