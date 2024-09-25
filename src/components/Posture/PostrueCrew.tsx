@@ -148,15 +148,25 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   }
 
   const onClickNotiAlarm = (): void => {
-    updateNotiMutation.mutate(
-      { isActive: !notification?.isActive, duration: notification?.duration },
-      {
-        onSuccess: (data: notification) => {
-          console.log("#### : ", data)
-          setNotification(data)
-        },
-      }
-    )
+    if (!notification || !notification.isActive) {
+      updateNotiMutation.mutate(
+        { isActive: true, duration: notification?.duration || "IMMEDIATELY" },
+        {
+          onSuccess: (data: notification) => {
+            setNotification(data)
+          },
+        }
+      )
+    } else {
+      updateNotiMutation.mutate(
+        { isActive: !notification?.isActive, duration: notification?.duration },
+        {
+          onSuccess: (data: notification) => {
+            setNotification(data)
+          },
+        }
+      )
+    }
   }
 
   const onClickPostureGuide = () => {
