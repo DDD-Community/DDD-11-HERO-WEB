@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react"
+import PushIcon from "@assets/icons/favicon.svg"
 
 interface UsePushNotificationResult {
   hasPermission: boolean
@@ -53,6 +54,7 @@ const usePushNotification = (): UsePushNotificationResult => {
     if (hasPermissionRef.current) {
       new Notification("자세공작소", {
         body: body,
+        icon: PushIcon as string,
       })
     }
   }

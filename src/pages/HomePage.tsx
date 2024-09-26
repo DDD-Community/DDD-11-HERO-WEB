@@ -1,4 +1,4 @@
-import MainCraftIcon from "@assets/icons/posture-craft-side-nav-icon.svg?react"
+import LogoImage from "@assets/icons/home-logo.svg?react"
 import KakaoSignupIcon from "@assets/icons/home-kakao-signup-button-icon.svg?react"
 import IntroImage from "@/assets/images/home-intro.png"
 import MonitoringImage from "@/assets/images/home-monitoring.png"
@@ -18,8 +18,7 @@ const HomePage: React.FC = () => {
       <div className="flex w-full flex-none border border-[#F0F2F9] px-[120px] py-5">
         {/* logo */}
         <div className="flex flex-grow items-center">
-          <MainCraftIcon className="h-8 w-8" />
-          <span className="ml-2 text-xl font-bold">자세공작소</span>
+          <LogoImage />
         </div>
         <button
           className="rounded-full bg-blue-600 px-6 py-1 text-sm font-semibold leading-6 text-white"
@@ -63,10 +62,14 @@ const HomePage: React.FC = () => {
         <div className="flex items-center text-[#D9D9D9]">
           <div className="mr-20 text-2xl font-bold">ALIGN LAB</div>
           <div className="flex gap-20 text-sm">
-            <a href="https://swjg3gi.notion.site/89966f39e24a442a8eee5b1f91c4fde7" target="_blank">
+            <a href="https://swjg3gi.notion.site/89966f39e24a442a8eee5b1f91c4fde7" target="_blank" rel="noreferrer">
               <div>개인정보처리방침</div>
             </a>
-            <a href="https://swjg3gi.notion.site/7c13aba015654e6f8e1acd300b440526?pvs=4" target="_blank">
+            <a
+              href="https://swjg3gi.notion.site/7c13aba015654e6f8e1acd300b440526?pvs=4"
+              target="_blank"
+              rel="noreferrer"
+            >
               <div>이용약관</div>
             </a>
           </div>
