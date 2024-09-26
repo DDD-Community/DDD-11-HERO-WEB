@@ -315,51 +315,14 @@ export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null =
   // 귀의 중점 계산
   const compShoulderMidpoint = getMidPoint(compLeftShoulder, compRightShoulder)
 
-  const referForwardHeadDistance = Math.max(referLeftShoulder.y, referRightShoulder.y) - referEarMidpoint.y
-  const compForwardHeadDistance = Math.max(compLeftShoulder.y, compRightShoulder.y) - compEarMidpoint.y
-
-  const referShoulderSlope = getSlopeFromPoints(referLeftShoulder, referRightShoulder)
-
-  // 2. 왼쪽 어깨-왼쪽 귀를 잇는 직선의 기울기
-  const referLeftShoulderEarSlope = getSlopeFromPoints(referLeftShoulder, referLeftEar)
-
-  // 3. 오른쪽 어깨-오른쪽 귀를 잇는 직선의 기울기
-  const referRightShoulderEarSlope = getSlopeFromPoints(referRightShoulder, referRightEar)
-
-  const compShoulderSlope = getSlopeFromPoints(compLeftShoulder, compRightShoulder)
-
-  // 2. 왼쪽 어깨-왼쪽 귀를 잇는 직선의 기울기
-  const compLeftShoulderEarSlope = getSlopeFromPoints(compLeftShoulder, compLeftEar)
-
-  // 3. 오른쪽 어깨-오른쪽 귀를 잇는 직선의 기울기
-  const compRightShoulderEarSlope = getSlopeFromPoints(compRightShoulder, compRightEar)
-
-  const referLeftAngle = getAngleBetweenLines(referShoulderSlope, referLeftShoulderEarSlope)
-  const referRightAngle = getAngleBetweenLines(referShoulderSlope, referRightShoulderEarSlope)
-
-  const compLeftAngle = getAngleBetweenLines(compShoulderSlope, compLeftShoulderEarSlope)
-  const compRightAngle = getAngleBetweenLines(compShoulderSlope, compRightShoulderEarSlope)
-
-  const referAngleRatio = 1 / (referLeftAngle + referRightAngle)
-  const compAngleRatio = 1 / (compLeftAngle + compRightAngle)
-  const referCorrectRatio = (0.4 * referForwardHeadDistance) / (1.5 * referEarDistance + 0.3 * referShoulderDistance)
-  const compCorrectRatio = (0.4 * compForwardHeadDistance) / (1.5 * compEarDistance + 0.3 * compShoulderDistance)
-
-  const referRatio = 0.7 * referCorrectRatio + 0.3 * referAngleRatio
-  const compRatio = 0.7 * compCorrectRatio + 0.3 * compAngleRatio
-
-  const referShoulderMidPointY = referShoulderMidpoint?.y || 1 // 기본값 설정 (1로 설정하여 0으로 나누기 방지)
-  const compShoulderMidPointY = compShoulderMidpoint?.y || 1 // 기본값 설정
-
-  const RATIO_DIFF_THRESHOLD = 0.88
-
-  const referAngle = getAngleBetweenLines(referRightShoulderEarSlope, referLeftShoulderEarSlope)
-  const compAngle = getAngleBetweenLines(compLeftShoulderEarSlope, compRightShoulderEarSlope)
-
+  const referRatio = referEarDistance / referShoulderDistance
+  const compRatio = compEarDistance / compShoulderDistance
   if (
-    referRatio * RATIO_DIFF_THRESHOLD > compRatio &&
-    referShoulderMidPointY < compShoulderMidPointY &&
-    referAngle * 1.2 < compAngle
+    compShoulderDistance / referShoulderDistance < 0.88 &&
+    compEarDistance / referEarDistance < 0.88 &&
+    referShoulderMidpoint.y < compShoulderMidpoint.y &&
+    referEarMidpoint.y < compEarMidpoint.y &&
+    Math.abs(referRatio - compRatio) > 0.018
   ) {
     return true
   } else {
