@@ -84,7 +84,7 @@ export default function SideNav(): React.ReactElement {
                 return (
                   <li key={label} className={`mb-1 rounded-r-md ${isActive ? "bg-gray-700" : "hover:bg-gray-700"}`}>
                     <Link to={link} className={`nav-item flex w-full items-center p-3 ${isActive ? "active" : ""}`}>
-                      <Icon className="ml-3 mr-2 h-5 w-5" />
+                      <Icon className="ml-3 mr-3 h-5 w-5" />
                       <span className={isActive ? "font-bold" : ""}>{label}</span>
                     </Link>
                   </li>
