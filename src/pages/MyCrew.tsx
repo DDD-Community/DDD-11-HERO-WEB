@@ -56,7 +56,7 @@ export default function MyCrew() {
 
   return (
     <>
-      <MyCrewHeader openCreateModal={() => {}} />
+      <MyCrewHeader />
       {/* {!isLoading && ()} */}
 
       <div className="flex w-full justify-between">
@@ -100,7 +100,7 @@ export default function MyCrew() {
         </div>
         <div className="flex flex-1 flex-col items-center gap-6 rounded-[10px] border-[1px] border-solid border-gray-200 bg-white px-[70px] py-6">
           <span className="font-[13px] font-bold text-[#1A75FF]">크루 소개</span>
-          <p className="overflow-wrap-break-word w-full">{myGroupData?.description}</p>
+          <p className="overflow-wrap-break-word w-full text-center">{myGroupData?.description}</p>
         </div>
       </div>
 
