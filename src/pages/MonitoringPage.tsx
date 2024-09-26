@@ -42,7 +42,7 @@ const MonitoringPage: React.FC = () => {
     <div className="relative flex h-full w-full overflow-hidden">
       {/* Main content area */}
       <div className={`flex-grow transition-all duration-300 ${isSidebarOpen && !isPopupOpen ? "pr-[232px]" : ""}`}>
-        <div className="relative flex h-full items-center justify-center">
+        <div className="relative flex h-full items-center justify-center p-3">
           <div className="aspect-video w-full max-w-[1280px]">
             <PoseDetector />
           </div>

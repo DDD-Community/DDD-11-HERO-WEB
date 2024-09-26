@@ -19,7 +19,7 @@ const SORT_LIST = [
 
 const CrewList = (): ReactElement => {
   const navigate = useNavigate()
-  const { myGroupData, ranks, myRank, refetchAll } = useMyGroup()
+  const { myGroupData, ranks, myRank, refetchAll, isLoading: isGroupLoading } = useMyGroup()
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
   // Dropdown 외부 클릭 감지 메모이제이션
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -162,6 +162,7 @@ const CrewList = (): ReactElement => {
     <div className="flex h-full w-full flex-col">
       {myGroupData && Object.keys(myGroupData).length > 0 && (
         <MyCrewRankingContainer
+          isLoading={isGroupLoading}
           myGroupData={myGroupData}
           ranks={ranks}
           myRank={myRank}

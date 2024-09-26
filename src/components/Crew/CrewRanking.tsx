@@ -76,9 +76,9 @@ const CrewRanking = ({ rankings, myRank }: { rankings: any[]; myRank: any }) => 
     <div className="flex h-full gap-12">
       {/* 1, 2, 3등 랭킹 */}
       <div className="flex h-full flex-1 items-end gap-3">
-        <RankPillar rank={1} name={topThree[0].name} score={topThree[0].score} height="220px" />
-        <RankPillar rank={2} name={topThree[1].name} score={topThree[1].score} height="180px" />
-        <RankPillar rank={3} name={topThree[2].name} score={topThree[2].score} height="158px" />
+        {topThree[0] && <RankPillar rank={1} name={topThree[0].name} score={topThree[0].score} height="220px" />}
+        {topThree[1] && <RankPillar rank={2} name={topThree[1].name} score={topThree[1].score} height="180px" />}
+        {topThree[2] && <RankPillar rank={3} name={topThree[2].name} score={topThree[2].score} height="158px" />}
       </div>
 
       {/* 전체 랭킹 목록 */}
