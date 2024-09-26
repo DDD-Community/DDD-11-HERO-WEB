@@ -1,4 +1,4 @@
-import { getSlopeFromPoints, getMidPoint, getDistance, getAngleBetweenLines } from "@/utils/calculator"
+import { getSlopeFromPoints, getMidPoint, getDistance } from "@/utils/calculator"
 import type { point } from "@/utils/calculator"
 
 export interface keypoint {
