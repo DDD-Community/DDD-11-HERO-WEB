@@ -154,9 +154,9 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   }
 
   const onClickNotiAlarm = (): void => {
-    if (!notification || !notification.isActive) {
+    if (!notification) {
       updateNotiMutation.mutate(
-        { isActive: true, duration: notification?.duration || "IMMEDIATELY" },
+        { isActive: true, duration: "IMMEDIATELY" },
         {
           onSuccess: (data: notification) => {
             setNotification(data)
@@ -165,7 +165,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
       )
     } else {
       updateNotiMutation.mutate(
-        { isActive: !notification?.isActive, duration: notification?.duration },
+        { isActive: !notification?.isActive, duration: notification?.duration || "IMMEDIATELY" },
         {
           onSuccess: (data: notification) => {
             setNotification(data)

@@ -10,20 +10,21 @@ import TailBoneSitImage from "@/assets/images/tail-bone-sit.png"
 import TurtleNeckImage from "@/assets/images/tutle-neck.png"
 import PoseAnalysisChart from "@/components/Dashboard/Chart"
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker"
+import CalendarToolTip from "@assets/icons/dashboard-calendar-tooltip.svg?react"
 
 const START_FROM = new Date()
 START_FROM.setMonth(START_FROM.getMonth() - 1)
 
 const AnalysisDashboard = () => {
   const carouselRef = useRef(null)
+  const datePickerRef = useRef(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [dateRange, setDateRange] = useState<DateValueType>({
     startDate: null,
     endDate: null,
   })
-
   const [isLargeViewport, setIsLargeViewport] = useState(false)
-
+  const [showTooltip, setShowTooltip] = useState(false)
   const { todayAnalysis, totalAnalysis, isLoading, isError } = usePoseAnalysis(dateRange)
 
   useEffect(() => {
@@ -70,7 +71,7 @@ const AnalysisDashboard = () => {
   return (
     <div className="h-full w-full">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">오늘의 자세 분석</h1>
+        <div className="text-[22px] font-bold text-zinc-900">오늘의 자세 분석</div>
         <div className="flex space-x-2">
           <button
             className={`rounded-full p-2 ${
@@ -158,7 +159,23 @@ const AnalysisDashboard = () => {
       {/* 차트 섹션 */}
       <div className="flex items-center justify-between pb-6">
         <span className="text-[22px] font-bold text-zinc-900">기간별 자세 추이</span>
-        <div className="text-sm text-gray-600">
+        <div
+          className="relative text-sm text-gray-600"
+          ref={datePickerRef}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          {showTooltip && (
+            <div
+              className="absolute z-10"
+              style={{
+                top: 36,
+                right: 0,
+              }}
+            >
+              <CalendarToolTip />
+            </div>
+          )}
           <Datepicker
             inputClassName="w-[270px] py-2 rounded-full bg-zinc-800 text-white px-[24px]"
             startFrom={START_FROM}
