@@ -63,8 +63,12 @@ const HomePage: React.FC = () => {
         <div className="flex items-center text-[#D9D9D9]">
           <div className="mr-20 text-2xl font-bold">ALIGN LAB</div>
           <div className="flex gap-20 text-sm">
-            <div>개인정보처리방침</div>
-            <div>이용약관</div>
+            <a href="https://swjg3gi.notion.site/89966f39e24a442a8eee5b1f91c4fde7" target="_blank">
+              <div>개인정보처리방침</div>
+            </a>
+            <a href="https://swjg3gi.notion.site/7c13aba015654e6f8e1acd300b440526?pvs=4" target="_blank">
+              <div>이용약관</div>
+            </a>
           </div>
         </div>
         <div className="mt-10 text-xs font-normal text-[#9D9DA2]">Copyright all reserved @2024</div>

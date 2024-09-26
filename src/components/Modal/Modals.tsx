@@ -5,6 +5,7 @@ import CreateCrewModal from "./CreateCrewModal"
 import GoodPostureGuidePopupModal from "./GoodPostureGuideModal"
 import InviteCrewModal from "./InviteCrewModal"
 import JoinCrewModal from "./JoinCrewModal"
+import ReportModal from "./ReportModal"
 import ToWithdrawModal from "./ToWithdrawModal"
 import WithdrawCrewModal from "./WithdrawCrewModal"
 
@@ -15,6 +16,7 @@ export const modals = {
   withdrawCrewModal: WithdrawCrewModal,
   ToWithdrawModal: ToWithdrawModal,
   postureGuideModal: GoodPostureGuidePopupModal,
+  reportModal: ReportModal,
 }
 
 const Modals = (): React.ReactNode => {
