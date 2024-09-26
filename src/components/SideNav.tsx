@@ -1,7 +1,7 @@
 import { clearAccessToken } from "@/api/axiosInstance"
 import { useAuthStore } from "@/store/AuthStore"
 import { useSnapShotStore } from "@/store/SnapshotStore"
-import MainCraftIcon from "@assets/icons/posture-craft-side-nav-icon.svg?react"
+import LogoImage from "@assets/icons/side-nav-logo.svg?react"
 import AnalysisIcon from "@assets/icons/side-nav-analysis-icon.svg?react"
 import CrewIcon from "@assets/icons/side-nav-crew-icon.svg?react"
 import MonitoringIcon from "@assets/icons/side-nav-monitor-icon.svg?react"
@@ -82,8 +82,7 @@ export default function SideNav(): React.ReactElement {
         <div>
           {/* Logo and Title */}
           <div className="flex items-center p-6">
-            <MainCraftIcon className="h-8 w-8" />
-            <span className="ml-2 text-xl font-bold">자세공작소</span>
+            <LogoImage />
           </div>
 
           {/* User Info */}

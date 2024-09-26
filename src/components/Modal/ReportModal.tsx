@@ -32,7 +32,7 @@ const ReportModal = (props: ModalProps): React.ReactElement => {
       title,
       email,
       content: description,
-    }).then(({ data }) => {
+    }).then(() => {
       if (onSubmit && typeof onSubmit === "function") onSubmit()
     })
   }
