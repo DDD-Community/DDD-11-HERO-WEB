@@ -7,6 +7,8 @@ import CrewIcon from "@assets/icons/side-nav-crew-icon.svg?react"
 import MonitoringIcon from "@assets/icons/side-nav-monitor-icon.svg?react"
 import { useMemo } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
+import { useModals } from "@/hooks/useModals"
+import { modals } from "./Modal/Modals"
 
 const navItems = [
   {
@@ -31,6 +33,7 @@ export default function SideNav(): React.ReactElement {
   const location = useLocation()
   const logout = useAuthStore((state) => state.logout)
   const navigate = useNavigate()
+  const { openModal } = useModals()
 
   const logoutHandler = (): void => {
     const clearUser = useAuthStore.persist.clearStorage
@@ -49,8 +52,24 @@ export default function SideNav(): React.ReactElement {
 
   const footerLinks = useMemo(
     () => [
-      { label: "이용약관", link: "", onClick: () => {} },
-      { label: "의견보내기", link: "", onClick: () => {} },
+      {
+        label: "이용약관",
+        link: "",
+        onClick: () => {
+          window.open("https://swjg3gi.notion.site/7c13aba015654e6f8e1acd300b440526?pvs=4", "_blank")
+        },
+      },
+      {
+        label: "의견보내기",
+        link: "",
+        onClick: () => {
+          openModal(modals.reportModal, {
+            onSubmit: () => {
+              // navigate(RoutePath.MYCREW)
+            },
+          })
+        },
+      },
       { label: "로그아웃", link: "", onClick: logoutHandler },
     ],
     [logoutHandler]
