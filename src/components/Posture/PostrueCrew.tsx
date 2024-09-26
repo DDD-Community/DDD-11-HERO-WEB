@@ -1,9 +1,11 @@
 import { duration, notification } from "@/api/notification"
+import EmptyGroupImage from "@/assets/images/crew-empty.png"
+import RoutePath from "@/constants/routes.json"
 import { useModals } from "@/hooks/useModals"
+import useMyGroup from "@/hooks/useMyGroup"
 import useNotification from "@/hooks/useNotification"
 import { useModifyNoti } from "@/hooks/useNotiMutation"
 import usePushNotification from "@/hooks/usePushNotification"
-import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
 import { useAuthStore } from "@/store"
 import { useSnapShotStore } from "@/store/SnapshotStore"
 import CloseCrewPanelIcon from "@assets/icons/crew-panel-close-button.svg?react"
@@ -13,11 +15,8 @@ import QuestionIcon from "@assets/icons/question-info-icon.svg?react"
 import RankingGuideToolTip from "@assets/images/ranking-guide.png"
 import SelectBox from "@components/SelectBox"
 import { ReactElement, useCallback, useEffect, useRef, useState } from "react"
-import { modals } from "../Modal/Modals"
-import useMyGroup from "@/hooks/useMyGroup"
-import EmptyGroupImage from "@/assets/images/crew-empty.png"
 import { useNavigate } from "react-router-dom"
-import RoutePath from "@/constants/routes.json"
+import { modals } from "../Modal/Modals"
 
 interface IPostureCrew {
   groupUserId: number
@@ -128,7 +127,6 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const accessToken = useAuthStore((state) => state.accessToken)
   const { resetSnapShot } = useSnapShotStore()
   const { openModal } = useModals()
-  const createSnapMutation = useCreateSnaphot()
   const wsUrl = `wss://api.alignlab.site/ws/v1/groups/1/users?X-HERO-AUTH-TOKEN=${accessToken}`
   const { isConnected, crews } = useWebSocket(wsUrl)
 
@@ -181,9 +179,6 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
 
   const onClickReTakeSnapShot = () => {
     resetSnapShot()
-    createSnapMutation.mutate({
-      points: [],
-    })
   }
 
   console.log("notification: ", notification)
