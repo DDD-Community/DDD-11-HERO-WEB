@@ -123,12 +123,14 @@ export default function MyCrew() {
           {ranks.length > 0 && myRank ? (
             <CrewRanking rankings={ranks} myRank={myRank} />
           ) : (
-            <div className="flex h-full items-center justify-center">
-              <div className="flex w-fit flex-col items-center gap-2">
-                <img src={NoRanksImage} />
-                <div>표시할 랭킹이 없습니다.</div>
+            !isLoading && (
+              <div className="flex h-full items-center justify-center">
+                <div className="flex w-fit flex-col items-center gap-2">
+                  <img src={NoRanksImage} />
+                  <div>표시할 랭킹이 없습니다.</div>
+                </div>
               </div>
-            </div>
+            )
           )}
         </div>
       </div>

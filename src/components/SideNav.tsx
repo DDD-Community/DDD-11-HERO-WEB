@@ -57,7 +57,7 @@ export default function SideNav(): React.ReactElement {
   )
 
   return (
-    <aside className="w-[224px] flex-none bg-zinc-900">
+    <aside className="w-[224px] flex-none border-r-[1px] border-zinc-700 bg-zinc-900">
       <div className="flex h-full flex-col justify-between text-white">
         {/* Top Section */}
         <div>
@@ -77,7 +77,7 @@ export default function SideNav(): React.ReactElement {
           </div>
 
           {/* Navigation Links */}
-          <nav className="mt-10">
+          <nav className="mr-4 mt-10">
             <ul>
               {navItems.map(({ icon: Icon, label, link }) => {
                 const isActive = location.pathname.includes(link)
@@ -96,9 +96,6 @@ export default function SideNav(): React.ReactElement {
 
         {/* Bottom Section */}
         <div className="p-6">
-          {/* Divider */}
-          <div className="mb-6 border-t" style={{ borderColor: "#373C42" }} />
-
           {/* Footer Links */}
           <div className="mb-12">
             <ul>
