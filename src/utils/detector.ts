@@ -317,12 +317,13 @@ export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null =
 
   const referRatio = referEarDistance / referShoulderDistance
   const compRatio = compEarDistance / compShoulderDistance
+
   if (
-    compShoulderDistance / referShoulderDistance < 0.88 &&
-    compEarDistance / referEarDistance < 0.88 &&
+    compShoulderDistance / referShoulderDistance < 0.9 &&
+    compEarDistance / referEarDistance < 0.9 &&
     referShoulderMidpoint.y < compShoulderMidpoint.y &&
     referEarMidpoint.y < compEarMidpoint.y &&
-    Math.abs(referRatio - compRatio) > 0.018
+    Math.abs(referRatio - compRatio) > 0.015
   ) {
     return true
   } else {
