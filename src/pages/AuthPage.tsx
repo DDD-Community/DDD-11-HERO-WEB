@@ -5,7 +5,7 @@ import { useOauth, useSignUp, useSignIn, useGetIsSignUp } from "@/hooks/useAuthM
 import RoutePath from "@/constants/routes.json"
 import { useAuthStore } from "@/store/AuthStore"
 import { useSnapShotStore } from "@/store/SnapshotStore"
-import { useGetRecentSnapshot } from "@/hooks/useSnapshotMutation"
+import { getRecentSnapshot } from "@/api"
 // import { useGetNoti } from "@/hooks/useNotiMutation"
 // import { useNotificationStore } from "@/store/NotificationStore"
 
@@ -16,13 +16,12 @@ const AuthPage: React.FC = () => {
   const getIsSignUpMutation = useGetIsSignUp()
   const signUpMutation = useSignUp()
   const signInMutation = useSignIn()
-  const getRecentSnapMutation = useGetRecentSnapshot()
   // const getNotiMutation = useGetNoti()
   const [isLoading, setIsLoading] = useState(true)
   const [isError, setIsError] = useState(false)
 
   const setUser = useAuthStore((state) => state.setUser)
-  const setSnap = useSnapShotStore((state) => state.setSnapShot)
+  const { setSnapShot } = useSnapShotStore()
   // const setNoti = useNotificationStore((state) => state.setNotification)
 
   useEffect(() => {
@@ -49,11 +48,13 @@ const AuthPage: React.FC = () => {
         setUser({ uid, nickname }, accessToken)
 
         // 최근 스냅샷을 가져오기
-        const userSnap = await getRecentSnapMutation.mutateAsync()
+        const userSnap = await getRecentSnapshot()
 
         // 스냅샷이 있으면 store에 저장
         if (userSnap.id !== -1) {
-          setSnap(userSnap.points.map((p) => ({ name: p.position.toLocaleLowerCase(), x: p.x, y: p.y, confidence: 1 })))
+          setSnapShot(
+            userSnap.points.map((p) => ({ name: p.position.toLocaleLowerCase(), x: p.x, y: p.y, confidence: 1 }))
+          )
         }
 
         // const notification = await getNotiMutation.mutateAsync()

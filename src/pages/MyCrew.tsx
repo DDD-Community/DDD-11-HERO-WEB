@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom"
 import { useCallback, useEffect } from "react"
 
 export default function MyCrew() {
-  const { myGroupData, ranks, myRank, withdrawFromGroup, isLoading } = useMyGroup()
+  const { myGroupData, ranks, myRank, withdrawFromGroup, isLoading, avgScore } = useMyGroup()
   const { openModal } = useModals()
   const naviagte = useNavigate()
 
@@ -53,6 +53,8 @@ export default function MyCrew() {
       },
     })
   }, [myGroupData, openModal])
+
+  console.log("my crew: ", myRank, " / ", avgScore)
 
   return (
     <>
@@ -137,8 +139,24 @@ export default function MyCrew() {
 
       {/* footer */}
       <div className="height-[68px] mt-3 flex justify-center rounded-[12px] border-[1px] border-solid border-gray-200 bg-white py-6 font-medium">
-        나는 우리 크루 평균보다 틀어짐이&nbsp; <span className="font-bold text-[#1A75FF]">6회 더</span>
-        &nbsp;감지되었어요.
+        {(!myRank || !myRank.score) &&
+          (avgScore !== undefined || avgScore !== null) &&
+          `우리 크루 평균 자세 경고 횟수는 ${avgScore}회 입니다.`}
+        {myRank &&
+          myRank.score &&
+          (avgScore !== undefined || avgScore !== null) &&
+          `지난 한 시간 동안 나의 자세 경고 횟수는 ${myRank.score}회 입니다.`}
+        {myRank && myRank.score && avgScore && (
+          <>
+            나는 우리 크루 평균보다 자세 경고를{" "}
+            <span
+              className={`font-bold ${Number(avgScore) > Number(myRank.score) ? "text-[#1A75FF]" : "text-red-500"} `}
+            >
+              {Math.abs(avgScore - myRank?.score)}회 {Number(avgScore) > Number(myRank?.score) ? "덜" : "더"}
+            </span>
+            &nbsp;받았어요.
+          </>
+        )}
       </div>
     </>
   )
