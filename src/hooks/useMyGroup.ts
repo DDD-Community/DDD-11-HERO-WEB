@@ -1,4 +1,4 @@
-import { getGroupScores, getMyGroup, groupUserRank, MyGroupData, withdrawMyGroup } from "@/api"
+import { getGroupScores, getMyGroup, groupUserRank, GroupUserRankData, MyGroupData, withdrawMyGroup } from "@/api"
 import { useAuthStore } from "@/store"
 import { useMyGroupStore } from "@/store/MyGroup"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -18,7 +18,7 @@ export default function useMyGroup() {
   })
 
   // Fetch group scores
-  const myGroupScoresQuery = useQuery<{ data: { ranks: groupUserRank[] } }, Error>({
+  const myGroupScoresQuery = useQuery<{ data: GroupUserRankData }, Error>({
     queryKey: ["groupScores", myGroupData?.id],
     queryFn: () => getGroupScores(myGroupData!.id),
     enabled: !!myGroupData?.id,
@@ -67,6 +67,7 @@ export default function useMyGroup() {
   return {
     myGroupData: myGroupData ?? data?.data,
     ranks: myGroupScoresQuery.data?.data.ranks ?? [],
+    avgScore: myGroupScoresQuery.data?.data.avgScore,
     myRank,
     isLoading: isLoading || myGroupScoresQuery.isLoading,
     error: error || myGroupScoresQuery.error,

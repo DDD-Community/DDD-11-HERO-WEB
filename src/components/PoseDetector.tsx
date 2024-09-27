@@ -2,7 +2,6 @@ import { position } from "@/api"
 import { duration } from "@/api/notification"
 import { poseType } from "@/api/pose"
 import { useCameraPermission } from "@/hooks/useCameraPermission"
-import { useGuidePopup } from "@/hooks/useGuidePopup"
 import { useModals } from "@/hooks/useModals"
 import useNotification from "@/hooks/useNotification"
 import { useSendPose } from "@/hooks/usePoseMutation"
@@ -29,11 +28,10 @@ const PoseDetector: React.FC = () => {
   const [isTailboneSit, setIsTailboneSit] = useState<boolean | null>(null)
   const [isHandOnChin, setIsHandOnChin] = useState<boolean | null>(null)
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false)
+  const [isClosedInitialGuidePopup, setIsClosedInitialGuidePopup] = useState(false)
   // const [isSnapShotSaved, setIsSnapSaved] = useState<boolean>(false)
 
   const { showNotification, hasPermission: hasNotiPermisson } = usePushNotification()
-
-  const { isPopupOpen, handleClosePopup } = useGuidePopup()
 
   const { openModal, isModalOpen } = useModals()
 
@@ -53,7 +51,7 @@ const PoseDetector: React.FC = () => {
   const isShowImmediNotiRef = useRef<boolean>(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const { isSnapShotSaved, snapshot, setSnapShot } = useSnapShotStore()
+  const { isSnapShotSaved, snapshot, setSnapShot, isInitialSnapShotExist } = useSnapShotStore()
   const createSnapMutation = useCreateSnaphot()
   const sendPoseMutation = useSendPose()
 
@@ -195,7 +193,7 @@ const PoseDetector: React.FC = () => {
     if (modelRef && modelRef.current) {
       snapRef.current = resultRef.current
       if (snapshot === null) {
-        if (snapRef.current) {
+        if (snapRef.current && snapRef.current.length > 0) {
           const req = snapRef.current[0].keypoints.map((p) => ({
             position: p.name.toUpperCase() as position,
             x: p.x,
@@ -212,6 +210,8 @@ const PoseDetector: React.FC = () => {
               },
             }
           )
+        } else {
+          alert("브라우저의 카메라 혹은 인공지능 모델에 문제가 발생했습니다. 새로고침 후 다시 시도해주시기 바랍니다.")
         }
       }
     }
@@ -336,6 +336,10 @@ const PoseDetector: React.FC = () => {
     console.log(notification)
   }, [notification])
 
+  const handleCloseInitialGuidePopup = () => {
+    setIsClosedInitialGuidePopup(true)
+  }
+
   return (
     <>
       {isScriptError ? (
@@ -347,7 +351,7 @@ const PoseDetector: React.FC = () => {
           <Camera detectStart={detectStart} canvasRef={canvasRef} />
           {isModelLoaded && (
             <>
-              {!isPopupOpen && !isModalOpen && (
+              {isInitialSnapShotExist && !isModalOpen && (
                 <PostureMessage
                   isSnapShotSaved={isSnapShotSaved}
                   isShoulderTwist={isShoulderTwist}
@@ -362,7 +366,9 @@ const PoseDetector: React.FC = () => {
               )}
             </>
           )}
-          {!isSnapShotSaved && isPopupOpen && <GuidePopupModal onClose={handleClosePopup} />}
+          {!isClosedInitialGuidePopup && !isInitialSnapShotExist && (
+            <GuidePopupModal onClose={handleCloseInitialGuidePopup} />
+          )}
         </div>
       )}
     </>

@@ -33,6 +33,7 @@ export interface groupUserRank {
 
 export interface GroupUserRankData {
   groupId: number
+  avgScore: number
   ranks: groupUserRank[]
 }
 

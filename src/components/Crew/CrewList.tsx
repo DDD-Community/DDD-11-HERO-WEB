@@ -158,6 +158,8 @@ const CrewList = (): ReactElement => {
     }
   }, [openJoinCrewModal, searchParams, setSearchParams])
 
+  console.log("ranks: ", ranks)
+
   return (
     <div className="flex h-full w-full flex-col">
       {myGroupData && Object.keys(myGroupData).length > 0 && (
