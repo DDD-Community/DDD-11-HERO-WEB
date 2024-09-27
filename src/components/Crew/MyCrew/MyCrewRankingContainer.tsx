@@ -22,7 +22,7 @@ export default function MyCrewRankingContainer(props: MyCrewRankingContainerProp
   const { isLoading, myGroupData, ranks, myRank, openCreateModal, openInviteModal } = props
   return (
     <div className="mb-12">
-      <MyCrewHeader openCreateModal={openCreateModal} />
+      <MyCrewHeader openCreateModal={openCreateModal} isDisplayedCreationButton={true} />
       <div className="h-[382px] w-full rounded-[12px] bg-white px-8 pt-9">
         <div className="flex justify-between">
           <div className="flex items-center gap-4">
