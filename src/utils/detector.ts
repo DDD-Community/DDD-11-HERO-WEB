@@ -316,8 +316,8 @@ export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null =
   const compShoulderMidpoint = getMidPoint(compLeftShoulder, compRightShoulder)
 
   if (
-    compShoulderDistance / referShoulderDistance < 0.97 &&
-    compEarDistance / referEarDistance < 0.97 &&
+    compShoulderDistance / referShoulderDistance < 0.95 &&
+    compEarDistance / referEarDistance < 0.95 &&
     referShoulderMidpoint.y < compShoulderMidpoint.y &&
     referEarMidpoint.y < compEarMidpoint.y
   ) {
