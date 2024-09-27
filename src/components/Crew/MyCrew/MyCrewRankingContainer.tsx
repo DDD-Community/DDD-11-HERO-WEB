@@ -60,7 +60,7 @@ export default function MyCrewRankingContainer(props: MyCrewRankingContainerProp
         </div>
 
         {/*  랭킹 표시  */}
-        <div className="mt-4">
+        <div className="mt-4 h-[220px]">
           {ranks.length > 0 && myRank ? (
             <CrewRanking rankings={ranks} myRank={myRank} />
           ) : (
