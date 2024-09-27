@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import Login from "@/components/Login"
 import { useOauth, useSignUp, useSignIn, useGetIsSignUp } from "@/hooks/useAuthMutation"
 import RoutePath from "@/constants/routes.json"
 import { useAuthStore } from "@/store/AuthStore"
 import { useSnapShotStore } from "@/store/SnapshotStore"
 import { getRecentSnapshot } from "@/api"
+import Lottie from "react-lottie"
+import LoginLottie from "@assets/animation/login-lottie.json"
 // import { useGetNoti } from "@/hooks/useNotiMutation"
 // import { useNotificationStore } from "@/store/NotificationStore"
 
@@ -51,7 +52,7 @@ const AuthPage: React.FC = () => {
         const userSnap = await getRecentSnapshot()
 
         // 스냅샷이 있으면 store에 저장
-        if (userSnap.id !== -1) {
+        if (userSnap.id !== -1 && userSnap.points.length !== 0) {
           setSnapShot(
             userSnap.points.map((p) => ({ name: p.position.toLocaleLowerCase(), x: p.x, y: p.y, confidence: 1 }))
           )
@@ -78,10 +79,23 @@ const AuthPage: React.FC = () => {
   }, [])
 
   return (
-    <div>
-      <Login />
+    <div className="flex h-screen w-screen flex-col items-center justify-center gap-1">
       {isLoading ? (
-        "Processing..."
+        <>
+          <Lottie
+            options={{
+              // loop: false,
+              autoplay: true,
+              animationData: LoginLottie,
+              rendererSettings: {
+                preserveAspectRatio: "xMidYMid slice",
+              },
+            }}
+            height={250}
+            width={250}
+          />
+          <div>로그인 중입니다.</div>
+        </>
       ) : (
         <>
           {isError && <div>An error occurred</div>}
