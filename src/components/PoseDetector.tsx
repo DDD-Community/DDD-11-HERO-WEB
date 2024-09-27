@@ -3,6 +3,8 @@ import { duration } from "@/api/notification"
 import { poseType } from "@/api/pose"
 import { useCameraPermission } from "@/hooks/useCameraPermission"
 import { useGuidePopup } from "@/hooks/useGuidePopup"
+import { useModals } from "@/hooks/useModals"
+import useNotification from "@/hooks/useNotification"
 import { useSendPose } from "@/hooks/usePoseMutation"
 import usePushNotification from "@/hooks/usePushNotification"
 import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
@@ -14,10 +16,10 @@ import { worker } from "@/utils/worker"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useLocation } from "react-router-dom"
 import Camera from "./Camera"
+import { modals } from "./Modal/Modals"
 import Controls from "./Posture/Controls"
 import GuidePopupModal from "./Posture/GuidePopup/GuidePopupModal"
 import PostureMessage from "./Posture/PostureMessage"
-import useNotification from "@/hooks/useNotification"
 
 const PoseDetector: React.FC = () => {
   const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
@@ -31,7 +33,9 @@ const PoseDetector: React.FC = () => {
 
   const { showNotification, hasPermission: hasNotiPermisson } = usePushNotification()
 
-  const { isPopupOpen, handleClosePopup, openPopup } = useGuidePopup()
+  const { isPopupOpen, handleClosePopup } = useGuidePopup()
+
+  const { openModal, isModalOpen } = useModals()
 
   const modelRef = useRef<any>(null)
   const snapRef = useRef<pose[] | null>(null)
@@ -55,7 +59,6 @@ const PoseDetector: React.FC = () => {
 
   // const userNoti = useNotificationStore((state) => state.notification)
   const { notification } = useNotification()
-
   const { hasPermission } = useCameraPermission()
 
   const location = useLocation() // 페이지 이동 감지
@@ -325,12 +328,14 @@ const PoseDetector: React.FC = () => {
 
   // 팝업 열기
   const handleShowPopup = (): void => {
-    openPopup()
+    // openPopup()
+    openModal(modals.postureGuideModal, {})
   }
 
   useEffect(() => {
     console.log(notification)
   }, [notification])
+
   return (
     <>
       {isScriptError ? (
@@ -342,7 +347,7 @@ const PoseDetector: React.FC = () => {
           <Camera detectStart={detectStart} canvasRef={canvasRef} />
           {isModelLoaded && (
             <>
-              {!isPopupOpen && (
+              {!isPopupOpen && !isModalOpen && (
                 <PostureMessage
                   isSnapShotSaved={isSnapShotSaved}
                   isShoulderTwist={isShoulderTwist}
@@ -357,7 +362,7 @@ const PoseDetector: React.FC = () => {
               )}
             </>
           )}
-          {isPopupOpen && <GuidePopupModal onClose={handleClosePopup} />}
+          {!isSnapShotSaved && isPopupOpen && <GuidePopupModal onClose={handleClosePopup} />}
         </div>
       )}
     </>
