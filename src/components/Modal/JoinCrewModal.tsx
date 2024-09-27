@@ -106,7 +106,7 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
               {/* crew description */}
               <div className="flex flex-col gap-1">
                 <div className="text-[15px] font-semibold">크루소개</div>
-                <div className="h-[80px] overflow-scroll rounded-xl border border-gray-200 bg-zinc-100 p-[12px] text-[15px] font-normal text-zinc-900">
+                <div className="scrollbar-hide h-[80px] overflow-auto rounded-xl border border-gray-200 bg-zinc-100 p-[12px] text-[15px] font-normal text-zinc-900">
                   {data?.description}
                 </div>
               </div>

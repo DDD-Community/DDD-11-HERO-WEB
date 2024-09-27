@@ -12,6 +12,7 @@ export const useModals = (): UseModalResult => {
   const modalsState = useContext(ModalsStateContext)
 
   const openModal = (Component: ModalComponent, props: ModalProps): void => {
+    if (modalsState.findIndex((m) => m.Component === Component) >= 0) return
     open(Component, props)
   }
 

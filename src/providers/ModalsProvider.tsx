@@ -11,7 +11,6 @@ const ModalsProvider = ({ children }: PropsWithChildren): React.ReactNode => {
   const [openedModals, setOpenedModals] = useState<ModalsState>([])
 
   const open = (Component: ModalComponent, props: ModalProps): void => {
-    console.log(Component, props)
     setOpenedModals((modals) => {
       return [...modals, { Component, props }]
     })
