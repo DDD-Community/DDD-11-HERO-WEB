@@ -315,15 +315,11 @@ export const detectTailboneSit = (refer: pose[], comp: pose[]): boolean | null =
   // 귀의 중점 계산
   const compShoulderMidpoint = getMidPoint(compLeftShoulder, compRightShoulder)
 
-  const referRatio = referEarDistance / referShoulderDistance
-  const compRatio = compEarDistance / compShoulderDistance
-
   if (
-    compShoulderDistance / referShoulderDistance < 0.9 &&
-    compEarDistance / referEarDistance < 0.9 &&
+    compShoulderDistance / referShoulderDistance < 0.97 &&
+    compEarDistance / referEarDistance < 0.97 &&
     referShoulderMidpoint.y < compShoulderMidpoint.y &&
-    referEarMidpoint.y < compEarMidpoint.y &&
-    Math.abs(referRatio - compRatio) > 0.015
+    referEarMidpoint.y < compEarMidpoint.y
   ) {
     return true
   } else {
