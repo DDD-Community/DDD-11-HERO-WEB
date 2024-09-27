@@ -1,4 +1,4 @@
-import { getGroupScores, getMyGroup, groupUserRank, GroupUserRankData, MyGroupData, withdrawMyGroup } from "@/api"
+import { getGroupScores, getMyGroup, GroupUserRankData, MyGroupData, withdrawMyGroup } from "@/api"
 import { useAuthStore } from "@/store"
 import { useMyGroupStore } from "@/store/MyGroup"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
