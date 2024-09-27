@@ -25,34 +25,29 @@ const RankPillar = ({ rank, name, score, height }: any) => {
   const style = rankStyleMap[rank - 1]
 
   return (
-    <div className="flex flex-col items-center text-zinc-800">
-      <div
-        className={`flex w-[180px] flex-col items-center rounded-[12px] py-6`}
-        style={{
-          backgroundColor: style.bgColor,
-          gap: style.gap,
-          height,
-        }}
-      >
-        <div className="flex flex-col items-center gap-2">
-          {rank === 1 && (
-            <div className="">
-              <Crew1stCrownIcon className="h-6 w-6" />
-            </div>
-          )}
-          <div
-            className={`font-medium`}
-            style={{
-              fontSize: style.fontSize,
-              fontWeight: style.fontWeight,
-            }}
-          >
-            {rank}등
-          </div>
+    <div
+      className={`flex w-[180px] flex-col items-center rounded-[12px] py-6 text-zinc-800`}
+      style={{
+        backgroundColor: style.bgColor,
+        gap: style.gap,
+        height,
+      }}
+    >
+      <div className="flex flex-col items-center gap-2">
+        {rank === 1 && <Crew1stCrownIcon className="h-6 w-6" />}
+        <div
+          className={`font-medium`}
+          style={{
+            fontSize: style.fontSize,
+            fontWeight: style.fontWeight,
+            lineHeight: rank === 1 ? "40px" : "30px",
+          }}
+        >
+          {rank}등
         </div>
-        <div className="text-[20px] font-semibold">{name}</div>
-        <div className="text-[15px] font-normal ">자세 경고 {score}회</div>
       </div>
+      <div className="text-[20px] font-semibold leading-[28px]">{name}</div>
+      <div className="text-[15px] font-normal leading-6">자세 경고 {score}회</div>
     </div>
   )
 }

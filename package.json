@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.51.23",
+    "@types/react-lottie": "^1.2.10",
     "axios": "1.7.3",
     "core-js": "^3.28.0",
     "dayjs": "^1.11.13",
@@ -23,6 +24,7 @@
     "p5": "^1.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-lottie": "^1.2.4",
     "react-router-dom": "^6.8.1",
     "react-tailwindcss-datepicker": "^1.7.2",
     "socket.io-client": "^4.7.5",

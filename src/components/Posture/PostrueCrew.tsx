@@ -189,7 +189,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
       <div className="flex-grow">
         <div className="flex items-center justify-between p-2 pb-3">
           <div className="flex items-center">
-            <span className="font-medium">자세 알림</span>
+            <span className="text-[15px] font-medium">자세 알림</span>
           </div>
 
           <label className="relative inline-flex cursor-pointer items-center">
@@ -217,7 +217,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
 
         <div className="group relative">
           <div className="flex items-center gap-2 p-2">
-            <span>자세 랭킹</span>
+            <span className="text-[15px] font-medium">자세 랭킹</span>
             <QuestionIcon />
           </div>
 
