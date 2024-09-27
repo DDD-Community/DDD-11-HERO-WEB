@@ -4,7 +4,7 @@ import ModalContainer from "../ModalContainer"
 
 const GoodPostureGuidePopupModal = ({ onClose }: { onClose: () => void }): ReactElement => {
   return (
-    <ModalContainer onClose={onClose}>
+    <ModalContainer onClose={onClose} isMonitoring={true}>
       <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/25">
         {/* blur 처리 */}
         <div className="flex h-[472px] w-[800px] flex-col items-center rounded-lg bg-white pt-10 shadow-lg">

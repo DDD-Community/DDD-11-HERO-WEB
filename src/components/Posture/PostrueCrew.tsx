@@ -133,7 +133,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const { notification, setNotification } = useNotification()
   const updateNotiMutation = useModifyNoti()
   const { hasPermission } = usePushNotification()
-  const { myGroupData } = useMyGroup()
+  const { myGroupData, isLoading } = useMyGroup()
   const navigate = useNavigate()
 
   const onClickCloseSideNavButton = (): void => {
@@ -252,7 +252,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
               ))}
             </ul>
           )}
-          {!myGroupData && (
+          {!myGroupData && !isLoading && (
             <div className="flex flex-col items-center justify-center rounded-2xl bg-zinc-100 px-4 py-8">
               <div className="text-center text-sm font-medium">
                 아직 가입한
