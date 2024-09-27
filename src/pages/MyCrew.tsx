@@ -139,14 +139,14 @@ export default function MyCrew() {
 
       {/* footer */}
       <div className="height-[68px] mt-3 flex justify-center rounded-[12px] border-[1px] border-solid border-gray-200 bg-white py-6 font-medium">
-        {(!myRank || !myRank.score) &&
+        {(!myRank || !myRank.score || myRank.score === 0) &&
           (avgScore !== undefined || avgScore !== null) &&
           `우리 크루 평균 자세 경고 횟수는 ${avgScore}회 입니다.`}
         {myRank &&
           myRank.score &&
           (avgScore !== undefined || avgScore !== null) &&
           `지난 한 시간 동안 나의 자세 경고 횟수는 ${myRank.score}회 입니다.`}
-        {myRank && myRank.score && avgScore && (
+        {myRank && myRank.score !== undefined && avgScore !== undefined && avgScore > 0 && (
           <>
             나는 우리 크루 평균보다 자세 경고를{" "}
             <span
