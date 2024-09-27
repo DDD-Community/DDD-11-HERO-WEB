@@ -2,6 +2,7 @@ import { position } from "@/api"
 import { duration } from "@/api/notification"
 import { poseType } from "@/api/pose"
 import { useCameraPermission } from "@/hooks/useCameraPermission"
+import { useGuidePopup } from "@/hooks/useGuidePopup"
 import { useModals } from "@/hooks/useModals"
 import useNotification from "@/hooks/useNotification"
 import { useSendPose } from "@/hooks/usePoseMutation"
@@ -12,7 +13,9 @@ import type { pose } from "@/utils/detector"
 import { detectHandOnChin, detectSlope, detectTailboneSit, detectTextNeck } from "@/utils/detector"
 import { drawPose } from "@/utils/drawer"
 import { worker } from "@/utils/worker"
+import CheckLottie from "@assets/animation/check-lottie.json"
 import { useCallback, useEffect, useRef, useState } from "react"
+import Lottie from "react-lottie"
 import { useLocation } from "react-router-dom"
 import Camera from "./Camera"
 import { modals } from "./Modal/Modals"
@@ -29,6 +32,7 @@ const PoseDetector: React.FC = () => {
   const [isHandOnChin, setIsHandOnChin] = useState<boolean | null>(null)
   const [isModelLoaded, setIsModelLoaded] = useState<boolean>(false)
   const [isClosedInitialGuidePopup, setIsClosedInitialGuidePopup] = useState(false)
+  const [isSuccessSnapShotSaved, setIsSuccessSnapShotSaved] = useState(false)
   // const [isSnapShotSaved, setIsSnapSaved] = useState<boolean>(false)
 
   const { showNotification, hasPermission: hasNotiPermisson } = usePushNotification()
@@ -54,6 +58,7 @@ const PoseDetector: React.FC = () => {
   const { isSnapShotSaved, snapshot, setSnapShot, isInitialSnapShotExist } = useSnapShotStore()
   const createSnapMutation = useCreateSnaphot()
   const sendPoseMutation = useSendPose()
+  const { isPopupOpen, handleClosePopup } = useGuidePopup()
 
   // const userNoti = useNotificationStore((state) => state.notification)
   const { notification } = useNotification()
@@ -144,6 +149,10 @@ const PoseDetector: React.FC = () => {
 
   const detect = useCallback(
     (results: pose[]): void => {
+      if (!isSnapShotSaved || !isInitialSnapShotExist || isModalOpen) {
+        if (canvasRef.current) drawPose(results, canvasRef.current)
+        return
+      }
       resultRef.current = results
       if (snapRef.current) {
         const _isShoulderTwist = detectSlope(snapRef.current, results, false)
@@ -175,6 +184,8 @@ const PoseDetector: React.FC = () => {
       isSnapShotSaved,
       managePoseTimer,
       notification,
+      isInitialSnapShotExist,
+      isSnapShotSaved,
     ]
   )
 
@@ -203,9 +214,12 @@ const PoseDetector: React.FC = () => {
             { points: req },
             {
               onSuccess: () => {
+                setIsSuccessSnapShotSaved(true)
+                setTimeout(() => {
+                  setIsSuccessSnapShotSaved(false)
+                }, 3000)
                 if (snapRef.current) {
                   setSnapShot(snapRef.current[0].keypoints)
-                  // setIsSnapSaved(true)
                 }
               },
             }
@@ -285,6 +299,14 @@ const PoseDetector: React.FC = () => {
   }, [])
 
   useEffect(() => {
+    if (isPopupOpen) {
+      openModal(modals.postureGuideModal, {
+        onClose: () => [handleClosePopup()],
+      })
+    }
+  }, [isPopupOpen])
+
+  useEffect(() => {
     if (!isSnapShotSaved || !hasPermission) {
       clearTimers() // 스냅샷이 저장되지 않았을 때 타이머들을 초기화
       clearCnt() // 횟수도 초기화
@@ -305,7 +327,7 @@ const PoseDetector: React.FC = () => {
   }, [snapshot])
 
   useEffect(() => {
-    if (!isSnapShotSaved || !notification) return
+    if (!isSnapShotSaved || !notification || !isInitialSnapShotExist || isModalOpen) return
 
     clearCnt()
     clearInterval(notificationTimer.current)
@@ -318,7 +340,7 @@ const PoseDetector: React.FC = () => {
         clearCnt()
       }, 1000 * 60 * t)
     }
-  }, [notification, isSnapShotSaved])
+  }, [notification, isSnapShotSaved, isInitialSnapShotExist])
 
   // 즉시 알림을 사용 하는 경우, 푸시를 보낼지 여부를 저장
   useEffect(() => {
@@ -364,8 +386,31 @@ const PoseDetector: React.FC = () => {
               {!isSnapShotSaved && hasPermission && (
                 <Controls getInitSnap={getInitSnap} handleShowPopup={handleShowPopup} />
               )}
+              <div
+                className={`
+                  absolute bottom-2 flex h-[50px] items-center justify-center 
+                  rounded-[20px] bg-[#1A1B1D] bg-opacity-60 pl-4 pr-6
+                  transition-all duration-500 ease-in-out
+                  ${isSuccessSnapShotSaved ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}
+                `}
+              >
+                <Lottie
+                  options={{
+                    // loop: false,
+                    autoplay: true,
+                    animationData: CheckLottie,
+                    rendererSettings: {
+                      preserveAspectRatio: "xMidYMid slice",
+                    },
+                  }}
+                  height={50}
+                  width={50}
+                />
+                <span className="text-[14px] font-semibold text-white ">스냅샷이 성공적으로 저장되었습니다.</span>
+              </div>
             </>
           )}
+
           {!isClosedInitialGuidePopup && !isInitialSnapShotExist && (
             <GuidePopupModal onClose={handleCloseInitialGuidePopup} />
           )}

@@ -18,7 +18,7 @@ const MonitoringPage: React.FC = () => {
   useEffect(() => {
     const init = async (): Promise<void> => {
       // 최근 스냅샷을 가져오기
-      if (!snapshot) {
+      if (!snapshot || snapshot.length === 0) {
         const userSnap = await getRecentSnapshot()
 
         // 스냅샷이 있으면 store에 저장
@@ -31,6 +31,23 @@ const MonitoringPage: React.FC = () => {
     }
     init()
   }, [])
+
+  const checkMobile = () => {
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera
+
+    // Regular expressions to check for mobile and tablet devices
+    const mobileRegex =
+      /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i
+    const tabletRegex = /android|ipad|playbook|silk/i
+
+    const isMobileDevice = mobileRegex.test(userAgent) || tabletRegex.test(userAgent)
+
+    return isMobileDevice
+  }
+
+  if (checkMobile()) {
+    return <div className="text-2xl font-bold text-white">모바일 디바이스는 현재 사용이 불가능 합니다</div>
+  }
 
   return (
     <div className="relative flex h-full w-full overflow-hidden">

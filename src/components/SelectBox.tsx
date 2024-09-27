@@ -1,4 +1,5 @@
 import { useState } from "react"
+import DownArrowIcon from "@assets/icons/crew-side-nav-down-arrow.svg?react"
 
 interface SelectBoxOption {
   label: string
@@ -35,17 +36,7 @@ export default function SelectBox(props: SelectBoxProps): React.ReactElement {
         onClick={toggleDropdown}
       >
         <span className={isDisabled ? "text-[#D4D4D8]" : ""}>{value}</span>
-        <svg
-          className={`h-4 w-4 transform transition-transform ${isOpen ? "rotate-180" : ""} ${
-            isDisabled ? "text-[#D4D4D8]" : ""
-          }`}
-          fill={isDisabled ? "#D4D4D8" : ""}
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        <DownArrowIcon />
       </div>
       {isOpen && (
         <div className="absolute z-10 mt-1 w-full flex-col rounded-md bg-white py-1 shadow-[0px_2px_16px_0px_rgba(0,0,0,0.13)]">
