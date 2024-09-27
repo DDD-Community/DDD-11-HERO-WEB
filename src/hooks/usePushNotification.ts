@@ -10,8 +10,8 @@ interface UsePushNotificationResult {
 
 // 커스텀 훅: 알림 권한을 확인하고 권한 변경을 감지
 const usePushNotification = (): UsePushNotificationResult => {
-  const [hasPermission, setHasPermission] = useState(false) // 권한이 허용되었는지 여부
-  const [isPermissionDenied, setIsPermissionDenied] = useState(false) // 권한이 거부되었는지 여부
+  const [hasPermission, setHasPermission] = useState(false)
+  const [isPermissionDenied, setIsPermissionDenied] = useState(false)
 
   // 최신 상태 추적용 useRef
   const hasPermissionRef = useRef(hasPermission)
@@ -62,18 +62,31 @@ const usePushNotification = (): UsePushNotificationResult => {
   useEffect(() => {
     // 컴포넌트가 마운트될 때 권한 상태 확인
     if ("Notification" in window) {
-      requestNotificationPermission()
-      // 권한 변경 감지
-      navigator.permissions
-        .query({ name: "notifications" as PermissionName })
-        .then((permissionStatus) => {
-          permissionStatus.onchange = () => {
-            handlePermissionChange(Notification.permission)
-          }
-        })
-        .catch((error) => {
-          console.error("Permission API error:", error)
-        })
+      handlePermissionChange(Notification.permission)
+
+      const checkPermission = () => {
+        handlePermissionChange(Notification.permission)
+      }
+
+      if ("permissions" in navigator && "query" in navigator.permissions) {
+        // Chrome and other browsers that support Permissions API
+        navigator.permissions
+          .query({ name: "notifications" as PermissionName })
+          .then((permissionStatus) => {
+            checkPermission()
+            permissionStatus.onchange = checkPermission
+          })
+          .catch((error) => {
+            console.error("Permission API error:", error)
+            // Fallback to interval checking for Safari
+            const checkPermissionInterval = setInterval(checkPermission, 1000)
+            return () => clearInterval(checkPermissionInterval)
+          })
+      } else {
+        // Safari and other browsers that don't support Permissions API
+        const checkPermissionInterval = setInterval(checkPermission, 1000)
+        return () => clearInterval(checkPermissionInterval)
+      }
     }
   }, [])
 
