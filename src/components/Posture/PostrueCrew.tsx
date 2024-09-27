@@ -181,8 +181,6 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
     resetSnapShot()
   }
 
-  console.log("notification: ", notification)
-
   return (
     <div className="flex h-full flex-col rounded-lg bg-[#FAFAFA] p-4">
       <button onClick={onClickCloseSideNavButton} className="mb-8 p-1">

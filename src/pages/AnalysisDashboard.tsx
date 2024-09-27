@@ -38,8 +38,6 @@ const AnalysisDashboard = () => {
     return () => window.removeEventListener("resize", checkViewportSize)
   }, [])
 
-  console.log("totalAnalysis: ", dateRange)
-
   const getPoseCount = (type: poseType) => {
     return todayAnalysis?.count.find((item: any) => item.type === type)?.count || 0
   }
