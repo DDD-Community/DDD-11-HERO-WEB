@@ -7,7 +7,7 @@ export const useGuidePopup = () => {
   useEffect(() => {
     const checkPopupDate = () => {
       const currentDate = new Date().toDateString()
-      if (!lastClosedDate && new Date(lastClosedDate) < new Date(currentDate)) {
+      if (!lastClosedDate || new Date(lastClosedDate) < new Date(currentDate)) {
         openPopup()
       }
     }
