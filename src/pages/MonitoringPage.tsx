@@ -18,15 +18,14 @@ const MonitoringPage: React.FC = () => {
   useEffect(() => {
     const init = async (): Promise<void> => {
       // 최근 스냅샷을 가져오기
-      if (!snapshot || snapshot.length === 0) {
-        const userSnap = await getRecentSnapshot()
 
-        // 스냅샷이 있으면 store에 저장
-        if (userSnap.id !== -1) {
-          setSnapShot(
-            userSnap.points.map((p) => ({ name: p.position.toLocaleLowerCase(), x: p.x, y: p.y, confidence: 1 }))
-          )
-        }
+      const userSnap = await getRecentSnapshot()
+
+      // 스냅샷이 있으면 store에 저장
+      if (userSnap.id !== -1) {
+        setSnapShot(
+          userSnap.points.map((p) => ({ name: p.position.toLocaleLowerCase(), x: p.x, y: p.y, confidence: 1 }))
+        )
       }
     }
     init()

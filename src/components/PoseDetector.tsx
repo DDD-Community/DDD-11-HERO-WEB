@@ -14,6 +14,7 @@ import { detectHandOnChin, detectSlope, detectTailboneSit, detectTextNeck } from
 import { drawPose } from "@/utils/drawer"
 import { worker } from "@/utils/worker"
 import CheckLottie from "@assets/animation/check-lottie.json"
+import ScriptLoadingLottie from "@assets/animation/script-loading-lottie.json"
 import { useCallback, useEffect, useRef, useState } from "react"
 import Lottie from "react-lottie"
 import { useLocation } from "react-router-dom"
@@ -24,7 +25,7 @@ import GuidePopupModal from "./Posture/GuidePopup/GuidePopupModal"
 import PostureMessage from "./Posture/PostureMessage"
 
 const PoseDetector: React.FC = () => {
-  const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
+  // const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
   const [isScriptError, setIsScriptError] = useState<boolean>(false)
   const [isTextNeck, setIsTextNeck] = useState<boolean | null>(null)
   const [isShoulderTwist, setIsShoulderTwist] = useState<boolean | null>(null)
@@ -95,7 +96,7 @@ const PoseDetector: React.FC = () => {
     const script = document.createElement("script")
     script.src = "https://unpkg.com/ml5@1.0.1/dist/ml5.min.js"
     script.onload = (): void => {
-      setIsScriptLoaded(true)
+      // setIsScriptLoaded(true)
       setup()
     }
     script.onerror = (): void => {
@@ -366,8 +367,18 @@ const PoseDetector: React.FC = () => {
     <>
       {isScriptError ? (
         "자세를 트래킹 하기 위한 모델을 불러오는 것에 실패 했습니다. 잠시 후 다시 시도해 주시기 바랍니다."
-      ) : !isScriptLoaded ? (
-        "스크립트 불러오는 중"
+      ) : !isModelLoaded ? (
+        <div className="relative flex h-full w-full items-center justify-center">
+          <Lottie
+            options={{
+              autoplay: true,
+              animationData: ScriptLoadingLottie,
+            }}
+            height="50%"
+            width="50%"
+          />
+          <div className="absolute translate-y-[120px] font-semibold text-white">스크립트를 불러오는 중입니다.</div>
+        </div>
       ) : (
         <div className="relative flex h-full w-full flex-col items-center justify-center">
           <Camera detectStart={detectStart} canvasRef={canvasRef} />
