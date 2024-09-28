@@ -149,11 +149,11 @@ const PoseDetector: React.FC = () => {
 
   const detect = useCallback(
     (results: pose[]): void => {
+      resultRef.current = results
       if (!isSnapShotSaved || !isInitialSnapShotExist || isModalOpen) {
         if (canvasRef.current) drawPose(results, canvasRef.current)
         return
       }
-      resultRef.current = results
       if (snapRef.current) {
         const _isShoulderTwist = detectSlope(snapRef.current, results, false)
         const _isTextNeck = detectTextNeck(snapRef.current, results, true, 0.88)
@@ -299,12 +299,12 @@ const PoseDetector: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    if (isPopupOpen) {
+    if (isPopupOpen && isInitialSnapShotExist) {
       openModal(modals.postureGuideModal, {
         onClose: () => [handleClosePopup()],
       })
     }
-  }, [isPopupOpen])
+  }, [isPopupOpen, isInitialSnapShotExist])
 
   useEffect(() => {
     if (!isSnapShotSaved || !hasPermission) {
@@ -373,7 +373,7 @@ const PoseDetector: React.FC = () => {
           <Camera detectStart={detectStart} canvasRef={canvasRef} />
           {isModelLoaded && (
             <>
-              {isInitialSnapShotExist && !isModalOpen && (
+              {!isModalOpen && (
                 <PostureMessage
                   isSnapShotSaved={isSnapShotSaved}
                   isShoulderTwist={isShoulderTwist}
