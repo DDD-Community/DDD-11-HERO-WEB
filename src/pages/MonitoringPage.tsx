@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react"
 
 const MonitoringPage: React.FC = () => {
   const { hasPermission } = usePushNotification()
-  const { snapshot, setSnapShot, isInitialSnapShotExist } = useSnapShotStore()
+  const { setSnapShot, isInitialSnapShotExist } = useSnapShotStore()
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true)
 
   const toggleSidebar = (): void => {
