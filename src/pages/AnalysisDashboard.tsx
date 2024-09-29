@@ -1,4 +1,4 @@
-import { poseType } from "@/api/pose"
+import { poseType } from "@/api"
 import { usePoseAnalysis } from "@/hooks/useDashBoard"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useEffect, useRef, useState } from "react"

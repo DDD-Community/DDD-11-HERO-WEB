@@ -1,4 +1,4 @@
-import { poseReq, poseRes, sendPose } from "@/api/pose"
+import { poseReq, poseRes, sendPose } from "@/api"
 import { useMutation, UseMutationResult } from "@tanstack/react-query"
 
 export const useSendPose = (): UseMutationResult<poseRes, unknown, poseReq, unknown> => {

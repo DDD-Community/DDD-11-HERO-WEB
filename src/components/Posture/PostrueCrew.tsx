@@ -1,4 +1,4 @@
-import { duration, notification } from "@/api/notification"
+import { duration, notification } from "@/api"
 import EmptyGroupImage from "@/assets/images/crew-empty.png"
 import RoutePath from "@/constants/routes.json"
 import { useModals } from "@/hooks/useModals"

@@ -1,4 +1,4 @@
-import { getNotification, registerNotification, notification } from "@/api/notification"
+import { getNotification, registerNotification, notification } from "@/api"
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from "@tanstack/react-query"
 
 export const useGetNoti = (): UseQueryResult<{ data: notification }, Error> => {

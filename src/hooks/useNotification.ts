@@ -1,4 +1,4 @@
-import { getNotification } from "@/api/notification"
+import { getNotification } from "@/api"
 import { useNotificationStore } from "@/store/NotificationStore"
 import { useEffect, useState } from "react"
 

@@ -1,4 +1,4 @@
-import { getTodayPoseAnalysis, getTotalPoseAnalysis } from "@/api/analysis"
+import { getTodayPoseAnalysis, getTotalPoseAnalysis } from "@/api"
 import { useQueries } from "@tanstack/react-query"
 import dayjs from "dayjs"
 import { DateValueType } from "react-tailwindcss-datepicker"
