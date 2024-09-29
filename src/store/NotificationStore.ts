@@ -1,4 +1,4 @@
-import { notification } from "@/api/notification"
+import { notification } from "@/api"
 import { create } from "zustand"
 
 interface NotificationState {

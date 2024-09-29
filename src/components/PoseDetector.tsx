@@ -1,6 +1,4 @@
-import { position } from "@/api"
-import { duration } from "@/api/notification"
-import { poseType } from "@/api/pose"
+import { position, duration, poseType } from "@/api"
 import { useCameraPermission } from "@/hooks/useCameraPermission"
 import { useGuidePopup } from "@/hooks/useGuidePopup"
 import { useModals } from "@/hooks/useModals"
@@ -59,7 +57,7 @@ const PoseDetector: React.FC = () => {
   const { isSnapShotSaved, snapshot, setSnapShot, isInitialSnapShotExist } = useSnapShotStore()
   const createSnapMutation = useCreateSnaphot()
   const sendPoseMutation = useSendPose()
-  const { isPopupOpen, handleClosePopup } = useGuidePopup()
+  const { isPopupOpen, handleClosePopup } = useGuidePopup(isClosedInitialGuidePopup)
 
   // const userNoti = useNotificationStore((state) => state.notification)
   const { notification } = useNotification()
