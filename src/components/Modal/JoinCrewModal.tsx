@@ -14,7 +14,7 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
   const [joinCode, setJoinCode] = useState<string>("")
   const [isCodeError, setIsCodeError] = useState<boolean>(false)
 
-  const { data, isLoading, isError } = useGetGroup(id)
+  const { data, isError } = useGetGroup(id)
   const joinGroupMutation = useJoinGroup()
 
   const onChangeJoinCode = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -75,9 +75,7 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
 
   return (
     <ModalContainer onClose={onClose}>
-      {isLoading ? (
-        "로딩 중입니다."
-      ) : isError ? (
+      {isError ? (
         "데이터를 불러오지 못했습니다."
       ) : (
         <div className="flex w-full flex-col items-center">
