@@ -210,7 +210,7 @@ const CrewList = (): ReactElement => {
       </div>
 
       {/* list */}
-      {isLoading ? "로딩 중입니다..." : isError ? "데이터를 불러오는데 실패했습니다." : createGroupList(data?.data)}
+      {isError ? "데이터를 불러오는데 실패했습니다." : createGroupList(data?.data)}
     </div>
   )
 }

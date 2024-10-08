@@ -94,7 +94,6 @@ const AnalysisDashboard = () => {
         </div>
       </div>
 
-      {isLoading && <div>로딩 중입니다...</div>}
       {isError && <div>데이터를 불러오는 것에 실패했습니다</div>}
 
       {!isLoading && !isError && todayAnalysis && (
