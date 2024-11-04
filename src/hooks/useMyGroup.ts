@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo } from "react"
 
 export default function useMyGroup() {
   const queryClient = useQueryClient()
-  const myName = useAuthStore((state) => state.user.nickname)
+  const myName = useAuthStore((state) => state.user?.nickname)
   const { myGroupData, setMyGroupData } = useMyGroupStore()
 
   // Fetch group data

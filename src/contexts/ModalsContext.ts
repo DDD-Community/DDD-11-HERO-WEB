@@ -3,7 +3,7 @@ import { ComponentType, createContext } from "react"
 export type ModalProps = {
   id?: number
   onClose?: () => void
-  onSubmit?: (value?: string) => void
+  onSubmit?: (() => void) | ((value?: string) => void)
 }
 
 export type ModalComponent = ComponentType<any>

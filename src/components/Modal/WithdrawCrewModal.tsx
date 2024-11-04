@@ -20,7 +20,10 @@ const WithdrawCrewModal = (props: ModalProps): React.ReactElement => {
         <div className="flex gap-4">
           <button
             className="w-[256px] rounded-[40px] bg-zinc-100 px-10 py-3 text-base font-semibold text-zinc-500"
-            onClick={onSubmit}
+            onClick={(e) => {
+              e.preventDefault()
+              onSubmit?.()
+            }}
           >
             네, 탈퇴할게요
           </button>
