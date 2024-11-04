@@ -4,15 +4,17 @@ import { useModals } from "@/hooks/useModals"
 import { useAuthStore } from "@/store"
 
 export default function MyPage() {
-  const userInfo = useAuthStore((state) => state.user)
+  const { user, setNickName } = useAuthStore()
 
   const { openModal } = useModals()
 
   const onClickModifyNickName = () => {
     openModal(modals.nickNameModal, {
       onSubmit: (newNickName) => {
-        if (userInfo && newNickName) {
-          modifyNickName(userInfo.uid, newNickName)
+        if (user && newNickName) {
+          modifyNickName(user.uid, newNickName).then(({ data }) => {
+            setNickName(data.nickname)
+          })
         }
       },
     })
@@ -25,7 +27,7 @@ export default function MyPage() {
         <div className="flex h-[56px] max-w-[998px] items-center justify-between rounded-xl border border-gray-200 bg-white pl-6">
           <div className="flex items-center gap-6">
             <div className="text-sm">닉네임</div>
-            <div>{userInfo?.nickname}</div>
+            <div>{user?.nickname}</div>
           </div>
           <div className="pr-[27px]">
             <button
