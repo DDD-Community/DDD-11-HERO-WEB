@@ -1,11 +1,16 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
+interface UserInfo {
+  uid: number
+  nickname: string
+}
 interface AuthState {
   isAuthenticated: boolean
-  user: any
+  user: UserInfo | null
   accessToken: string
-  setUser: (user: any, accessToken: string) => void
+  setUser: (user: UserInfo, accessToken: string) => void
+  setNickName: (nickname: string) => void
   logout: (callback: () => void) => void
 }
 
@@ -16,12 +21,16 @@ export const useAuthStore = create(
         isAuthenticated: false,
         user: null,
         accessToken: "",
-        setUser: (user: any, accessToken: string) =>
+        setUser: (user: UserInfo, accessToken: string) =>
           set({
             user,
             isAuthenticated: true,
             accessToken,
           }),
+        setNickName: (nickname: string) =>
+          set((state) => ({
+            user: state.user ? { ...state.user, nickname } : null,
+          })),
         logout: (callback) => {
           set({
             user: null,
