@@ -6,5 +6,6 @@
   "CREW": "/crew",
   "MYCREW": "/crew/my",
   "HOME": "/home",
-  "SOCKET": "/socket"
+  "SOCKET": "/socket",
+  "MYPAGE": "/mypage"
 }

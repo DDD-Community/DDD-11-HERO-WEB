@@ -3,7 +3,10 @@ import { persist } from "zustand/middleware"
 
 interface AuthState {
   isAuthenticated: boolean
-  user: any
+  user: {
+    uid: number
+    nickname: string
+  } | null
   accessToken: string
   setUser: (user: any, accessToken: string) => void
   logout: (callback: () => void) => void

@@ -5,10 +5,12 @@ import LogoImage from "@assets/icons/side-nav-logo.svg?react"
 import AnalysisIcon from "@assets/icons/side-nav-analysis-icon.svg?react"
 import CrewIcon from "@assets/icons/side-nav-crew-icon.svg?react"
 import MonitoringIcon from "@assets/icons/side-nav-monitor-icon.svg?react"
+import RightSmallArrow from "@assets/icons/arrow-small-right.svg?react"
 import { useMemo } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useModals } from "@/hooks/useModals"
 import { modals } from "./Modal/Modals"
+import RoutePath from "@/constants/routes.json"
 
 const navItems = [
   {
@@ -86,12 +88,14 @@ export default function SideNav(): React.ReactElement {
           </div>
 
           {/* User Info */}
-          <div className="pl-6 pt-2">
-            <div className="text-sm text-gray-400">바른자세 똑딱똑딱</div>
-            <div>
-              <span className="text-sm font-bold">{nickname}</span>
-              <span className="text-sm text-gray-400"> 님</span>
-            </div>
+          <div className="flex flex-col gap-[2px] pl-6 pt-2">
+            <div className="text-base text-zinc-500">바른자세 똑딱똑딱</div>
+            <Link to={RoutePath.MYPAGE} className="flex items-center">
+              <span className="max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap text-lg font-bold">
+                {nickname}
+              </span>
+              <RightSmallArrow />
+            </Link>
           </div>
 
           {/* Navigation Links */}
@@ -100,7 +104,7 @@ export default function SideNav(): React.ReactElement {
               {navItems.map(({ icon: Icon, label, link }) => {
                 const isActive = location.pathname.includes(link)
                 return (
-                  <li key={label} className={`mb-1 rounded-r-md ${isActive ? "bg-gray-700" : "hover:bg-gray-700"}`}>
+                  <li key={label} className={`mb-1 rounded-r-md ${isActive ? "bg-zinc-700" : "hover:bg-zinc-700"}`}>
                     <Link to={link} className={`nav-item flex w-full items-center p-3 ${isActive ? "active" : ""}`}>
                       <Icon className="ml-3 mr-3 h-5 w-5" />
                       <span className={isActive ? "font-bold" : ""}>{label}</span>
@@ -126,7 +130,7 @@ export default function SideNav(): React.ReactElement {
           </div>
 
           {/* Footer Text */}
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-zinc-500">
             © 2024 주인공.
             <br />
             All rights reserved.

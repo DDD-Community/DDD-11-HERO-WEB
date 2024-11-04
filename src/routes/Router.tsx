@@ -5,6 +5,7 @@ import BaseLayout from "@/layouts/BaseLayout"
 import MonitoringLayout from "@/layouts/MonitoringLayout"
 import { AnalysisDashboard, AuthPage, Crew, HomePage, MonitoringPage } from "@/pages"
 import MyCrew from "@/pages/MyCrew"
+import MyPage from "@/pages/MyPage"
 import AuthRoute from "@/routes/AuthRoute"
 import { useAuthStore } from "@/store/AuthStore"
 import React from "react"
@@ -23,6 +24,7 @@ const Router: React.FC = () => {
 
         <Route element={<AuthRoute />}>
           <Route element={<BaseLayout />}>
+            <Route path={RoutePath.MYPAGE} element={<MyPage />} />
             <Route element={<MonitoringLayout />}>
               <Route path={RoutePath.MONITORING} element={<MonitoringPage />} />
             </Route>

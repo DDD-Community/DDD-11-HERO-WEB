@@ -8,6 +8,7 @@ import JoinCrewModal from "./JoinCrewModal"
 import ReportModal from "./ReportModal"
 import ToWithdrawModal from "./ToWithdrawModal"
 import WithdrawCrewModal from "./WithdrawCrewModal"
+import NickNameModal from "./NickNameModal"
 
 export const modals = {
   createCrewModal: CreateCrewModal,
@@ -17,6 +18,7 @@ export const modals = {
   ToWithdrawModal: ToWithdrawModal,
   postureGuideModal: GoodPostureGuidePopupModal,
   reportModal: ReportModal,
+  nickNameModal: NickNameModal,
 }
 
 const Modals = (): React.ReactNode => {
@@ -45,9 +47,9 @@ const Modals = (): React.ReactNode => {
       close(Component)
     }
 
-    const handleSubmit = async (): Promise<void> => {
+    const handleSubmit = async (value?: any): Promise<void> => {
       if (typeof onSubmit === "function") {
-        await onSubmit()
+        await onSubmit(value)
       }
       handleClose()
     }
