@@ -21,10 +21,10 @@ export default function MyPage() {
   }
 
   return (
-    <div className="bg-gray-50 pl-[110px] pt-12">
+    <div className="h-full min-w-[1216px] bg-gray-50 pl-[110px] pr-[108px] pt-12">
       <h1 className="text-[22px] font-bold text-zinc-900">마이 페이지</h1>
       <div className="flex flex-col gap-4 pt-11">
-        <div className="flex h-[56px] max-w-[998px] items-center justify-between rounded-xl border border-gray-200 bg-white pl-6">
+        <div className="flex h-[56px] max-w-full items-center justify-between rounded-xl border border-gray-200 bg-white pl-6">
           <div className="flex items-center gap-6">
             <div className="text-sm">닉네임</div>
             <div>{user?.nickname}</div>
@@ -38,7 +38,7 @@ export default function MyPage() {
             </button>
           </div>
         </div>
-        <div className="flex h-[56px] max-w-[998px] items-center gap-6 rounded-xl border border-gray-200 bg-white pl-6">
+        <div className="flex h-[56px] max-w-full items-center gap-6 rounded-xl border border-gray-200 bg-white pl-6">
           <div className="text-sm">로그인 수단</div>
           <div>카카오 계정</div>
         </div>
