@@ -7,7 +7,7 @@ const NickNameModal = (props: ModalProps & { id: string }): React.ReactElement =
   const [nickName, setNickName] = useState("")
 
   const onClickModifyNickNameButton = () => {
-    if (nickName && nickName.length <= 200) {
+    if (nickName && nickName.length <= 20) {
       onSubmit?.(nickName)
     }
   }
@@ -23,7 +23,7 @@ const NickNameModal = (props: ModalProps & { id: string }): React.ReactElement =
         <div className="flex w-full flex-col gap-1 pb-6 pt-10">
           <input
             className={`w-full rounded-xl border border-gray-200 p-3 font-normal focus:outline-none focus:ring-2 ${
-              nickName.length > 200
+              nickName.length > 20
                 ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                 : "focus:border-blue-500 focus:ring-blue-200"
             }`}
@@ -31,8 +31,8 @@ const NickNameModal = (props: ModalProps & { id: string }): React.ReactElement =
             onChange={(e) => setNickName(e.target.value)}
           />
           <div className="mt-1 h-6">
-            {nickName.length > 200 && (
-              <span className={`text-[14px] font-semibold text-red-500 `}>닉네임은 200자를 초과할 수 없어요.</span>
+            {nickName.length > 20 && (
+              <span className={`text-[14px] font-semibold text-red-500 `}>닉네임은 20자를 초과할 수 없어요.</span>
             )}
           </div>
         </div>
