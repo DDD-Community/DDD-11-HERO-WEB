@@ -2,8 +2,10 @@ import Modals from "@/components/Modal/Modals"
 import RoutePath from "@/constants/routes.json"
 import AnalysisLayout from "@/layouts/AnalysisLayout"
 import BaseLayout from "@/layouts/BaseLayout"
+import HomeLayout from "@/layouts/HomeLayout"
 import MonitoringLayout from "@/layouts/MonitoringLayout"
 import { AnalysisDashboard, AuthPage, Crew, HomePage, MonitoringPage } from "@/pages"
+import DownloadPage from "@/pages/DownloadPage"
 import MyCrew from "@/pages/MyCrew"
 import MyPage from "@/pages/MyPage"
 import AuthRoute from "@/routes/AuthRoute"
@@ -20,7 +22,11 @@ const Router: React.FC = () => {
         <Route path={RoutePath.AUTH} element={<AuthPage />} />
 
         {/* 로그인 상태에 따라 홈 페이지로 접근 시 리다이렉트 */}
-        <Route path="/" element={isAuthenticated ? <Navigate to={RoutePath.MONITORING} replace /> : <HomePage />} />
+        <Route element={<HomeLayout />}>
+          {/* 로그인 상태에 따라 리다이렉트 */}
+          <Route path="/" element={isAuthenticated ? <Navigate to={RoutePath.MONITORING} replace /> : <HomePage />} />
+          <Route path={RoutePath.DOWNLOAD} element={<DownloadPage />} />
+        </Route>
 
         <Route element={<AuthRoute />}>
           <Route element={<BaseLayout />}>

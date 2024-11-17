@@ -1,7 +1,7 @@
 import { useGuidePopupStore } from "@/store/GuidePopupStore"
 import { useEffect } from "react"
 
-export const useGuidePopup = (isClosedInitialGuidePopup: boolean = false) => {
+export const useGuidePopup = (isClosedInitialGuidePopup = false) => {
   const { isPopupOpen, lastClosedDate, openPopup, closePopup, setLastClosedDate } = useGuidePopupStore()
 
   useEffect(() => {

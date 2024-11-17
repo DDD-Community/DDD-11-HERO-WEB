@@ -34,6 +34,6 @@
       "@providers/*": ["src/providers/*"]
     }
   },
-  "include": ["src", "svg.d.ts"],
+  "include": ["src", "svg.d.ts", "electron"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,16 +1,61 @@
 {
   "name": "alignlab",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/main.js",
   "license": "MIT",
-  "type": "module",
+  "build": {
+    "extends": null
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "name": "AlignLab",
+        "outDir": "out/"
+      },
+      "rebuildConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "AlignLab",
+            "authors": "AlignLab Inc.",
+            "exe": "AlignLab.exe",
+            "setupExe": "AlignLabInstaller.exe"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-dmg",
+          "config": {
+            "name": "AlignLab",
+            "overwrite": true,
+            "format": "ULFO"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": ["darwin"]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  },
   "scripts": {
     "dev": "vite --mode dev",
-    "build": "tsc && vite build --mode dev",
-    "build:dev": "tsc && vite build --mode dev",
-    "build:test": "tsc && vite build --mode dev",
+    "build": "tsc && vite build --mode prd",
+    "build:dev": "tsc && vite build --mode prd",
+    "build:test": "tsc && vite build --mode prd",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
-    "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix"
+    "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
+    "electron:dev": "concurrently \"yarn dev\" \"cross-env DEV= tsc-watch -p tsconfig.electron.json --onSuccess \\\"electron .\\\"\"",
+    "electron:preview": "yarn build && tsc -p tsconfig.electron.json && PREVIEW= electron .",
+    "electron:build": "tsc && yarn build && tsc -p tsconfig.electron.json && electron-forge make"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.51.23",
@@ -20,6 +65,7 @@
     "dayjs": "^1.11.13",
     "echarts": "^5.5.1",
     "echarts-for-react": "^3.0.2",
+    "electron-squirrel-startup": "^1.0.0",
     "lucide-react": "^0.435.0",
     "p5": "^1.9.4",
     "react": "^18.2.0",
@@ -31,6 +77,12 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.4",
+    "@electron-forge/maker-deb": "^6.0.4",
+    "@electron-forge/maker-rpm": "^6.0.4",
+    "@electron-forge/maker-squirrel": "^6.0.4",
+    "@electron-forge/maker-zip": "^6.0.4",
+    "@electron-forge/maker-dmg": "^6.0.4",
     "@types/node": "^20.7.1",
     "@types/qs": "^6.9.7",
     "@types/react": "^18.0.26",
@@ -39,6 +91,9 @@
     "@typescript-eslint/parser": "^5.59.1",
     "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "^10.4.14",
+    "concurrently": "^7.6.0",
+    "cross-env": "^7.0.3",
+    "electron": "^22.2.0",
     "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-import-resolver-typescript": "^3.5.2",
@@ -52,6 +107,7 @@
     "react-refresh": "^0.14.0",
     "tailwindcss": "^3.3.1",
     "ts-node": "^10.9.1",
+    "tsc-watch": "^6.0.0",
     "typescript": "^5.1.6",
     "vite": "^4.3.9",
     "vite-plugin-svgr": "^4.2.0",
