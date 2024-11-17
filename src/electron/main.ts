@@ -20,9 +20,9 @@ function createWindow() {
     mainWindow.webContents.openDevTools()
   } else if (isPreview) {
     mainWindow.webContents.openDevTools()
-    mainWindow.loadFile("dist/index.html")
+    mainWindow.loadFile("dist/web/index.html")
   } else {
-    mainWindow.loadFile("dist/index.html")
+    mainWindow.loadFile("dist/web/index.html")
   }
 }
 
