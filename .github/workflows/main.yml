@@ -44,6 +44,8 @@ jobs:
           aws s3 sync --region ap-northeast-2 dist/web s3://alignlab-client --delete
 
           echo "Deploying Electron build to S3..."
+          ls out/make # 디렉토리 구조 확인
+          ls out/make/squirrel.windows # 디렉토리 구조 확인
           aws s3 cp out/make/squirrel.windows/AlignLabInstaller.exe s3://alignlab-client/installer/AlignLabInstaller.exe --region ap-northeast-2
           aws s3 cp out/make/dmg/AlignLab.dmg s3://alignlab-client/installer/AlignLab.dmg --region ap-northeast-2
 

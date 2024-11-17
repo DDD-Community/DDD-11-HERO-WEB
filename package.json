@@ -22,7 +22,8 @@
             "name": "AlignLab",
             "authors": "AlignLab Inc.",
             "exe": "AlignLab.exe",
-            "setupExe": "AlignLabInstaller.exe"
+            "setupExe": "AlignLabInstaller.exe",
+            "outputDirectory": "out/make/squirrel.windows"
           }
         },
         {
