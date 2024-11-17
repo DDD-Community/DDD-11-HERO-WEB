@@ -9,9 +9,13 @@
 # production
 /build
 
+# electron production
+/out
+
 # misc
 .DS_Store
 .env
+.env.dev
 .env.local
 .env.development.local
 .env.test.local

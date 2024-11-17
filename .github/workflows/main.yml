@@ -22,8 +22,8 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Generate build
-        id: build
+      - name: Generate web build
+        id: build_web
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_OAUTH_KAKAO_REST_API_KEY: ${{ secrets.VITE_OAUTH_KAKAO_REST_API_KEY }}
@@ -40,6 +40,27 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws s3 sync --region ap-northeast-2 dist s3://alignlab-client --delete
+        continue-on-error: true
+
+      - name: Generate Electron build
+        id: build_electron
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_OAUTH_KAKAO_REST_API_KEY: ${{ secrets.VITE_OAUTH_KAKAO_REST_API_KEY }}
+          VITE_OAUTH_KAKAO_CLIENT_SECRET_CODE: ${{ secrets.VITE_OAUTH_KAKAO_CLIENT_SECRET_CODE }}
+          VITE_OAUTH_KAKAO_REDIRECT_URI: ${{ secrets.VITE_OAUTH_KAKAO_REDIRECT_URI }}
+        run: yarn electron:build
+        continue-on-error: true
+
+      - name: Deploy Electron build to S3
+        id: deploy_electron
+        if: steps.build_electron.outcome == 'success'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 cp out/make/squirrel.windows/AlignLabInstaller.exe s3://alignlab-client/installer/AlignLabInstaller.exe --region ap-northeast-2
+          aws s3 cp out/make/dmg/AlignLab.dmg s3://alignlab-client/installer/AlignLab.dmg --region ap-northeast-2
         continue-on-error: true
 
       - name: Invalidate CloudFront Cache
