@@ -11,7 +11,8 @@
     "forge": {
       "packagerConfig": {
         "name": "AlignLab",
-        "outDir": "out/"
+        "outDir": "out/",
+        "executableName": "alignlab"
       },
       "rebuildConfig": {},
       "makers": [
@@ -21,8 +22,7 @@
             "name": "AlignLab",
             "authors": "AlignLab Inc.",
             "exe": "AlignLab.exe",
-            "setupExe": "AlignLabInstaller.exe",
-            "productDescription": "AlignLab의 Windows 설치 파일입니다."
+            "setupExe": "AlignLabInstaller.exe"
           }
         },
         {
@@ -30,8 +30,7 @@
           "config": {
             "name": "AlignLab",
             "overwrite": true,
-            "format": "ULFO",
-            "productDescription": "AlignLab의 Mac 설치 파일입니다."
+            "format": "ULFO"
           }
         },
         {
@@ -40,11 +39,16 @@
         },
         {
           "name": "@electron-forge/maker-deb",
-          "config": {}
+          "config": {
+            "name": "alignlab",
+            "productDescription": "AlignLab의 데스크톱 애플리케이션"
+          }
         },
         {
           "name": "@electron-forge/maker-rpm",
-          "config": {}
+          "config": {
+            "name": "alignlab"
+          }
         }
       ]
     }
