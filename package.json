@@ -33,25 +33,21 @@
             "overwrite": true,
             "format": "ULFO"
           }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": ["darwin"]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {
-            "name": "alignlab",
-            "productDescription": "AlignLab의 데스크톱 애플리케이션"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {
-            "name": "alignlab"
-          }
         }
-      ]
+      ],
+      "publishers": [
+      {
+        "name": "@electron-forge/publisher-github",
+        "config": {
+          "repository": {
+            "owner": "DDD-Community",
+            "name": "DDD-11-HERO-WEB"
+          },
+          "draft": false,
+          "prerelease": false
+        }
+      }
+    ]
     }
   },
   "scripts": {
@@ -63,7 +59,9 @@
     "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
     "electron:dev": "concurrently \"yarn dev\" \"cross-env DEV= tsc-watch -p tsconfig.electron.json --onSuccess \\\"electron .\\\"\"",
     "electron:preview": "yarn build && tsc -p tsconfig.electron.json && PREVIEW= electron .",
-    "electron:build": "tsc && yarn build && tsc -p tsconfig.electron.json && electron-forge make"
+    "electron:build": "tsc && yarn build && tsc -p tsconfig.electron.json && electron-forge make",
+    "electron:publish": "tsc && yarn build && tsc -p tsconfig.electron.json && electron-forge publish"
+
   },
   "dependencies": {
     "@tanstack/react-query": "^5.51.23",
@@ -91,6 +89,7 @@
     "@electron-forge/maker-squirrel": "^6.0.4",
     "@electron-forge/maker-zip": "^6.0.4",
     "@electron-forge/maker-dmg": "^6.0.4",
+    "@electron-forge/publisher-github": "^6.0.4",
     "@types/node": "^20.7.1",
     "@types/qs": "^6.9.7",
     "@types/react": "^18.0.26",
