@@ -20,7 +20,8 @@
             "name": "AlignLab",
             "authors": "AlignLab Inc.",
             "exe": "AlignLab.exe",
-            "setupExe": "AlignLabInstaller.exe"
+            "setupExe": "AlignLabInstaller.exe",
+            "productDescription": "AlignLab의 Windows 설치 파일입니다."
           }
         },
         {
@@ -28,7 +29,8 @@
           "config": {
             "name": "AlignLab",
             "overwrite": true,
-            "format": "ULFO"
+            "format": "ULFO",
+            "productDescription": "AlignLab의 Mac 설치 파일입니다."
           }
         },
         {
