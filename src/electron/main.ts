@@ -1,10 +1,17 @@
 import { app, BrowserWindow } from "electron"
 import { join } from "path"
-
+import { updateElectronApp } from "update-electron-app"
 import "./api"
 
 const isDev = process.env.DEV != undefined
 const isPreview = process.env.PREVIEW != undefined
+
+// 자동 업데이트 초기화
+updateElectronApp({
+  repo: "DDD-Community/DDD-11-HERO-WEB",
+  updateInterval: "1 hour",
+  logger: console,
+})
 
 function createWindow() {
   const mainWindow = new BrowserWindow({

@@ -1,9 +1,9 @@
 {
   "name": "alignlab",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/main.js",
   "license": "MIT",
-  "description": "alignlab",
+  "description": "Alignlab",
   "build": {
     "extends": null
   },
@@ -12,7 +12,8 @@
       "packagerConfig": {
         "name": "AlignLab",
         "outDir": "out/",
-        "executableName": "alignlab"
+        "executableName": "Alignlab",
+        "icon" : "assets/icons/icon.png"
       },
       "rebuildConfig": {},
       "makers": [
@@ -31,7 +32,8 @@
           "config": {
             "name": "AlignLab",
             "overwrite": true,
-            "format": "ULFO"
+            "format": "ULFO",
+            "icon" : "assets/icons/icon.png"
           }
         }
       ],
@@ -80,7 +82,8 @@
     "react-router-dom": "^6.8.1",
     "react-tailwindcss-datepicker": "^1.7.2",
     "socket.io-client": "^4.7.5",
-    "zustand": "^4.5.5"
+    "zustand": "^4.5.5",
+    "update-electron-app": "3.0.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.4",
