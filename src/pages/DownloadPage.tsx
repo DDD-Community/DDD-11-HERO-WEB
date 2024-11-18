@@ -1,6 +1,16 @@
 import WindowIcon from "@assets/icons/download-window-icon.svg?react"
 import MacIcon from "@assets/icons/download-mac-icon.svg?react"
+const DMG_DOWNLOAD_URL = import.meta.env.VITE_DMG_DOWNLOAD_URL
+const EXE_DOWNLOAD_URL = import.meta.env.VITE_EXE_DOWNLOAD_URL
+
 const DownloadPage: React.FC = () => {
+  const onDownload = (os: "mac" | "window"): void => {
+    if (os === "mac") {
+      window.open(DMG_DOWNLOAD_URL, "_blank")
+    } else if (os === "window") {
+      window.open(EXE_DOWNLOAD_URL, "_blank")
+    }
+  }
   return (
     <div className="flex h-[704px] flex-col items-center justify-center gap-10 bg-gradient-to-b from-white via-[#BFD9FE] to-[#8BBAFE]">
       {/* left */}
@@ -10,11 +20,17 @@ const DownloadPage: React.FC = () => {
         PC용 앱을 다운받아보세요
       </div>
       <div className="flex gap-6">
-        <div className="flex w-[200px] cursor-pointer items-center items-center justify-center gap-2 rounded-full bg-white py-4 text-base font-semibold leading-[24px] text-zinc-900">
+        <div
+          className="flex w-[200px] cursor-pointer items-center items-center justify-center gap-2 rounded-full bg-white py-4 text-base font-semibold leading-[24px] text-zinc-900"
+          onClick={() => onDownload("window")}
+        >
           <WindowIcon />
           <div>Window OS</div>
         </div>
-        <div className="flex w-[200px] cursor-pointer items-center items-center justify-center gap-2 rounded-full bg-white px-7 py-4 text-base font-semibold text-zinc-900">
+        <div
+          className="flex w-[200px] cursor-pointer items-center items-center justify-center gap-2 rounded-full bg-white px-7 py-4 text-base font-semibold text-zinc-900"
+          onClick={() => onDownload("mac")}
+        >
           <MacIcon />
           <div>Mac OS</div>
         </div>
