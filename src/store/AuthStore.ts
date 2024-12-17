@@ -5,6 +5,7 @@ interface UserInfo {
   uid: number
   nickname: string
 }
+
 interface AuthState {
   isAuthenticated: boolean
   user: UserInfo | null

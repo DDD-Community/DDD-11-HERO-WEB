@@ -10,12 +10,13 @@ import {
   groupsReq,
   groupsRes,
   joinGroup,
+  modifyGroup,
 } from "@/api"
 
 export const useGetGroups = (params: groupsReq): UseQueryResult<groupsRes, Error> => {
   // eslint-disable-next-line max-len
   return useQuery<groupsRes, Error>({
-    queryKey: ["groups", params.page, params.size, params.sort],
+    queryKey: ["groups", params.page, params.size, params.sort, params.keyword],
     queryFn: () => getGroups(params),
   })
 }
@@ -51,6 +52,17 @@ export const useCreateGroup = (): UseMutationResult<group, unknown, group, unkno
   return useMutation({
     mutationFn: (group: group) => {
       return createGroup(group)
+    },
+    onSuccess: (data) => {
+      console.log(data)
+    },
+  })
+}
+
+export const useModifyGroup = (): UseMutationResult<group, unknown, group, unknown> => {
+  return useMutation({
+    mutationFn: (group: group) => {
+      return modifyGroup(group)
     },
     onSuccess: (data) => {
       console.log(data)

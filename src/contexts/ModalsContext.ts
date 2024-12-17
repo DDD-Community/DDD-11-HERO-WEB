@@ -4,6 +4,7 @@ export type ModalProps = {
   id?: number
   onClose?: () => void
   onSubmit?: (() => void) | ((value?: string) => void)
+  isModify?: boolean
 }
 
 export type ModalComponent = ComponentType<any>

@@ -14,7 +14,7 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
   const [joinCode, setJoinCode] = useState<string>("")
   const [isCodeError, setIsCodeError] = useState<boolean>(false)
 
-  const { data, isError } = useGetGroup(id)
+  const { data, isError, isLoading } = useGetGroup(id)
   const joinGroupMutation = useJoinGroup()
 
   const onChangeJoinCode = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -73,9 +73,22 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
     )
   }
 
+  const createTags = (): ReactNode => {
+    if (!data?.tagNames || data?.tagNames?.length === 0) return
+    return (
+      <div className="flex gap-2.5 text-sm text-zinc-400">
+        {data.tagNames.map((t) => (
+          <div key={t}>{`#${t}`}</div>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <ModalContainer onClose={onClose}>
-      {isError ? (
+      {isLoading ? (
+        "데이터를 불러오는 중입니다."
+      ) : isError ? (
         "데이터를 불러오지 못했습니다."
       ) : (
         <div className="flex w-full flex-col items-center">
@@ -107,6 +120,7 @@ const JoinCrewModal = (props: ModalProps): React.ReactElement => {
                 <div className="scrollbar-hide h-[80px] overflow-auto rounded-xl border border-gray-200 bg-zinc-100 p-[12px] text-[15px] font-normal text-zinc-900">
                   {data?.description}
                 </div>
+                {createTags()}
               </div>
 
               {/* crew rank */}

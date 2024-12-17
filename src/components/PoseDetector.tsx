@@ -34,7 +34,7 @@ const PoseDetector: React.FC = () => {
   const [isSuccessSnapShotSaved, setIsSuccessSnapShotSaved] = useState(false)
   // const [isSnapShotSaved, setIsSnapSaved] = useState<boolean>(false)
 
-  const { showNotification, hasPermission: hasNotiPermisson } = usePushNotification()
+  const { showNotification, hasPermission: hasNotiPermisson, requestNotificationPermission } = usePushNotification()
 
   const { openModal, isModalOpen } = useModals()
 
@@ -354,8 +354,8 @@ const PoseDetector: React.FC = () => {
   }
 
   useEffect(() => {
-    console.log(notification)
-  }, [notification])
+    requestNotificationPermission()
+  }, [notification, requestNotificationPermission])
 
   const handleCloseInitialGuidePopup = () => {
     setIsClosedInitialGuidePopup(true)

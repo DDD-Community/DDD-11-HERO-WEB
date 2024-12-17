@@ -11,6 +11,7 @@ import { modals } from "../Modal/Modals"
 import MyCrewRankingContainer from "./MyCrew/MyCrewRankingContainer"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import RoutePath from "@/constants/routes.json"
+import SearchIcon from "@assets/icons/crew-search-icon.svg?react"
 
 const SORT_LIST = [
   { sort: "userCount,desc", label: "크루원 많은 순" },
@@ -23,12 +24,14 @@ const CrewList = (): ReactElement => {
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
   // Dropdown 외부 클릭 감지 메모이제이션
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const [keyword, setKeyword] = useState<string>("") // 검색 상태 추가
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [params, setParams] = useState<groupsReq>({
     page: 0,
     size: 10000,
     sort: "userCount,desc",
+    keyword: "",
   })
 
   const { data, isLoading, isError, refetch } = useGetGroups(params)
@@ -106,7 +109,7 @@ const CrewList = (): ReactElement => {
 
   // createGroupList 메모이제이션
   const createGroupList = useCallback(
-    (_groups: group[] | undefined): JSX.Element | null => {
+    (_groups: group[] | undefined, keyword: string): JSX.Element | null => {
       if (!_groups) return null
 
       if (_groups.length === 0) {
@@ -123,13 +126,22 @@ const CrewList = (): ReactElement => {
       return (
         <div className="flex flex-grow flex-col gap-[8px]">
           {_groups.map((g) => (
-            <CrewItem key={`crew-item-${g.id}`} group={g} onClickDetail={() => openJoinCrewModal(g.id)} />
+            <CrewItem
+              key={`crew-item-${g.id}`}
+              group={g}
+              keyword={keyword}
+              onClickDetail={() => openJoinCrewModal(g.id)}
+            />
           ))}
         </div>
       )
     },
     [openJoinCrewModal]
   )
+
+  const onSearchGroups = (): void => {
+    setParams((params) => ({ ...params, keyword }))
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent): void => {
@@ -158,11 +170,9 @@ const CrewList = (): ReactElement => {
     }
   }, [openJoinCrewModal, searchParams, setSearchParams])
 
-  console.log("ranks: ", ranks)
-
   return (
     <div className="flex h-full w-full flex-col">
-      {myGroupData && Object.keys(myGroupData).length > 0 && (
+      {myGroupData && Object.keys(myGroupData).length > 0 && !params.keyword && (
         <MyCrewRankingContainer
           isLoading={isGroupLoading}
           myGroupData={myGroupData}
@@ -170,6 +180,9 @@ const CrewList = (): ReactElement => {
           myRank={myRank}
           openCreateModal={openCreateModal}
           openInviteModal={openInviteModal}
+          onSearchGroups={onSearchGroups}
+          keyword={keyword}
+          setKeyword={setKeyword}
         />
       )}
 
@@ -179,13 +192,29 @@ const CrewList = (): ReactElement => {
           <span>전체크루</span>
           <span>{isLoading ? "" : `(${data?.totalCount})`}</span>
         </div>
-        {(!myGroupData || (myGroupData && Object.keys(myGroupData).length === 0)) && (
-          <div
-            className="flex w-[138px] cursor-pointer items-center justify-center gap-[10px] rounded-[33px] bg-zinc-800 p-[10px] text-sm font-semibold text-white"
-            onClick={openCreateModal}
-          >
-            <CreateCrewIcon />
-            <div>크루 만들기</div>
+        {(!myGroupData || (myGroupData && Object.keys(myGroupData).length === 0) || params.keyword) && (
+          <div className="flex gap-3">
+            {/* 크루 검색 */}
+            <div className="box-border flex h-[44px] items-center gap-[27px] rounded-xl border border-gray-200 bg-white px-4 py-3 leading-5 outline-none">
+              <input
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") onSearchGroups()
+                }}
+                className="w-[163px] text-[13px] font-medium outline-none "
+                placeholder="크루명, 태그로 검색할 수 있어요."
+              />
+              <SearchIcon onClick={onSearchGroups} className="cursor-pointer" />
+            </div>
+            {/* 크루 만들기 */}
+            <div
+              className="flex w-[138px] cursor-pointer items-center justify-center gap-[10px] rounded-[33px] bg-zinc-800 p-[10px] text-sm font-semibold text-white"
+              onClick={openCreateModal}
+            >
+              <CreateCrewIcon />
+              <div>크루 만들기</div>
+            </div>
           </div>
         )}
       </div>
@@ -210,7 +239,7 @@ const CrewList = (): ReactElement => {
       </div>
 
       {/* list */}
-      {isError ? "데이터를 불러오는데 실패했습니다." : createGroupList(data?.data)}
+      {isError ? "데이터를 불러오는데 실패했습니다." : createGroupList(data?.data, params.keyword)}
     </div>
   )
 }

@@ -4,16 +4,8 @@ on:
     branches:
       - develop
 jobs:
-  build-and-deploy:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
-
-    outputs:
-      build_outcome: ${{ steps.build_app.outcome }}
-      deploy_outcome: ${{ steps.deploy_web.outcome }}
-
+  build:
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
@@ -23,73 +15,44 @@ jobs:
       - name: Get commit message and author
         id: get_commit_info
         run: |
-          echo "message=$(git log --format=%s -n 1)" >> $GITHUB_OUTPUT
-          echo "author=$(git log --format=%an -n 1)" >> $GITHUB_OUTPUT
-          echo "author_username=$(git log --format=%ae -n 1 | cut -d@ -f1)" >> $GITHUB_OUTPUT
+          echo "::set-output name=message::$(git log --format=%s -n 1)"
+          echo "::set-output name=author::$(git log --format=%an -n 1)"
+          echo "::set-output name=author_username::$(git log --format=%ae -n 1 | cut -d@ -f1)"
 
       - name: Install dependencies
         run: yarn install
 
-      # 웹 빌드 및 S3 업로드 (macOS 환경에서만)
-      - name: Build Web App
-        id: build_web
-        if: matrix.os == 'macos-latest'
+      - name: Generate build
+        id: build
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_OAUTH_KAKAO_REST_API_KEY: ${{ secrets.VITE_OAUTH_KAKAO_REST_API_KEY }}
           VITE_OAUTH_KAKAO_CLIENT_SECRET_CODE: ${{ secrets.VITE_OAUTH_KAKAO_CLIENT_SECRET_CODE }}
           VITE_OAUTH_KAKAO_REDIRECT_URI: ${{ secrets.VITE_OAUTH_KAKAO_REDIRECT_URI }}
-          VITE_DMG_DOWNLOAD_URL: ${{ secrets.VITE_DMG_DOWNLOAD_URL }}
-          VITE_EXE_DOWNLOAD_URL: ${{ secrets.VITE_EXE_DOWNLOAD_URL }}
-        run: |
-          echo "Building web app..."
-          yarn build
+        run: yarn build
+        continue-on-error: true
 
-      - name: Upload Web App to AWS S3
-        id: deploy_web
-        if: matrix.os == 'macos-latest'
+      - name: Deploy to S3
+        id: deploy
+        if: steps.build.outcome == 'success'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          echo "Deploying web build to S3..."
-          aws s3 sync dist/web s3://alignlab-client --delete --region ap-northeast-2
+          aws s3 sync --region ap-northeast-2 dist/web s3://alignlab-client --delete
+        continue-on-error: true
 
-      # Electron 빌드 및 GitHub Releases로 Publish
-      - name: Build and Publish Electron App
-        id: build_app
-        env:
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
-          VITE_OAUTH_KAKAO_REST_API_KEY: ${{ secrets.VITE_OAUTH_KAKAO_REST_API_KEY }}
-          VITE_OAUTH_KAKAO_CLIENT_SECRET_CODE: ${{ secrets.VITE_OAUTH_KAKAO_CLIENT_SECRET_CODE }}
-          VITE_OAUTH_KAKAO_REDIRECT_URI: ${{ secrets.VITE_OAUTH_KAKAO_REDIRECT_URI }}
-          VITE_DMG_DOWNLOAD_URL: ${{ secrets.VITE_DMG_DOWNLOAD_URL }}
-          VITE_EXE_DOWNLOAD_URL: ${{ secrets.VITE_EXE_DOWNLOAD_URL }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn electron:publish
-
-  # CloudFront 캐시 무효화
-  invalidate-cache:
-    runs-on: ubuntu-20.04
-    needs: [build-and-deploy]
-    if: success()
-    steps:
       - name: Invalidate CloudFront Cache
+        if: steps.deploy.outcome == 'success'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
-          echo "Invalidating CloudFront cache..."
           aws cloudfront create-invalidation --region ap-northeast-2 --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
 
-  # Discord 알림 - 성공
-  notify-success:
-    runs-on: ubuntu-20.04
-    needs: [build-and-deploy, invalidate-cache]
-    if: success()
-    steps:
       - name: Discord notification - Success
+        if: steps.deploy.outcome == 'success'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_DEPLOY_WEBHOOK }}
           DISCORD_USERNAME: GitHub
@@ -98,28 +61,27 @@ jobs:
         with:
           args: |
             🎉 배포가 성공적으로 완료되었습니다!
-            다운로드 링크: https://github.com/${{ github.repository }}/releases/latest
-            웹 앱 링크: https://alignlab.site
             브랜치: develop
-            커밋: ${{ needs.build-and-deploy.outputs.message }}
-            작성자: ${{ needs.build-and-deploy.outputs.author }}
+            커밋: ${{ steps.get_commit_info.outputs.message }}
+            작성자: ${{ steps.get_commit_info.outputs.author }}
 
-  # Discord 알림 - 실패
-  notify-failure:
-    runs-on: ubuntu-20.04
-    needs: [build-and-deploy]
-    if: failure()
-    steps:
       - name: Discord notification - Failure
+        if: steps.build.outcome == 'failure' || steps.deploy.outcome == 'failure'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_DEPLOY_WEBHOOK }}
+          DISCORD_USERNAME: GitHub
+          DISCORD_AVATAR: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
         uses: Ilshidur/action-discord@master
         with:
           args: |
-            ❌ ${{ needs.build-and-deploy.outputs.build_outcome == 'failure' && '빌드 중' || '배포 중' }} 오류가 발생했습니다.
+            ❌ ${{ steps.build.outcome == 'failure' && '빌드 중' || '배포 중' }} 오류가 발생했습니다.
             브랜치: develop
-            커밋: ${{ needs.build-and-deploy.outputs.message }}
+            커밋: ${{ steps.get_commit_info.outputs.message }}
             작성자: <@${{ secrets.DISCORD_ID_1 }}>
             실패한 워크플로우: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            ${{ needs.build-and-deploy.outputs.build_outcome == 'failure' && '빌드 오류 메시지:' || '' }}
-            ${{ needs.build-and-deploy.outputs.build_outcome == 'failure' && needs.build-and-deploy.steps.build_app.outputs.stderr || '' }}
+            ${{ steps.build.outcome == 'failure' && '빌드 오류 메시지:' || '' }}
+            ${{ steps.build.outcome == 'failure' && steps.build.outputs.stderr || '' }}
+
+      - name: Check deploy result
+        if: steps.build.outcome == 'failure' || steps.deploy.outcome == 'failure'
+        run: exit 1

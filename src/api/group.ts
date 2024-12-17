@@ -22,6 +22,7 @@ export interface group {
   userCapacity?: number
   hasJoined?: boolean
   ranks?: groupUserRank[]
+  tagNames?: string[]
 }
 
 export interface groupUserRank {
@@ -41,6 +42,7 @@ export interface groupsReq {
   page: number
   size: number
   sort: sort
+  keyword: string
 }
 
 export interface groupsRes {
@@ -70,6 +72,10 @@ export interface MyGroupData {
   userCount: number
   userCapacity: number
   ownerNickname: string
+  ownerUid: number
+  isHidden: boolean
+  joinCode?: string
+  tagNames: string[]
 }
 
 export const getGroups = async (groupsReq: groupsReq): Promise<groupsRes> => {
@@ -122,6 +128,15 @@ export const checkGroupName = async (name: string): Promise<boolean> => {
 export const createGroup = async (group: group): Promise<group> => {
   try {
     const res = await axiosInstance.post(`groups`, { ...group })
+    return res.data.data
+  } catch (e) {
+    throw e
+  }
+}
+
+export const modifyGroup = async (group: group): Promise<group> => {
+  try {
+    const res = await axiosInstance.put(`groups/${group.id}`, { ...group })
     return res.data.data
   } catch (e) {
     throw e
