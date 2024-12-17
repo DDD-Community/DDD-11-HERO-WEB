@@ -1,14 +1,10 @@
 import IntroImage from "@/assets/images/home-intro.png"
 import MonitoringImage from "@/assets/images/home-monitoring.png"
-import { useNavigate } from "react-router-dom"
-import RoutePath from "@/constants/routes.json"
 const REST_API_KEY = import.meta.env.VITE_OAUTH_KAKAO_REST_API_KEY
 const REDIRECT_URI = import.meta.env.VITE_OAUTH_KAKAO_REDIRECT_URI
 const LOGIN_LINK = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`
-const IS_ELECTRON = window?.versions?.electron
 
 const HomePage: React.FC = () => {
-  const navigate = useNavigate()
   const loginHandler = (): void => {
     window.location.href = LOGIN_LINK
   }
@@ -26,19 +22,11 @@ const HomePage: React.FC = () => {
         </div>
         <div className="flex gap-3">
           <div
-            className="flex w-fit cursor-pointer rounded-full bg-[#1A75FF] px-7 py-2 leading-[34px] text-white"
+            className="flex w-fit cursor-pointer rounded-full bg-zinc-900 px-7 py-2 leading-[34px] text-white"
             onClick={loginHandler}
           >
             카카오톡으로 계속하기
           </div>
-          {!IS_ELECTRON && (
-            <div
-              className="flex w-fit cursor-pointer rounded-full bg-zinc-900 px-7 py-2 leading-[34px] text-white"
-              onClick={() => navigate(RoutePath.DOWNLOAD)}
-            >
-              PC 앱 다운로드
-            </div>
-          )}
         </div>
         <div className="absolute bottom-0 left-10 h-[292px] w-[528px]">
           <img src={IntroImage} alt="Intro" />

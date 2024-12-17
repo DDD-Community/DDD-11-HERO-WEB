@@ -1,24 +1,63 @@
 import ModalContainer from "@components/ModalContainer"
 import CheckedIcon from "@assets/icons/crew-checked-icon.svg?react"
 import UnCheckedIcon from "@assets/icons/crew-unckecked-icon.svg?react"
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { ModalProps } from "@/contexts/ModalsContext"
-import { useCheckGroupName, useCreateGroup } from "@/hooks/useGroupMutation"
+import { useCheckGroupName, useCreateGroup, useModifyGroup } from "@/hooks/useGroupMutation"
 import { group } from "@/api"
+import useMyGroup from "@/hooks/useMyGroup"
 
 type TPossible = "POSSIBLE" | "IMPOSSIBLE" | "NONCHECKED"
 
+interface ITag {
+  name: string
+  isSelected: boolean
+  onClick?: (name: string) => void
+}
+
+export const Tag = (props: ITag): React.ReactElement => {
+  const { name, isSelected, onClick } = props
+
+  const onClickHandler = (): void => {
+    if (onClick) onClick(name)
+  }
+
+  return (
+    <div
+      className={`cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap rounded-[1000px] border border-gray-200 bg-zinc-100 px-3 py-0.5 leading-[22px] ${
+        isSelected && "border border-zinc-500 bg-zinc-500 text-white"
+      }`}
+      onClick={onClickHandler}
+    >
+      {name}
+    </div>
+  )
+}
+
+/**
+ * @todo
+ * 수정 상태에서
+ * 이름 : 원래의 이름과 같은 경우에는 중복체크 할 필요 없음
+ * 수정 : 변경 사항이 있는 경우에만 만들기 활성화
+ */
+
 const CreateCrewModal = (props: ModalProps): React.ReactElement => {
-  const { onClose, onSubmit } = props
+  const { onClose, onSubmit, isModify } = props
 
   const [name, setName] = useState<string>("")
   const [description, setDescription] = useState<string>("")
   const [isHidden, setIsHidden] = useState<boolean>(false)
   const [joinCode, setJoinCode] = useState<string>("")
   const [isPossible, setIsPossible] = useState<TPossible | null>(null)
+  const [tag, setTag] = useState<string>("")
+  const [tags, setTags] = useState<ITag[]>([])
+  const [isComposing, setIsComposing] = useState<boolean>(false) // 한글 조합 상태
 
   const checkGroupNameMutation = useCheckGroupName()
   const createGroupMutation = useCreateGroup()
+  const modifyGroupMutation = useModifyGroup()
+
+  const { myGroupData } = useMyGroup()
 
   const onChangeName = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setName(e.target.value)
@@ -27,6 +66,12 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
 
   const onChangeDescription = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
     if (e.target.value.length <= 300) setDescription(e.target.value)
+  }
+
+  const onChangeTag = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const { value } = e.target
+    if (/^[^\s]*$/.test(value) && value.length <= 10) setTag(value)
+    else setIsComposing(false)
   }
 
   // Enter 키 입력을 막는 함수
@@ -54,6 +99,25 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
     setIsPossible(_isPossible ? "POSSIBLE" : "IMPOSSIBLE")
   }
 
+  const onSelectTag = (tagName: string): void => {
+    setTags((prevTags) => prevTags.map((tag) => (tag.name === tagName ? { ...tag, isSelected: !tag.isSelected } : tag)))
+  }
+
+  const onEnterTag = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === "Backspace") setIsComposing(false)
+    if (e.key === "Enter" && !isComposing) {
+      if (!tag) return
+      if (tags.findIndex((t) => t.name === tag) === -1) {
+        setTags([...tags, { name: tag, isSelected: false }])
+      }
+      setTag("")
+    }
+  }
+
+  const createTags = (tags: ITag[]): React.ReactElement[] => {
+    return tags.map((tag) => <Tag key={`tag-${tag.name}`} {...tag} onClick={onSelectTag} />)
+  }
+
   const getNameCheckedMsg = (_isPossible: TPossible | null): string => {
     if (_isPossible === "POSSIBLE") return "사용가능한 크루명입니다."
     if (_isPossible === "IMPOSSIBLE") return "이미 사용중인 크루명이에요. 다른 크루명을 사용해주세요."
@@ -61,38 +125,118 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
     return ""
   }
 
-  const canCreate = (): string | boolean => {
-    return name && description && ((isHidden && joinCode.length === 4) || !isHidden)
+  const canCreate = (): boolean => {
+    const checkForm = Boolean(name && description && ((isHidden && joinCode.length === 4) || !isHidden))
+    if (isModify) {
+      const newTagList = tags.map((t) => t.name)
+      const prevTagList = myGroupData?.tagNames
+      const prevTagSet = new Set(prevTagList)
+      const newTagSet = new Set(newTagList)
+
+      const isTagsModified =
+        !newTagList.every((t) => prevTagSet.has(t)) || !(prevTagList || []).every((t) => newTagSet.has(t))
+
+      return (
+        checkForm &&
+        (name !== myGroupData?.name ||
+          description !== myGroupData.description ||
+          isHidden !== myGroupData.isHidden ||
+          (isHidden && joinCode !== myGroupData.joinCode) ||
+          isTagsModified)
+      )
+    }
+
+    return checkForm
   }
 
+  const canNameCheck = useCallback((): boolean => {
+    return Boolean(name.length === 0 || isPossible === "POSSIBLE" || (isModify && name === myGroupData?.name))
+  }, [name, isPossible, isModify, myGroupData])
+
   const handleSubmit = (): void => {
-    if (isPossible === null) {
-      setIsPossible("NONCHECKED")
-      return
+    if (name !== myGroupData?.name || !isModify) {
+      if (isPossible === null) {
+        setIsPossible("NONCHECKED")
+        return
+      }
+      if (isPossible === "NONCHECKED") return
     }
-    if (isPossible === "NONCHECKED") return
 
     let newGroup: group = { name, description }
     if (isHidden) newGroup = { ...newGroup, joinCode, isHidden }
-    createGroupMutation.mutate(newGroup, {
+    if (tags.length > 0) newGroup = { ...newGroup, tagNames: tags.map((t) => t.name) }
+
+    if (isModify) {
+      newGroup = { ...newGroup, id: Number(myGroupData?.id) }
+    }
+
+    const mutation = isModify ? modifyGroupMutation : createGroupMutation
+
+    mutation.mutate(newGroup, {
       onSuccess: (): void => {
         if (onSubmit && typeof onSubmit === "function") onSubmit()
       },
     })
   }
 
+  const handleCompositionStart = (): void => {
+    setIsComposing(true) // 한글 조합 시작
+  }
+
+  const handleCompositionEnd = (): void => {
+    setIsComposing(false) // 조합 종료
+  }
+
+  const initModify = useCallback(() => {
+    if (myGroupData) {
+      setName(myGroupData.name)
+      setDescription(myGroupData.description)
+      setIsHidden(myGroupData.isHidden)
+      if (myGroupData.tagNames && myGroupData.tagNames.length > 0)
+        setTags(myGroupData.tagNames.map((t) => ({ name: t, isSelected: false })))
+      if (myGroupData.isHidden && myGroupData.joinCode) setJoinCode(myGroupData.joinCode)
+    }
+  }, [myGroupData])
+
+  // 전역 키보드 이벤트 처리
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent): void => {
+      if (e.key === "Backspace") {
+        // 선택된 태그 삭제
+        const hasSelectedTags = tags.some((tag) => tag.isSelected)
+        if (hasSelectedTags) {
+          e.preventDefault() // Backspace의 기본 동작 방지 (필요한 경우)
+          setTags((prevTags) => prevTags.filter((tag) => !tag.isSelected))
+        }
+      }
+    }
+
+    // 전역 이벤트 리스너 등록
+    window.addEventListener("keydown", handleKeyDown)
+
+    return () => {
+      // 전역 이벤트 리스너 정리
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [tags])
+
+  useEffect(() => {
+    if (!myGroupData) return
+    initModify()
+  }, [initModify, isModify, myGroupData])
+
   return (
     <ModalContainer onClose={onClose}>
       <div className="flex flex-col items-center">
         {/* header */}
         <div className="mb-10 flex items-center gap-4">
-          <div className="text-xl font-bold text-zinc-900">{"크루 만들기"}</div>
+          <div className="text-xl font-bold text-zinc-900">{!isModify ? "크루 만들기" : "크루 수정하기"}</div>
         </div>
 
         <div className="mb-6 flex w-full flex-col text-[15px]">
           {/* crew owner */}
           <div className="mb-4 flex flex-col gap-1">
-            <div className="font-semibold text-[#1A75FF]">크루명</div>
+            <div className="font-semibold text-[#1A75FF]">크루명*</div>
             <div className="mb-1 flex gap-4">
               <input
                 type="text"
@@ -105,10 +249,10 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
               />
               <button
                 className={`h-[44px] w-[116px] rounded-[33px] px-[22px] py-1.5 text-sm font-semibold text-white ${
-                  name.length === 0 || isPossible === "POSSIBLE" ? "bg-gray-200" : "bg-[#1A75FF]"
+                  canNameCheck() ? "bg-gray-200" : "bg-[#1A75FF]"
                 }`}
                 onClick={onCheckGroupName}
-                disabled={name.length === 0 || isPossible === "POSSIBLE"}
+                disabled={canNameCheck()}
               >
                 중복체크
               </button>
@@ -123,8 +267,8 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
           </div>
 
           {/* crew description */}
-          <div className="flex flex-col gap-1">
-            <div className="text-[15px] font-semibold text-[#1A75FF]">크루 소개</div>
+          <div className="mb-4 flex flex-col gap-1">
+            <div className="text-[15px] font-semibold text-[#1A75FF]">크루 소개*</div>
             <div>
               <textarea
                 className={`h-[140px] w-full resize-none rounded-xl border border-gray-200 p-3 outline-none`}
@@ -138,7 +282,7 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
           </div>
 
           {/* crew private */}
-          <div className="flex flex-col gap-1">
+          <div className="mb-5 flex flex-col gap-1">
             <div className="text-[15px] font-semibold text-[#1A75FF]">공개여부 설정</div>
             <div className="flex gap-4">
               <div className="flex flex-none cursor-pointer items-center gap-2" onClick={onCheckIsHidden}>
@@ -157,6 +301,33 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
               />
             </div>
           </div>
+
+          {/* crew tags */}
+          <div className="flex flex-col gap-1">
+            <div className="text-[15px] font-semibold text-[#1A75FF]">태그 설정</div>
+            <div className="flex w-full items-center gap-1 rounded-xl border border-gray-200 px-3 py-2">
+              {/* tag list */}
+              <div className="flex gap-1">{createTags(tags)}</div>
+              {tags.length < 3 && (
+                <div className="relative grow">
+                  <input
+                    className="w-full leading-7 outline-none"
+                    value={tag}
+                    onChange={onChangeTag}
+                    onKeyDown={onEnterTag}
+                    onCompositionStart={handleCompositionStart}
+                    onCompositionEnd={handleCompositionEnd}
+                  />
+                  {/* placeholder */}
+                  {tag === "" && (
+                    <div className="pointer-events-none absolute inset-0 overflow-hidden text-ellipsis whitespace-nowrap leading-7 text-gray-400">
+                      #태그를 입력해주세요. (최대 3개)
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* button */}
@@ -167,7 +338,7 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
           onClick={handleSubmit}
           disabled={!canCreate()}
         >
-          크루 만들기
+          {!isModify ? "크루 만들기" : "크루 수정하기"}
         </button>
       </div>
     </ModalContainer>

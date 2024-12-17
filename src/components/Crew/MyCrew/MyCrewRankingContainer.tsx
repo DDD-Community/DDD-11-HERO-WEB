@@ -16,13 +16,33 @@ interface MyCrewRankingContainerProps {
   myRank: groupUserRank | undefined
   openCreateModal: () => void
   openInviteModal: () => void
+  onSearchGroups: () => void
+  keyword: string
+  setKeyword: React.Dispatch<React.SetStateAction<string>>
 }
 
 export default function MyCrewRankingContainer(props: MyCrewRankingContainerProps) {
-  const { isLoading, myGroupData, ranks, myRank, openCreateModal, openInviteModal } = props
+  const {
+    isLoading,
+    myGroupData,
+    ranks,
+    myRank,
+    openCreateModal,
+    openInviteModal,
+    onSearchGroups,
+    keyword,
+    setKeyword,
+  } = props
   return (
     <div className="mb-12">
-      <MyCrewHeader openCreateModal={openCreateModal} isDisplayedCreationButton={true} />
+      <MyCrewHeader
+        openCreateModal={openCreateModal}
+        isDisplayedCreationButton={true}
+        isDisplayedSearch={true}
+        onSearchGroups={onSearchGroups}
+        keyword={keyword}
+        setKeyword={setKeyword}
+      />
       <div className="h-[382px] w-full rounded-[12px] bg-white px-8 pt-9">
         <div className="flex justify-between">
           <div className="flex items-center gap-4">

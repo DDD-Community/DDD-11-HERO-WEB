@@ -6,16 +6,20 @@ import FlagIcon from "@assets/icons/crew-my-crew-header-flag.svg?react"
 import CrewLeader from "@assets/icons/crew-my-crew-leader-icon.svg?react"
 import SendInvitationIcon from "@assets/icons/crew-send-invitation.svg?react"
 import CrewUserIcon from "@assets/icons/crew-user-icon.svg?react"
+import CrewEditIcon from "@assets/icons/crew-edit-icon.svg?react"
 import NoRanksImage from "@/assets/images/mycrew-no-ranks.png"
 import dayjs from "dayjs"
 import { modals } from "@/components/Modal/Modals"
-import { useNavigate } from "react-router-dom"
-import { useCallback, useEffect } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
+import { ReactNode, useCallback, useEffect } from "react"
+import { useAuthStore } from "@/store"
 
 export default function MyCrew() {
-  const { myGroupData, ranks, myRank, withdrawFromGroup, isLoading, avgScore } = useMyGroup()
+  const { myGroupData, ranks, myRank, withdrawFromGroup, isLoading, avgScore, refetchAll } = useMyGroup()
   const { openModal } = useModals()
+  const myInfo = useAuthStore((state) => state.user)
   const naviagte = useNavigate()
+  const location = useLocation() // 페이지 이동 감지
 
   const openCreateModal = (): void => {
     openModal(modals.withdrawCrewModal, {
@@ -39,11 +43,35 @@ export default function MyCrew() {
     })
   }
 
+  const openModifyModal = (): void => {
+    openModal(modals.createCrewModal, {
+      isModify: true,
+      onSubmit: () => {
+        refetchAll()
+      },
+    })
+  }
+
+  const createTags = useCallback((): ReactNode => {
+    if (!myGroupData?.tagNames || myGroupData?.tagNames?.length === 0) return
+    return (
+      <div className="mt-3 flex gap-2.5 text-[13px] text-sm leading-[20px] text-zinc-400">
+        {myGroupData.tagNames.map((t) => (
+          <div key={t}>{`#${t}`}</div>
+        ))}
+      </div>
+    )
+  }, [myGroupData?.tagNames])
+
   useEffect(() => {
     if (!myGroupData && !isLoading) {
       naviagte("/crew")
     }
   }, [myGroupData, isLoading])
+
+  useEffect(() => {
+    refetchAll()
+  }, [location.pathname])
 
   const openInviteModal = useCallback((): void => {
     openModal(modals.inviteCrewModal, {
@@ -92,7 +120,7 @@ export default function MyCrew() {
       </div>
 
       {/* 크루 소개 */}
-      <div className="mt-4 flex min-h-[220px] gap-4">
+      <div className="mt-4 flex min-h-[252px] gap-4">
         <div className="flex w-[180px] flex-col items-center justify-between rounded-[10px] bg-zinc-800 px-[13px] pt-6">
           <div className="flex flex-col items-center">
             <span className="text-bold text-[13px] text-[#5A9CFF]">크루장</span>
@@ -100,9 +128,15 @@ export default function MyCrew() {
           </div>
           <CrewLeader />
         </div>
-        <div className="flex flex-1 flex-col items-center gap-6 rounded-[10px] border-[1px] border-solid border-gray-200 bg-white px-[70px] py-6">
-          <span className="font-[13px] font-bold text-[#1A75FF]">크루 소개</span>
-          <p className="overflow-wrap-break-word w-full text-center">{myGroupData?.description}</p>
+        <div className="relative flex flex-1 flex-col items-center rounded-[10px] border-[1px] border-solid border-gray-200 bg-white px-[70px] pb-8 pt-6">
+          {myGroupData?.ownerUid === myInfo?.uid && (
+            <CrewEditIcon className="absolute right-[24px] cursor-pointer" onClick={openModifyModal} />
+          )}
+          <span className="mb-3 font-[13px] font-bold leading-5 text-[#1A75FF]">크루 소개</span>
+          <p className="overflow-wrap-break-word h-[120px] w-full flex-grow text-center leading-6">
+            {myGroupData?.description}
+          </p>
+          {createTags()}
         </div>
       </div>
 
@@ -140,19 +174,19 @@ export default function MyCrew() {
       {/* footer */}
       <div className="height-[68px] mt-3 flex justify-center rounded-[12px] border-[1px] border-solid border-gray-200 bg-white py-6 font-medium">
         {(!myRank || !myRank.score || myRank.score === 0) &&
-          (avgScore !== undefined || avgScore !== null) &&
-          `우리 크루 평균 자세 경고 횟수는 ${avgScore}회 입니다.`}
+          `우리 크루 평균 자세 경고 횟수는 ${avgScore || 0}회 입니다.`}
         {myRank &&
           myRank.score &&
-          (avgScore !== undefined || avgScore !== null) &&
-          `지난 한 시간 동안 나의 자세 경고 횟수는 ${myRank.score}회 입니다.`}
+          avgScore !== undefined &&
+          avgScore !== null &&
+          `지난 한 시간 동안 나의 자세 경고 횟수는 ${myRank.score}회 입니다. `}
         {myRank && myRank.score !== undefined && avgScore !== undefined && avgScore > 0 && (
           <>
-            나는 우리 크루 평균보다 자세 경고를{" "}
+            나는 우리 크루 평균보다 자세 경고를&nbsp;
             <span
               className={`font-bold ${Number(avgScore) > Number(myRank.score) ? "text-[#1A75FF]" : "text-red-500"} `}
             >
-              {Math.abs(avgScore - myRank?.score)}회 {Number(avgScore) > Number(myRank?.score) ? "덜" : "더"}
+              {Math.abs(avgScore || 0 - myRank?.score)}회 {Number(avgScore) > Number(myRank?.score) ? "덜" : "더"}
             </span>
             &nbsp;받았어요.
           </>
