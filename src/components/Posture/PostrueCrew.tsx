@@ -11,12 +11,23 @@ import { useSnapShotStore } from "@/store/SnapshotStore"
 import CloseCrewPanelIcon from "@assets/icons/crew-panel-close-button.svg?react"
 import PostureGuide from "@assets/icons/posture-guide-button-icon.svg?react"
 import PostureRetakeIcon from "@assets/icons/posture-snapshot-retake-icon.svg?react"
+import CrewMyCheerCountIcon from "@assets/icons/crew-cheer-my-count-icon.svg?react"
+import CrewCheerIcon from "@assets/icons/crew-cheer-icon.svg?react"
 import QuestionIcon from "@assets/icons/question-info-icon.svg?react"
 import RankingGuideToolTip from "@assets/images/ranking-guide.png"
 import SelectBox from "@components/SelectBox"
 import { ReactElement, useCallback, useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { modals } from "../Modal/Modals"
+import PostureCrewItem from "./PostureCrewItem"
+import { getMyCheerUpInfo, requestSendCrewCheer } from "@/api/crewCheer"
+import toast from "react-hot-toast"
+import dayjs from "dayjs"
+
+interface MyPostureCrewData {
+  myInfo: IPostureCrew
+  countCheeredUp: number
+}
 
 interface IPostureCrew {
   groupUserId: number
@@ -62,6 +73,7 @@ const NOTI_VALUE_MAP = (value: string | undefined) => {
 const useWebSocket = (url: string) => {
   const [isConnected, setIsConnected] = useState<"loading" | "success" | "disconnected">("loading")
   const [crews, setCrews] = useState<IPostureCrew[]>([])
+  const [crewMyInfo, setCrewMyInfo] = useState<MyPostureCrewData | null>(null)
   const socketRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -80,9 +92,14 @@ const useWebSocket = (url: string) => {
     socketRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data)
       console.log("Received message:", data)
-      if (data.groupUsers) {
-        setCrews(data.groupUsers)
+      if (data.groupUsers && data.groupUser) {
+        const crewListExceptForMe = data.groupUsers.filter((user: any) => user.uid !== data.groupUser.uid)
+        setCrews(crewListExceptForMe)
       }
+      setCrewMyInfo({
+        myInfo: data.groupUser,
+        countCheeredUp: data.cheerUp.countCheeredUp,
+      })
     }
 
     socketRef.current.onerror = (error) => {
@@ -119,7 +136,7 @@ const useWebSocket = (url: string) => {
     }
   }, [connect])
 
-  return { isConnected, crews }
+  return { isConnected, crews, crewMyInfo }
 }
 
 export default function PostrueCrew(props: PostureCrewProps): ReactElement {
@@ -128,13 +145,20 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const { resetSnapShot } = useSnapShotStore()
   const { openModal } = useModals()
   const wsUrl = `wss://api.alignlab.site/ws/v1/groups/1/users?X-HERO-AUTH-TOKEN=${accessToken}`
-  const { isConnected, crews } = useWebSocket(wsUrl)
-
+  const { isConnected, crewMyInfo, crews } = useWebSocket(wsUrl)
   const { notification, setNotification } = useNotification()
   const updateNotiMutation = useModifyNoti()
   const { hasPermission } = usePushNotification()
   const { myGroupData, isLoading } = useMyGroup()
   const navigate = useNavigate()
+  const [cheeredUpCrewList, setCheeredUpCrewList] = useState<number[]>([])
+
+  useEffect(() => {
+    const today = dayjs().format("YYYY-MM-DD")
+    getMyCheerUpInfo(today).then(({ data }) => {
+      setCheeredUpCrewList(data.cheeredUpUids)
+    })
+  }, [])
 
   const onClickCloseSideNavButton = (): void => {
     toggleSidebar()
@@ -181,41 +205,81 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
     resetSnapShot()
   }
 
+  const onClickCrewCheer = (uid: number, nickname: string) => {
+    if (!uid) {
+      toast.error("에러가 발생했습니다. 잠시 후 다시 시도해주세요")
+      return
+    }
+    requestSendCrewCheer({
+      uids: [uid],
+    }).then(({ data }) => {
+      if (data) {
+        toast.success(`${nickname}님에게 응원하기 전송이 성공했습니다.`)
+        const today = dayjs().format("YYYY-MM-DD")
+        getMyCheerUpInfo(today).then(({ data }) => {
+          setCheeredUpCrewList(data.cheeredUpUids)
+        })
+      }
+    })
+  }
+
+  const onClickAllCrewCheer = () => {
+    const allCrewUids = crews.map((item) => item.uid)
+    if (!allCrewUids || allCrewUids.length === 0) {
+      toast.error("접속한 크루가 없습니다.")
+      return
+    }
+    requestSendCrewCheer({
+      uids: allCrewUids,
+    }).then(({ data }) => {
+      if (data) {
+        toast.success("모든 크루에게 응원하기 전송이 성공했습니다")
+        const today = dayjs().format("YYYY-MM-DD")
+        getMyCheerUpInfo(today).then(({ data }) => {
+          setCheeredUpCrewList(data.cheeredUpUids)
+        })
+      }
+    })
+  }
+
   return (
     <div className="flex h-full flex-col rounded-lg bg-[#FAFAFA] p-4">
-      <button onClick={onClickCloseSideNavButton} className="mb-8 p-1">
+      <button onClick={onClickCloseSideNavButton} className="mb-8 shrink-0 p-1">
         <CloseCrewPanelIcon />
       </button>
-      <div className="flex-grow">
-        <div className="flex items-center justify-between p-2 pb-3">
-          <div className="flex items-center">
-            <span className="text-[15px] font-medium">자세 알림</span>
+
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="shrink-0">
+          <div className="flex items-center justify-between p-2 pb-3">
+            <div className="flex items-center">
+              <span className="text-[15px] font-medium">자세 알림</span>
+            </div>
+
+            <label className="relative inline-flex cursor-pointer items-center">
+              <input
+                type="checkbox"
+                className="peer sr-only"
+                checked={notification ? notification?.isActive && hasPermission : false}
+                onChange={onClickNotiAlarm}
+              />
+              <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+            </label>
           </div>
 
-          <label className="relative inline-flex cursor-pointer items-center">
-            <input
-              type="checkbox"
-              className="peer sr-only"
-              checked={notification ? notification?.isActive && hasPermission : false}
-              onChange={onClickNotiAlarm}
+          <div className="pb-8 pl-2 pr-2">
+            <SelectBox
+              isDisabled={!notification?.isActive || !hasPermission}
+              options={NOTI_OPTIONS}
+              value={NOTI_VALUE_MAP(notification?.duration)}
+              onClick={onClickNotiAlarmTime}
             />
-            <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
-          </label>
+            {!hasPermission && (
+              <div className="pt-2 text-sm text-amber-500">브라우저의 알람 권한 설정이 필요 합니다.</div>
+            )}
+          </div>
         </div>
 
-        <div className="pb-8 pl-2 pr-2">
-          <SelectBox
-            isDisabled={!notification?.isActive || !hasPermission}
-            options={NOTI_OPTIONS}
-            value={NOTI_VALUE_MAP(notification?.duration)}
-            onClick={onClickNotiAlarmTime}
-          />
-          {!hasPermission && (
-            <div className="pt-2 text-sm text-amber-500">브라우저의 알람 권한 설정이 필요 합니다.</div>
-          )}
-        </div>
-
-        <div className="group relative">
+        <div className="group relative shrink-0">
           <div className="flex items-center gap-2 p-2">
             <span className="text-[15px] font-medium">자세 랭킹</span>
             <QuestionIcon />
@@ -225,32 +289,47 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
             <img src={RankingGuideToolTip} alt="랭킹 가이드" />
           </div>
         </div>
-        <div>
-          {isConnected === "loading" && myGroupData && <p>서버와 연결 중입니다.</p>}
-          {isConnected === "disconnected" && myGroupData && <p>서버와 연결 끊어졌습니다.</p>}
-          {isConnected === "success" && myGroupData && crews.length === 0 && (
-            <p className="text-center text-gray-500">접속자가 없습니다.</p>
-          )}
-          {isConnected === "success" && myGroupData && crews.length > 0 && (
-            <ul className="space-y-2">
-              {crews.map((user, index) => (
-                <li key={index} className="flex h-14 w-[200px] items-center justify-between rounded-full bg-white">
-                  <div className="flex w-full items-center justify-between">
-                    <div>
-                      <span
-                        className={`ml-6 mr-4 text-center font-semibold ${
-                          user.rank <= 3 ? "text-[#1F76F8]" : "text-[#9D9DA2]"
-                        }`}
-                      >
-                        {user.rank}
-                      </span>
-                      <span className="font-semibold text-[#202124]">{user.nickname}</span>
-                    </div>
-                    <span className="text-normal mr-6 text-[13px] text-[#999]">{user.score}회</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
+
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          {isConnected === "loading" && myGroupData && <p className="pl-2">서버와 연결 중입니다.</p>}
+          {isConnected === "disconnected" && myGroupData && <p className="pl-2">서버와 연결 끊어졌습니다.</p>}
+          {isConnected === "success" && myGroupData && (
+            <>
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                <ul className="space-y-2">
+                  {crewMyInfo && (
+                    <PostureCrewItem
+                      uid={crewMyInfo.myInfo.uid}
+                      rank={crewMyInfo.myInfo.rank}
+                      nickname={crewMyInfo.myInfo.nickname}
+                      score={crewMyInfo.myInfo.score}
+                      isMyCheerCount={crewMyInfo.countCheeredUp}
+                      isMe
+                    />
+                  )}
+                  {crews.length > 0 &&
+                    crews.map((user) => (
+                      <PostureCrewItem
+                        key={user.uid}
+                        uid={user.uid}
+                        rank={user.rank}
+                        nickname={user.nickname}
+                        score={user.score}
+                        onClickCheer={() => onClickCrewCheer(user.uid, user.nickname)}
+                        cheerButtonDisabled={cheeredUpCrewList.includes(user.uid)}
+                      />
+                    ))}
+                </ul>
+              </div>
+              <div className="mt-3 shrink-0">
+                <button
+                  className="w-full rounded-full bg-zinc-800 py-3 text-center text-[13px] font-semibold text-white"
+                  onClick={onClickAllCrewCheer}
+                >
+                  접속한 크루원 모두 응원하기
+                </button>
+              </div>
+            </>
           )}
           {!myGroupData && !isLoading && (
             <div className="flex flex-col items-center justify-center rounded-2xl bg-zinc-100 px-4 py-8">
@@ -272,7 +351,8 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
           )}
         </div>
       </div>
-      <div className="mt-auto pb-[7px] pl-0.5">
+
+      <div className="mt-4 shrink-0">
         <button className="pb-[10px]" onClick={onClickReTakeSnapShot}>
           <div className="flex items-center gap-[10px]">
             <PostureRetakeIcon />
