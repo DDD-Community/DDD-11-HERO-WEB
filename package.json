@@ -13,7 +13,7 @@
         "name": "AlignLab",
         "outDir": "out/",
         "executableName": "Alignlab",
-        "icon" : "assets/icons/icon.png"
+        "icon": "assets/icons/icon.png"
       },
       "rebuildConfig": {},
       "makers": [
@@ -33,23 +33,23 @@
             "name": "AlignLab",
             "overwrite": true,
             "format": "ULFO",
-            "icon" : "assets/icons/icon.png"
+            "icon": "assets/icons/icon.png"
           }
         }
       ],
       "publishers": [
-      {
-        "name": "@electron-forge/publisher-github",
-        "config": {
-          "repository": {
-            "owner": "DDD-Community",
-            "name": "DDD-11-HERO-WEB"
-          },
-          "draft": false,
-          "prerelease": false
+        {
+          "name": "@electron-forge/publisher-github",
+          "config": {
+            "repository": {
+              "owner": "DDD-Community",
+              "name": "DDD-11-HERO-WEB"
+            },
+            "draft": false,
+            "prerelease": false
+          }
         }
-      }
-    ]
+      ]
     }
   },
   "scripts": {
@@ -63,7 +63,6 @@
     "electron:preview": "yarn build && tsc -p tsconfig.electron.json && PREVIEW= electron .",
     "electron:build": "tsc && yarn build && tsc -p tsconfig.electron.json && electron-forge make",
     "electron:publish": "tsc && yarn build && tsc -p tsconfig.electron.json && electron-forge publish"
-
   },
   "dependencies": {
     "@tanstack/react-query": "^5.51.23",
@@ -78,20 +77,21 @@
     "p5": "^1.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.5.1",
     "react-lottie": "^1.2.4",
     "react-router-dom": "^6.8.1",
     "react-tailwindcss-datepicker": "^1.7.2",
     "socket.io-client": "^4.7.5",
-    "zustand": "^4.5.5",
-    "update-electron-app": "3.0.0"
+    "update-electron-app": "3.0.0",
+    "zustand": "^4.5.5"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.4",
     "@electron-forge/maker-deb": "^6.0.4",
+    "@electron-forge/maker-dmg": "^6.0.4",
     "@electron-forge/maker-rpm": "^6.0.4",
     "@electron-forge/maker-squirrel": "^6.0.4",
     "@electron-forge/maker-zip": "^6.0.4",
-    "@electron-forge/maker-dmg": "^6.0.4",
     "@electron-forge/publisher-github": "^6.0.4",
     "@types/node": "^20.7.1",
     "@types/qs": "^6.9.7",

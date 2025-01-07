@@ -23,6 +23,7 @@ export default function useNotification() {
     if (!notification) {
       getNotification()
         .then(({ data }) => {
+          console.log("data: ", data)
           setNotification(data)
           setIsLoading(false)
         })

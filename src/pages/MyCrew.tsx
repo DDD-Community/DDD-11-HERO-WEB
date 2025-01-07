@@ -11,8 +11,9 @@ import NoRanksImage from "@/assets/images/mycrew-no-ranks.png"
 import dayjs from "dayjs"
 import { modals } from "@/components/Modal/Modals"
 import { useLocation, useNavigate } from "react-router-dom"
-import { ReactNode, useCallback, useEffect } from "react"
+import { ReactNode, useCallback, useEffect, useState } from "react"
 import { useAuthStore } from "@/store"
+import { getMyCheerUpInfo } from "@/api/crewCheer"
 
 export default function MyCrew() {
   const { myGroupData, ranks, myRank, withdrawFromGroup, isLoading, avgScore, refetchAll } = useMyGroup()
@@ -20,6 +21,7 @@ export default function MyCrew() {
   const myInfo = useAuthStore((state) => state.user)
   const naviagte = useNavigate()
   const location = useLocation() // 페이지 이동 감지
+  const [myCheeredUpCount, setMyCheeredUpCount] = useState<number | null>(null)
 
   const openCreateModal = (): void => {
     openModal(modals.withdrawCrewModal, {
@@ -71,6 +73,10 @@ export default function MyCrew() {
 
   useEffect(() => {
     refetchAll()
+    const today = dayjs().format("YYYY-MM-DD")
+    getMyCheerUpInfo(today).then(({ data }) => {
+      setMyCheeredUpCount(data.countCheeredUp)
+    })
   }, [location.pathname])
 
   const openInviteModal = useCallback((): void => {
@@ -172,7 +178,7 @@ export default function MyCrew() {
       </div>
 
       {/* footer */}
-      <div className="height-[68px] mt-3 flex justify-center rounded-[12px] border-[1px] border-solid border-gray-200 bg-white py-6 font-medium">
+      <div className="height-[68px] mt-3 flex justify-center rounded-[12px] border-[1px] border-solid border-gray-200 bg-white py-6 text-[18px] font-medium">
         {(!myRank || !myRank.score || myRank.score === 0) &&
           `우리 크루 평균 자세 경고 횟수는 ${avgScore || 0}회 입니다.`}
         {myRank &&
@@ -189,6 +195,15 @@ export default function MyCrew() {
               {Math.abs(avgScore || 0 - myRank?.score)}회 {Number(avgScore) > Number(myRank?.score) ? "덜" : "더"}
             </span>
             &nbsp;받았어요.
+          </>
+        )}
+      </div>
+      <div className="height-[68px] mt-3 flex justify-center rounded-[12px] border-[1px] border-solid border-gray-200 bg-white py-6 text-[18px] font-medium">
+        {!myCheeredUpCount || (myCheeredUpCount === 0 && <>나는 오늘 우리 크루에게 아직 응원받은 내역이 없어요!</>)}
+        {myCheeredUpCount && myCheeredUpCount > 0 && (
+          <>
+            나는 오늘 우리 크루에게&nbsp;<span className="font-bold text-[#1A75FF]">{myCheeredUpCount}회</span>
+            &nbsp;응원받았어요.
           </>
         )}
       </div>
