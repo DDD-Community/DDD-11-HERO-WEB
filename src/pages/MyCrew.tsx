@@ -200,7 +200,7 @@ export default function MyCrew() {
       </div>
       <div className="height-[68px] mt-3 flex justify-center rounded-[12px] border-[1px] border-solid border-gray-200 bg-white py-6 text-[18px] font-medium">
         {(!myCheeredUpCount || myCheeredUpCount === 0) && <>나는 오늘 우리 크루에게 아직 응원받은 내역이 없어요!</>}
-        {myCheeredUpCount && myCheeredUpCount > 0 && (
+        {myCheeredUpCount !== null && myCheeredUpCount > 0 && (
           <>
             나는 오늘 우리 크루에게&nbsp;<span className="font-bold text-[#1A75FF]">{myCheeredUpCount}회</span>
             &nbsp;응원받았어요.
