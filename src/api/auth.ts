@@ -1,5 +1,5 @@
 // src/api/auth.ts
-import axiosInstance, { setAccessToken } from "@/api/axiosInstance"
+import { setAccessToken, kakaoAxios } from "@/api/axiosInstance"
 import qs from "qs"
 
 const REST_API_KEY = import.meta.env.VITE_OAUTH_KAKAO_REST_API_KEY
@@ -26,7 +26,7 @@ export const oauth = async (code: string): Promise<string> => {
   }
 
   try {
-    const res = await axiosInstance.post(`https://kauth.kakao.com/oauth/token?${qs.stringify(formData)}`, null, {
+    const res = await kakaoAxios.post(`https://kauth.kakao.com/oauth/token?${qs.stringify(formData)}`, null, {
       headers: { "Content-type": "application/x-www-form-urlencoded" },
     })
     return res.data.access_token
@@ -36,7 +36,7 @@ export const oauth = async (code: string): Promise<string> => {
 }
 
 export const getOauthUser = async (accessToken: string): Promise<oauthUser> => {
-  const kakaoUser = await axiosInstance.get(`https://kapi.kakao.com/v2/user/me`, {
+  const kakaoUser = await kakaoAxios.get(`https://kapi.kakao.com/v2/user/me`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -48,7 +48,7 @@ export const getOauthUser = async (accessToken: string): Promise<oauthUser> => {
 
 export const signIn = async (_accessToken: string): Promise<authUser> => {
   try {
-    const res = await axiosInstance.post(`/oauth/kakao/sign-in`, { accessToken: _accessToken })
+    const res = await kakaoAxios.post(`/oauth/kakao/sign-in`, { accessToken: _accessToken })
     const { uid, nickname, accessToken } = res.data.data
 
     // 로그인 성공 후 엑세스 토큰을 설정
@@ -62,7 +62,7 @@ export const signIn = async (_accessToken: string): Promise<authUser> => {
 
 export const signUp = async (_accessToken: string): Promise<authUser> => {
   try {
-    const res = await axiosInstance.post(`/oauth/kakao/sign-up`, { accessToken: _accessToken })
+    const res = await kakaoAxios.post(`/oauth/kakao/sign-up`, { accessToken: _accessToken })
     const { uid, nickname, accessToken } = res.data.data
 
     // 회원가입 성공 후 엑세스 토큰을 설정
@@ -76,7 +76,7 @@ export const signUp = async (_accessToken: string): Promise<authUser> => {
 
 export const getIsSignUp = async (accessToken: string): Promise<boolean> => {
   try {
-    const res = await axiosInstance.get(`/oauth/kakao/sign-up/check`, {
+    const res = await kakaoAxios.get(`/oauth/kakao/sign-up/check`, {
       params: { accessToken },
     })
     console.log(res.data)
