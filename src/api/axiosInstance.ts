@@ -1,10 +1,18 @@
 // src/services/axiosInstance.ts
-import axios from "axios"
+import { useAuthStore } from "@/store/AuthStore"
+import axios, { AxiosError } from "axios"
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 const EXCEPT_HEADER_API = ["/token", "/user/me", "/oauth"]
 
 const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+})
+
+const kakaoAxios = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
@@ -22,6 +30,20 @@ axiosInstance.interceptors.request.use((config) => {
   }
   return config
 })
+
+axiosInstance.interceptors.response.use(
+  (response) => {
+    return response
+  },
+  async (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout(() => {
+        clearAccessToken()
+        window.location.href = "/"
+      })
+    }
+  }
+)
 
 // localStorage에서 토큰 가져오기
 const token = localStorage.getItem("accessToken")
@@ -41,4 +63,5 @@ export const clearAccessToken = (): void => {
   localStorage.removeItem("accessToken")
 }
 
+export { kakaoAxios }
 export default axiosInstance
