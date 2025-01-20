@@ -29,17 +29,10 @@ export const Tag = (props: ITag): React.ReactElement => {
       }`}
       onClick={onClickHandler}
     >
-      {name}
+      {`#${name}`}
     </div>
   )
 }
-
-/**
- * @todo
- * 수정 상태에서
- * 이름 : 원래의 이름과 같은 경우에는 중복체크 할 필요 없음
- * 수정 : 변경 사항이 있는 경우에만 만들기 활성화
- */
 
 const CreateCrewModal = (props: ModalProps): React.ReactElement => {
   const { onClose, onSubmit, isModify } = props
@@ -70,7 +63,7 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
 
   const onChangeTag = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = e.target
-    if (/^[^\s]*$/.test(value) && value.length <= 10) setTag(value)
+    if (/^[^\s\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]*$/.test(value) && value.length <= 10) setTag(value)
     else setIsComposing(false)
   }
 
@@ -309,9 +302,10 @@ const CreateCrewModal = (props: ModalProps): React.ReactElement => {
               {/* tag list */}
               <div className="flex gap-1">{createTags(tags)}</div>
               {tags.length < 3 && (
-                <div className="relative grow">
+                <div className="relative flex grow">
+                  {tag === "" || <span className="leading-7">#</span>}
                   <input
-                    className="w-full leading-7 outline-none"
+                    className="grow leading-7 outline-none"
                     value={tag}
                     onChange={onChangeTag}
                     onKeyDown={onEnterTag}
