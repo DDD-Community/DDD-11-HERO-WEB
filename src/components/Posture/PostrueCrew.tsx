@@ -223,18 +223,33 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
     })
   }
 
-  const onClickAllCrewCheer = () => {
+  const onClickAllCrewCheer = async () => {
     const allCrewUids = crews.map((item) => item.uid)
     if (!allCrewUids || allCrewUids.length === 0) {
       toast.error("접속한 크루가 없습니다.")
       return
     }
+    const today = dayjs().format("YYYY-MM-DD")
+    try {
+      const { data } = await getMyCheerUpInfo(today)
+      const sortedCheeredUpUids = data.cheeredUpUids.sort()
+      const sortedCrewUids = allCrewUids.sort()
+      if (
+        sortedCheeredUpUids.length === sortedCrewUids.length &&
+        sortedCheeredUpUids.every((value, index) => value === sortedCrewUids[index])
+      ) {
+        toast.error("현재 접속한 모든 크루에게 응원하기를 보냈습니다.")
+        return
+      }
+    } catch (error) {
+      console.log("error: ", error)
+    }
+
     requestSendCrewCheer({
       uids: allCrewUids,
     }).then(({ data }) => {
       if (data) {
         toast.success("모든 크루에게 응원하기 전송이 성공했습니다")
-        const today = dayjs().format("YYYY-MM-DD")
         getMyCheerUpInfo(today).then(({ data }) => {
           setCheeredUpCrewList(data.cheeredUpUids)
           setMyCheerCount(data.countCheeredUp)
