@@ -150,11 +150,13 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const { myGroupData, isLoading } = useMyGroup()
   const navigate = useNavigate()
   const [cheeredUpCrewList, setCheeredUpCrewList] = useState<number[]>([])
+  const [myCheerCount, setMyCheerCount] = useState(0)
 
   useEffect(() => {
     const today = dayjs().format("YYYY-MM-DD")
     getMyCheerUpInfo(today).then(({ data }) => {
       setCheeredUpCrewList(data.cheeredUpUids)
+      setMyCheerCount(data.countCheeredUp)
     })
   }, [])
 
@@ -235,6 +237,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
         const today = dayjs().format("YYYY-MM-DD")
         getMyCheerUpInfo(today).then(({ data }) => {
           setCheeredUpCrewList(data.cheeredUpUids)
+          setMyCheerCount(data.countCheeredUp)
         })
       }
     })
@@ -301,7 +304,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
                       rank={crewMyInfo.myInfo.rank}
                       nickname={crewMyInfo.myInfo.nickname}
                       score={crewMyInfo.myInfo.score}
-                      isMyCheerCount={crewMyInfo.countCheeredUp}
+                      isMyCheerCount={myCheerCount}
                       isMe
                     />
                   )}
