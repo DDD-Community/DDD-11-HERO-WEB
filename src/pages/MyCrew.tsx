@@ -162,7 +162,7 @@ export default function MyCrew() {
       <div className="mt-6 h-[280px] w-full rounded-[12px] border-[1px] border-solid border-gray-200 bg-white px-8 py-[30px]">
         {/*  랭킹 표시  */}
         <div className="h-[220px]">
-          {ranks.length > 0 && myRank ? (
+          {ranks.length > 0 ? (
             <CrewRanking rankings={ranks} myRank={myRank} />
           ) : (
             !isLoading && (

@@ -2,7 +2,7 @@ import CrewList from "@/components/Crew/CrewList"
 
 export default function Crew() {
   return (
-    <div className="h-full w-full">
+    <div className="flex w-full">
       <CrewList />
     </div>
   )

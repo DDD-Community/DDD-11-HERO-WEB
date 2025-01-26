@@ -9,7 +9,7 @@ import SortCrewIcon from "@assets/icons/crew-sort-icon.svg?react"
 import { ReactElement, useCallback, useEffect, useRef, useState, useMemo } from "react"
 import { modals } from "../Modal/Modals"
 import MyCrewRankingContainer from "./MyCrew/MyCrewRankingContainer"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import RoutePath from "@/constants/routes.json"
 import SearchIcon from "@assets/icons/crew-search-icon.svg?react"
 
@@ -20,6 +20,7 @@ const SORT_LIST = [
 
 const CrewList = (): ReactElement => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { myGroupData, ranks, myRank, refetchAll, isLoading: isGroupLoading } = useMyGroup()
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
   // Dropdown 외부 클릭 감지 메모이제이션
@@ -117,7 +118,7 @@ const CrewList = (): ReactElement => {
           <div className="flex flex-grow flex-col items-center justify-center">
             <img src={EmptyCrewImage} alt="empty crew" />
             <div className="text-center text-[14px] font-semibold leading-[22px]">
-              {"만들어진 크루가 아직 없습니다."}
+              {keyword ? "검색된 크루가 없습니다." : "만들어진 크루가 아직 없습니다."}
             </div>
           </div>
         )
@@ -169,6 +170,10 @@ const CrewList = (): ReactElement => {
       removeGroupIdFromUrl()
     }
   }, [openJoinCrewModal, searchParams, setSearchParams])
+
+  useEffect(() => {
+    refetchAll()
+  }, [location.pathname])
 
   return (
     <div className="flex h-full w-full flex-col">
