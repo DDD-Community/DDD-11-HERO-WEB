@@ -1,5 +1,6 @@
 import Modals from "@/components/Modal/Modals"
 import RoutePath from "@/constants/routes.json"
+import { CrewLayout } from "@/layouts"
 import AnalysisLayout from "@/layouts/AnalysisLayout"
 import BaseLayout from "@/layouts/BaseLayout"
 import HomeLayout from "@/layouts/HomeLayout"
@@ -39,7 +40,7 @@ const Router: React.FC = () => {
               <Route path={RoutePath.ANALYSIS} element={<AnalysisDashboard />} />
             </Route>
 
-            <Route element={<AnalysisLayout />}>
+            <Route element={<CrewLayout />}>
               <Route path={RoutePath.CREW} element={<Crew />} />
             </Route>
 

@@ -46,21 +46,27 @@ const RankPillar = ({ rank, name, score, height }: any) => {
           {rank}등
         </div>
       </div>
-      <div className="text-[20px] font-semibold leading-[28px]">{name}</div>
-      <div className="text-[15px] font-normal leading-6">자세 경고 {score}회</div>
+      <div className="text-[20px] font-semibold leading-[28px]">{name ?? "-"}</div>
+      <div className="text-[15px] font-normal leading-6">
+        {score != null ? `자세 경고 ${score ? `${score}회` : "없음"}` : ""}
+      </div>
     </div>
   )
 }
 
 const RankCard = ({ rank, name, score, isMe }: any) => (
   <div
-    className={`flex items-center justify-between py-1 pl-3 pr-4 ${isMe ? "rounded-full bg-[#DCEBFD]" : ""} h-[40px]`}
+    className={`flex items-center justify-between gap-4 py-1 pl-3 pr-4 ${
+      isMe ? "rounded-full bg-[#DCEBFD]" : ""
+    } h-[40px]`}
   >
-    <div className="flex items-center gap-4">
-      <div className="flex h-8 w-8 items-center justify-center font-normal text-zinc-900">{rank}</div>
-      <span className={isMe ? "font-medium text-[#1A75FF]" : ""}>{isMe ? "나" : name}</span>
+    <div className="flex items-center gap-4 overflow-hidden">
+      <div className="flex h-8 w-8 flex-none items-center justify-center font-normal text-zinc-900">{rank ?? "?"}</div>
+      <span className={`truncate ${isMe ? "font-medium text-[#1A75FF]" : ""}`}>{isMe ? "나" : name}</span>
     </div>
-    <span className="text-[13px] font-normal text-zinc-400">자세경고 {score}회</span>
+    <span className="flex-none text-[13px] font-normal text-zinc-400">{`자세경고 ${
+      score ? `${score}회` : "없음"
+    }`}</span>
   </div>
 )
 
@@ -71,16 +77,16 @@ const CrewRanking = ({ rankings, myRank }: { rankings: any[]; myRank: any }) => 
     <div className="flex h-full gap-12">
       {/* 1, 2, 3등 랭킹 */}
       <div className="flex h-full flex-1 items-end gap-3">
-        {topThree[0] && <RankPillar rank={1} name={topThree[0].name} score={topThree[0].score} height="220px" />}
-        {topThree[1] && <RankPillar rank={2} name={topThree[1].name} score={topThree[1].score} height="180px" />}
-        {topThree[2] && <RankPillar rank={3} name={topThree[2].name} score={topThree[2].score} height="158px" />}
+        <RankPillar rank={1} name={topThree[0]?.name} score={topThree[1]?.score} height="220px" />
+        <RankPillar rank={2} name={topThree[1]?.name} score={topThree[1]?.score} height="180px" />
+        <RankPillar rank={3} name={topThree[2]?.name} score={topThree[2]?.score} height="158px" />
       </div>
 
       {/* 전체 랭킹 목록 */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="flex h-full flex-col overflow-hidden bg-white">
           <div className="flex-shrink-0">
-            <RankCard rank={myRank.rank} name={myRank.name} score={myRank.score} isMe={true} />
+            <RankCard rank={myRank?.rank} name={myRank?.name} score={myRank?.score} isMe={true} />
           </div>
           <div className="scrollbar-hide flex-grow overflow-y-auto">
             {rankings.map((rank, index) => (
