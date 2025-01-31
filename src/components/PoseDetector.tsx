@@ -53,6 +53,7 @@ const PoseDetector: React.FC = () => {
   const tailboneSitCnt = useRef<number>(0)
   const isShowImmediNotiRef = useRef<boolean>(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const isDetectingRef = useRef<boolean>(false)
 
   const { isSnapShotSaved, snapshot, setSnapShot, isInitialSnapShotExist } = useSnapShotStore()
   const createSnapMutation = useCreateSnaphot()
@@ -78,6 +79,7 @@ const PoseDetector: React.FC = () => {
     setIsModelLoaded(true)
     modelRef.current = bodypose
     worker.postMessage({ type: "init", data: {} })
+    isDetectingRef.current = true
   }
 
   const setup = async (): Promise<void> => {
@@ -91,8 +93,13 @@ const PoseDetector: React.FC = () => {
   }
 
   const getScript = (): void => {
+    if (document.getElementById("ml5-script")) {
+      setup()
+      return
+    }
     const script = document.createElement("script")
     script.src = "https://unpkg.com/ml5@1.0.1/dist/ml5.min.js"
+    script.id = "ml5-script"
     script.onload = (): void => {
       // setIsScriptLoaded(true)
       setup()
@@ -127,6 +134,8 @@ const PoseDetector: React.FC = () => {
     ): void => {
       if (condition && isSnapShotSaved) {
         if (!timerRef.current) {
+          clearInterval(timerRef.current)
+          timerRef.current = null
           timerRef.current = setInterval(() => {
             if (resultRef.current) {
               const { keypoints, score } = resultRef.current[0]
@@ -148,6 +157,7 @@ const PoseDetector: React.FC = () => {
 
   const detect = useCallback(
     (results: pose[]): void => {
+      if (!isDetectingRef.current) return
       resultRef.current = results
       if (!isSnapShotSaved || !isInitialSnapShotExist || isModalOpen) {
         if (canvasRef.current) drawPose(results, canvasRef.current)
@@ -288,6 +298,7 @@ const PoseDetector: React.FC = () => {
   useEffect(() => {
     return () => {
       worker.postMessage({ type: "terminate", data: {} })
+      isDetectingRef.current = false
       clearTimers()
       clearCnt()
     }
