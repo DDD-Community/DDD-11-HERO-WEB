@@ -238,7 +238,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
         sortedCheeredUpUids.length === sortedCrewUids.length &&
         sortedCheeredUpUids.every((value, index) => value === sortedCrewUids[index])
       ) {
-        toast.error("현재 접속한 모든 크루에게 응원하기를 보냈습니다.")
+        toast.error("현재 접속 중인 크루들에게 이미 응원하기를 보냈습니다.")
         return
       }
     } catch (error) {
