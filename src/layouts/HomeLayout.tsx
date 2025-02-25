@@ -44,6 +44,9 @@ const HomeLayout: React.FC = () => {
             >
               <div>이용약관</div>
             </a>
+            <a href="https://www.behance.net/gallery/217451257/_" target="_blank" rel="noreferrer">
+              <div>Behance</div>
+            </a>
           </div>
         </div>
         <div className="mt-10 text-xs font-normal text-[#9D9DA2]">Copyright all reserved @2024</div>
