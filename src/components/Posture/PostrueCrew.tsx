@@ -150,13 +150,11 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const { myGroupData, isLoading } = useMyGroup()
   const navigate = useNavigate()
   const [cheeredUpCrewList, setCheeredUpCrewList] = useState<number[]>([])
-  const [myCheerCount, setMyCheerCount] = useState(0)
 
   useEffect(() => {
     const today = dayjs().format("YYYY-MM-DD")
     getMyCheerUpInfo(today).then(({ data }) => {
       setCheeredUpCrewList(data.cheeredUpUids)
-      setMyCheerCount(data.countCheeredUp)
     })
   }, [])
 
@@ -252,7 +250,6 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
         toast.success("모든 크루에게 응원하기 전송이 성공했습니다")
         getMyCheerUpInfo(today).then(({ data }) => {
           setCheeredUpCrewList(data.cheeredUpUids)
-          setMyCheerCount(data.countCheeredUp)
         })
       }
     })
@@ -319,7 +316,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
                       rank={crewMyInfo.myInfo.rank}
                       nickname={crewMyInfo.myInfo.nickname}
                       score={crewMyInfo.myInfo.score}
-                      isMyCheerCount={myCheerCount}
+                      isMyCheerCount={crewMyInfo.countCheeredUp}
                       isMe
                     />
                   )}
