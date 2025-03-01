@@ -25,6 +25,7 @@ import dayjs from "dayjs"
 interface MyPostureCrewData {
   myInfo: IPostureCrew
   countCheeredUp: number
+  countReceivedCheeredUp: number
 }
 
 interface IPostureCrew {
@@ -72,6 +73,7 @@ const useWebSocket = (url: string) => {
   const [isConnected, setIsConnected] = useState<"loading" | "success" | "disconnected">("loading")
   const [crews, setCrews] = useState<IPostureCrew[]>([])
   const [crewMyInfo, setCrewMyInfo] = useState<MyPostureCrewData | null>(null)
+  const prevReceivedCheerCountRef = useRef<number>(0)
   const socketRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -94,9 +96,30 @@ const useWebSocket = (url: string) => {
         const crewListExceptForMe = data.groupUsers.filter((user: any) => user.uid !== data.groupUser.uid)
         setCrews(crewListExceptForMe)
       }
-      setCrewMyInfo({
-        myInfo: data.groupUser,
-        countCheeredUp: data.cheerUp.countCheeredUp,
+
+      // 응원 메시지를 받은 경우 토스트 표시를 위해 이전 값 저장
+      const currentReceivedCheerCount = data.cheerUp.countReceivedCheeredUp
+
+      setCrewMyInfo((prev) => {
+        if (prev) {
+          // 이전 값이 있고, 현재 값이 이전 값보다 큰 경우 토스트 메시지 표시
+          if (currentReceivedCheerCount > prevReceivedCheerCountRef.current) {
+            toast.success("크루로부터 응원을 받았습니다! 💪", {
+              duration: 3000,
+              position: "top-center",
+              icon: "🎉",
+            })
+          }
+        }
+
+        // 현재 값을 이전 값으로 업데이트
+        prevReceivedCheerCountRef.current = currentReceivedCheerCount
+
+        return {
+          myInfo: data.groupUser,
+          countCheeredUp: data.cheerUp.countCheeredUp,
+          countReceivedCheeredUp: currentReceivedCheerCount,
+        }
       })
     }
 
@@ -316,7 +339,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
                       rank={crewMyInfo.myInfo.rank}
                       nickname={crewMyInfo.myInfo.nickname}
                       score={crewMyInfo.myInfo.score}
-                      isMyCheerCount={crewMyInfo.countCheeredUp}
+                      isMyCheerCount={crewMyInfo.countReceivedCheeredUp}
                       isMe
                     />
                   )}
