@@ -7,6 +7,8 @@ import { useSnapShotStore } from "@/store/SnapshotStore"
 import { getRecentSnapshot } from "@/api"
 import Lottie from "react-lottie"
 import LoginLottie from "@assets/animation/login-lottie.json"
+import { setUserId } from "@amplitude/analytics-browser"
+import { logAnalytics, setUserProperties } from "@/utils/log"
 // import { useGetNoti } from "@/hooks/useNotiMutation"
 // import { useNotificationStore } from "@/store/NotificationStore"
 
@@ -40,6 +42,7 @@ const AuthPage: React.FC = () => {
         const isUserSignedUp = await getIsSignUpMutation.mutateAsync(_accessToken)
 
         if (!isUserSignedUp) {
+          logAnalytics("complete_signup")
           await signUpMutation.mutateAsync(_accessToken)
         }
 
@@ -65,6 +68,12 @@ const AuthPage: React.FC = () => {
         // } else {
         //   setNoti({ isActive: true, ...notification })
         // }
+        setUserId(uid.toString())
+        setUserProperties({
+          nickname: nickname,
+          access_token: accessToken,
+        })
+        logAnalytics("complete_login")
 
         setIsLoading(false)
         navigate(RoutePath.MONITORING)

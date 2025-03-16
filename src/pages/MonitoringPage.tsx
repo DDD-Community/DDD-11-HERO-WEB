@@ -3,13 +3,17 @@ import { PoseDetector } from "@/components"
 import PostrueCrew from "@/components/Posture/PostrueCrew"
 import usePushNotification from "@/hooks/usePushNotification"
 import { useSnapShotStore } from "@/store/SnapshotStore"
+import { logAnalytics, setUserProperties } from "@/utils/log"
+import { setUserId } from "@amplitude/analytics-browser"
 import GroupSideIcon from "@assets/icons/group-side-nav-button.svg?react"
 import React, { useEffect, useState } from "react"
+import { useAuthStore } from "@/store/AuthStore"
 
 const MonitoringPage: React.FC = () => {
   const { hasPermission } = usePushNotification()
   const { setSnapShot, isInitialSnapShotExist } = useSnapShotStore()
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true)
+  const { user, accessToken } = useAuthStore()
 
   const toggleSidebar = (): void => {
     setIsSidebarOpen((prev) => !prev)
@@ -27,9 +31,20 @@ const MonitoringPage: React.FC = () => {
           userSnap.points.map((p) => ({ name: p.position.toLocaleLowerCase(), x: p.x, y: p.y, confidence: 1 }))
         )
       }
+      logAnalytics("view_monitoring", {
+        is_snapshot_saved: userSnap.id !== -1,
+      })
     }
     init()
   }, [])
+
+  useEffect(() => {
+    setUserId(user?.uid.toString())
+    setUserProperties({
+      nickname: user?.nickname,
+      access_token: accessToken,
+    })
+  }, [user])
 
   const checkMobile = () => {
     const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera

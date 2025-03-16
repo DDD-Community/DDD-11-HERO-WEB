@@ -1,5 +1,7 @@
 import IntroImage from "@/assets/images/home-intro.png"
 import MonitoringImage from "@/assets/images/home-monitoring.png"
+import { logAnalytics } from "@/utils/log"
+import { useEffect } from "react"
 const REST_API_KEY = import.meta.env.VITE_OAUTH_KAKAO_REST_API_KEY
 const REDIRECT_URI = import.meta.env.VITE_OAUTH_KAKAO_REDIRECT_URI
 const LOGIN_LINK = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`
@@ -8,6 +10,10 @@ const HomePage: React.FC = () => {
   const loginHandler = (): void => {
     window.location.href = LOGIN_LINK
   }
+
+  useEffect(() => {
+    logAnalytics("view_login")
+  }, [])
 
   return (
     <div className="flex h-[704px] justify-end">

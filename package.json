@@ -65,6 +65,7 @@
     "electron:publish": "tsc && yarn build && tsc -p tsconfig.electron.json && electron-forge publish"
   },
   "dependencies": {
+    "@amplitude/analytics-browser": "^2.12.0",
     "@tanstack/react-query": "^5.51.23",
     "@types/react-lottie": "^1.2.10",
     "axios": "1.7.3",
