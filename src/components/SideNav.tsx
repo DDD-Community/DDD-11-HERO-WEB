@@ -11,6 +11,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useModals } from "@/hooks/useModals"
 import { modals } from "./Modal/Modals"
 import RoutePath from "@/constants/routes.json"
+import { logAnalytics } from "@/utils/log"
 
 const navItems = [
   {
@@ -65,6 +66,9 @@ export default function SideNav(): React.ReactElement {
         label: "의견보내기",
         link: "",
         onClick: () => {
+          logAnalytics("click_logout", {
+            page: location.pathname,
+          })
           openModal(modals.reportModal, {
             onSubmit: () => {
               // navigate(RoutePath.MYCREW)
@@ -74,7 +78,7 @@ export default function SideNav(): React.ReactElement {
       },
       { label: "로그아웃", link: "", onClick: logoutHandler },
     ],
-    [logoutHandler]
+    [logoutHandler, location.pathname]
   )
 
   return (

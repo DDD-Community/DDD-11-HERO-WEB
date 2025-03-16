@@ -1,4 +1,4 @@
-import { position, duration, poseType } from "@/api"
+import { duration, poseType, position } from "@/api"
 import { useCameraPermission } from "@/hooks/useCameraPermission"
 import { useGuidePopup } from "@/hooks/useGuidePopup"
 import { useModals } from "@/hooks/useModals"
@@ -10,6 +10,7 @@ import { useSnapShotStore } from "@/store/SnapshotStore"
 import type { pose } from "@/utils/detector"
 import { detectHandOnChin, detectSlope, detectTailboneSit, detectTextNeck } from "@/utils/detector"
 import { drawPose } from "@/utils/drawer"
+import { logAnalytics } from "@/utils/log"
 import { worker } from "@/utils/worker"
 import CheckLottie from "@assets/animation/check-lottie.json"
 import ScriptLoadingLottie from "@assets/animation/script-loading-lottie.json"
@@ -219,6 +220,9 @@ const PoseDetector: React.FC = () => {
             x: p.x,
             y: p.y,
           }))
+          logAnalytics("complete_take_snapshot", {
+            posture_info: req,
+          })
           createSnapMutation.mutate(
             { points: req },
             {

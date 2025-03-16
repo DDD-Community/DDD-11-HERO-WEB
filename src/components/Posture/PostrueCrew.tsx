@@ -21,6 +21,7 @@ import PostureCrewItem from "./PostureCrewItem"
 import { getMyCheerUpInfo, requestSendCrewCheer } from "@/api/crewCheer"
 import toast from "react-hot-toast"
 import dayjs from "dayjs"
+import { logAnalytics } from "@/utils/log"
 
 interface MyPostureCrewData {
   myInfo: IPostureCrew
@@ -167,7 +168,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const { openModal } = useModals()
   const wsUrl = `wss://api.alignlab.site/ws/v1/groups/1/users?X-HERO-AUTH-TOKEN=${accessToken}`
   const { isConnected, crewMyInfo, crews } = useWebSocket(wsUrl)
-  const { notification, setNotification } = useNotification()
+  const { notification, setNotification, isLoading: isNotificationLoading } = useNotification()
   const updateNotiMutation = useModifyNoti()
   const { hasPermission } = usePushNotification()
   const { myGroupData, isLoading } = useMyGroup()
@@ -180,6 +181,16 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
       setCheeredUpCrewList(data.cheeredUpUids)
     })
   }, [])
+
+  useEffect(() => {
+    if (!isLoading && !isNotificationLoading) {
+      logAnalytics("view_my_setting", {
+        group_Id: myGroupData?.id,
+        is_alarm: notification?.isActive,
+        alarm_period: NOTI_VALUE_MAP(notification?.duration),
+      })
+    }
+  }, [isLoading, isNotificationLoading])
 
   const onClickCloseSideNavButton = (): void => {
     toggleSidebar()
@@ -219,10 +230,12 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   }
 
   const onClickPostureGuide = () => {
+    logAnalytics("click_posture_guide")
     openModal(modals.postureGuideModal, {})
   }
 
   const onClickReTakeSnapShot = () => {
+    logAnalytics("click_retake_snapshot")
     resetSnapShot()
   }
 

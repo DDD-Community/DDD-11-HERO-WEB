@@ -11,6 +11,7 @@ import TurtleNeckImage from "@/assets/images/tutle-neck.png"
 import PoseAnalysisChart from "@/components/Dashboard/Chart"
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker"
 import CalendarToolTip from "@assets/icons/dashboard-calendar-tooltip.svg?react"
+import { logAnalytics } from "@/utils/log"
 
 const START_FROM = new Date()
 START_FROM.setMonth(START_FROM.getMonth() - 1)
@@ -37,6 +38,14 @@ const AnalysisDashboard = () => {
 
     return () => window.removeEventListener("resize", checkViewportSize)
   }, [])
+
+  useEffect(() => {
+    if (!isLoading) {
+      logAnalytics("view_analysis", {
+        daily_info: todayAnalysis,
+      })
+    }
+  }, [todayAnalysis, isLoading])
 
   const getPoseCount = (type: poseType) => {
     return todayAnalysis?.count.find((item: any) => item.type === type)?.count || 0

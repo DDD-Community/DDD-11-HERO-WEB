@@ -12,6 +12,7 @@ import MyCrewRankingContainer from "./MyCrew/MyCrewRankingContainer"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import RoutePath from "@/constants/routes.json"
 import SearchIcon from "@assets/icons/crew-search-icon.svg?react"
+import { logAnalytics } from "@/utils/log"
 
 const SORT_LIST = [
   { sort: "userCount,desc", label: "크루원 많은 순" },
@@ -21,7 +22,7 @@ const SORT_LIST = [
 const CrewList = (): ReactElement => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { myGroupData, ranks, myRank, refetchAll, isLoading: isGroupLoading } = useMyGroup()
+  const { myGroupData, ranks, myRank, refetchAll, isLoading: isMyGroupLoading } = useMyGroup()
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
   // Dropdown 외부 클릭 감지 메모이제이션
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -37,6 +38,15 @@ const CrewList = (): ReactElement => {
 
   const { data, isLoading, isError, refetch } = useGetGroups(params)
   const { openModal } = useModals()
+
+  useEffect(() => {
+    if (!isMyGroupLoading) {
+      logAnalytics("view_crew", {
+        my_crew_info: myGroupData,
+        my_rank: myRank,
+      })
+    }
+  }, [isMyGroupLoading])
 
   // 가입 혹은 그룹 생성 후 최상단으로 이동
   const scrollToTop = useCallback((): void => {
@@ -179,7 +189,7 @@ const CrewList = (): ReactElement => {
     <div className="flex h-full w-full flex-col">
       {myGroupData && Object.keys(myGroupData).length > 0 && !params.keyword && (
         <MyCrewRankingContainer
-          isLoading={isGroupLoading}
+          isLoading={isMyGroupLoading}
           myGroupData={myGroupData}
           ranks={ranks}
           myRank={myRank}

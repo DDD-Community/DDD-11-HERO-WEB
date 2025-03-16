@@ -10,23 +10,30 @@ import CrewEditIcon from "@assets/icons/crew-edit-icon.svg?react"
 import NoRanksImage from "@/assets/images/mycrew-no-ranks.png"
 import dayjs from "dayjs"
 import { modals } from "@/components/Modal/Modals"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { ReactNode, useCallback, useEffect, useState } from "react"
 import { useAuthStore } from "@/store"
 import { getMyCheerUpInfo } from "@/api/crewCheer"
+import { logAnalytics } from "@/utils/log"
 
 export default function MyCrew() {
   const { myGroupData, ranks, myRank, withdrawFromGroup, isLoading, avgScore, refetchAll } = useMyGroup()
   const { openModal } = useModals()
   const myInfo = useAuthStore((state) => state.user)
   const naviagte = useNavigate()
-  const location = useLocation() // 페이지 이동 감지
   const [myCheeredUpCount, setMyCheeredUpCount] = useState<number | null>(null)
+  const [isLoadingMyCheeredUpCount, setIsLoadingMyCheeredUpCount] = useState(true)
 
   const openCreateModal = (): void => {
     openModal(modals.withdrawCrewModal, {
       onSubmit: () => {
         if (myGroupData) {
+          logAnalytics("click_withdraw_crew", {
+            average_posture_count: avgScore,
+            my_posture_count: myRank?.score,
+            my_rank: myRank?.rank,
+            my_crew_info: myGroupData,
+          })
           withdrawFromGroup()
             .then(() => {
               naviagte("/crew")
@@ -72,12 +79,24 @@ export default function MyCrew() {
   }, [myGroupData, isLoading])
 
   useEffect(() => {
+    if (!isLoading && !isLoadingMyCheeredUpCount) {
+      logAnalytics("view_my_crew", {
+        average_posture_count: avgScore,
+        my_rank: myRank,
+        my_crew_info: myGroupData,
+        my_cheered_count: myCheeredUpCount,
+      })
+    }
+  }, [isLoading, isLoadingMyCheeredUpCount])
+
+  useEffect(() => {
     refetchAll()
     const today = dayjs().format("YYYY-MM-DD")
     getMyCheerUpInfo(today).then(({ data }) => {
+      setIsLoadingMyCheeredUpCount(false)
       setMyCheeredUpCount(data.countCheeredUp)
     })
-  }, [location.pathname])
+  }, [])
 
   const openInviteModal = useCallback((): void => {
     openModal(modals.inviteCrewModal, {

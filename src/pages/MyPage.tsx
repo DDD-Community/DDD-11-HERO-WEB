@@ -2,6 +2,8 @@ import { modifyNickName } from "@/api/nickname"
 import { modals } from "@/components/Modal/Modals"
 import { useModals } from "@/hooks/useModals"
 import { useAuthStore } from "@/store"
+import { logAnalytics, setUserProperties } from "@/utils/log"
+import { useEffect } from "react"
 
 export default function MyPage() {
   const { user, setNickName } = useAuthStore()
@@ -12,13 +14,24 @@ export default function MyPage() {
     openModal(modals.nickNameModal, {
       onSubmit: (newNickName) => {
         if (user && newNickName) {
+          logAnalytics("complete_nickname_changed", {
+            old_nickname: user.nickname,
+            new_nickname: newNickName,
+          })
           modifyNickName(user.uid, newNickName).then(({ data }) => {
             setNickName(data.nickname)
+            setUserProperties({
+              nickname: data.nickname,
+            })
           })
         }
       },
     })
   }
+
+  useEffect(() => {
+    logAnalytics("view_nickname")
+  }, [])
 
   return (
     <div className="h-full min-w-[1216px] bg-gray-50 pl-[110px] pr-[108px] pt-12">
