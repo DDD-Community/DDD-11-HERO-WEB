@@ -29,6 +29,7 @@ jobs:
           VITE_OAUTH_KAKAO_REST_API_KEY: ${{ secrets.VITE_OAUTH_KAKAO_REST_API_KEY }}
           VITE_OAUTH_KAKAO_CLIENT_SECRET_CODE: ${{ secrets.VITE_OAUTH_KAKAO_CLIENT_SECRET_CODE }}
           VITE_OAUTH_KAKAO_REDIRECT_URI: ${{ secrets.VITE_OAUTH_KAKAO_REDIRECT_URI }}
+          VITE_AMPLITUDE_KEY: ${{ secrets.VITE_AMPLITUDE_KEY }}
         run: yarn build
         continue-on-error: true
 
