@@ -77,8 +77,13 @@ const useWebSocket = (url: string) => {
   const prevReceivedCheerCountRef = useRef<number>(0)
   const socketRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  // 컴포넌트 마운트 상태를 추적하는 ref
+  const isMountedRef = useRef<boolean>(true)
 
   const connect = useCallback(() => {
+    // 마운트된 상태에서만 연결
+    if (!isMountedRef.current) return
+
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       return
     }
@@ -86,11 +91,17 @@ const useWebSocket = (url: string) => {
     socketRef.current = new WebSocket(url)
 
     socketRef.current.onopen = () => {
+      // 마운트된 상태에서만 상태 업데이트
+      if (!isMountedRef.current) return
+
       console.log("WebSocket connected")
       setIsConnected("success")
     }
 
     socketRef.current.onmessage = (event) => {
+      // 마운트된 상태에서만 상태 업데이트
+      if (!isMountedRef.current) return
+
       const data = JSON.parse(event.data)
       console.log("Received message:", data)
       if (data.groupUsers && data.groupUser) {
@@ -125,10 +136,15 @@ const useWebSocket = (url: string) => {
     }
 
     socketRef.current.onerror = (error) => {
+      // 마운트된 상태에서만 상태 업데이트
+      if (!isMountedRef.current) return
       console.error("WebSocket error:", error)
     }
 
     socketRef.current.onclose = (event) => {
+      // 마운트된 상태에서만 상태 업데이트 및 재연결 시도
+      if (!isMountedRef.current) return
+
       console.log("WebSocket disconnected. Code:", event.code, "Reason:", event.reason)
       setIsConnected("disconnected")
       reconnect()
@@ -136,27 +152,43 @@ const useWebSocket = (url: string) => {
   }, [url])
 
   const reconnect = useCallback(() => {
+    // 마운트된 상태에서만 재연결
+    if (!isMountedRef.current) return
+
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current)
     }
     reconnectTimeoutRef.current = setTimeout(() => {
+      // 타임아웃 발생 시 다시 마운트 상태 확인
+      if (!isMountedRef.current) return
+
       console.log("Attempting to reconnect...")
       connect()
     }, 5000) // 5초 후 재연결 시도
   }, [connect])
 
   useEffect(() => {
+    isMountedRef.current = true
     connect()
 
     return () => {
+      // 컴포넌트 언마운트 시 마운트 상태 업데이트
+      isMountedRef.current = false
+
+      console.log("Closing WebSocket connection")
+      // 0 = Close Normal - 정상 종료 코드 명시적 추가
       if (socketRef.current) {
-        socketRef.current.close()
+        socketRef.current.onclose = null // 이벤트 리스너 제거하여 onclose 이벤트 방지
+        socketRef.current.close(1000, "Component unmounted")
+        socketRef.current = null // 참조 제거
       }
+
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current)
+        reconnectTimeoutRef.current = null // 참조 제거
       }
     }
-  }, [connect])
+  }, [connect, url])
 
   return { isConnected, crews, crewMyInfo }
 }
