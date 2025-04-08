@@ -1,17 +1,18 @@
 import { poseType } from "@/api"
 import { usePoseAnalysis } from "@/hooks/useDashBoard"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { lazy, Suspense, useEffect, useRef, useState } from "react"
 
 import TotalCountChartIcon from "@/assets/icons/dash-board-total-count.svg?react"
 import ChinUpImage from "@/assets/images/chin-up.png"
 import ShoulderTwistImage from "@/assets/images/shoulder-twist.png"
 import TailBoneSitImage from "@/assets/images/tail-bone-sit.png"
 import TurtleNeckImage from "@/assets/images/tutle-neck.png"
-import PoseAnalysisChart from "@/components/Dashboard/Chart"
 import Datepicker, { DateValueType } from "react-tailwindcss-datepicker"
 import CalendarToolTip from "@assets/icons/dashboard-calendar-tooltip.svg?react"
 import { logAnalytics } from "@/utils/log"
+
+const PoseAnalysisChart = lazy(() => import("@/components/Dashboard/Chart"))
 
 const START_FROM = new Date()
 START_FROM.setMonth(START_FROM.getMonth() - 1)
@@ -192,7 +193,11 @@ const AnalysisDashboard = () => {
         </div>
       </div>
       <div className="h-[340px] rounded-[10px] border-[1px] border-solid border-gray-200 bg-white">
-        {totalAnalysis && <PoseAnalysisChart data={totalAnalysis} />}
+        {totalAnalysis && (
+          <Suspense>
+            <PoseAnalysisChart data={totalAnalysis} />
+          </Suspense>
+        )}
       </div>
     </div>
   )

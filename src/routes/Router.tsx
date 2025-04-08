@@ -5,14 +5,19 @@ import AnalysisLayout from "@/layouts/AnalysisLayout"
 import BaseLayout from "@/layouts/BaseLayout"
 import HomeLayout from "@/layouts/HomeLayout"
 import MonitoringLayout from "@/layouts/MonitoringLayout"
-import { AnalysisDashboard, AuthPage, Crew, HomePage, MonitoringPage } from "@/pages"
-import DownloadPage from "@/pages/DownloadPage"
-import MyCrew from "@/pages/MyCrew"
-import MyPage from "@/pages/MyPage"
 import AuthRoute from "@/routes/AuthRoute"
 import { useAuthStore } from "@/store/AuthStore"
-import React from "react"
+import React, { lazy, Suspense } from "react"
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
+
+const AnalysisDashboard = lazy(() => import("@/pages/AnalysisDashboard"))
+const AuthPage = lazy(() => import("@/pages/AuthPage"))
+const Crew = lazy(() => import("@/pages/Crew"))
+const HomePage = lazy(() => import("@/pages/HomePage"))
+const MonitoringPage = lazy(() => import("@/pages/MonitoringPage"))
+const DownloadPage = lazy(() => import("@/pages/DownloadPage"))
+const MyCrew = lazy(() => import("@/pages/MyCrew"))
+const MyPage = lazy(() => import("@/pages/MyCrew"))
 
 const Router: React.FC = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
@@ -24,39 +29,41 @@ const Router: React.FC = () => {
         v7_startTransition: true,
       }}
     >
-      <Routes>
-        <Route path={RoutePath.AUTH} element={<AuthPage />} />
+      <Suspense>
+        <Routes>
+          <Route path={RoutePath.AUTH} element={<AuthPage />} />
 
-        {/* 로그인 상태에 따라 홈 페이지로 접근 시 리다이렉트 */}
-        <Route element={<HomeLayout />}>
-          {/* 로그인 상태에 따라 리다이렉트 */}
-          <Route path="/" element={isAuthenticated ? <Navigate to={RoutePath.MONITORING} replace /> : <HomePage />} />
-          <Route path={RoutePath.DOWNLOAD} element={<DownloadPage />} />
-        </Route>
+          {/* 로그인 상태에 따라 홈 페이지로 접근 시 리다이렉트 */}
+          <Route element={<HomeLayout />}>
+            {/* 로그인 상태에 따라 리다이렉트 */}
+            <Route path="/" element={isAuthenticated ? <Navigate to={RoutePath.MONITORING} replace /> : <HomePage />} />
+            <Route path={RoutePath.DOWNLOAD} element={<DownloadPage />} />
+          </Route>
 
-        <Route element={<AuthRoute />}>
-          <Route element={<BaseLayout />}>
-            <Route path={RoutePath.MYPAGE} element={<MyPage />} />
-            <Route element={<MonitoringLayout />}>
-              <Route path={RoutePath.MONITORING} element={<MonitoringPage />} />
-            </Route>
+          <Route element={<AuthRoute />}>
+            <Route element={<BaseLayout />}>
+              <Route path={RoutePath.MYPAGE} element={<MyPage />} />
+              <Route element={<MonitoringLayout />}>
+                <Route path={RoutePath.MONITORING} element={<MonitoringPage />} />
+              </Route>
 
-            <Route element={<AnalysisLayout />}>
-              <Route path={RoutePath.ANALYSIS} element={<AnalysisDashboard />} />
-            </Route>
+              <Route element={<AnalysisLayout />}>
+                <Route path={RoutePath.ANALYSIS} element={<AnalysisDashboard />} />
+              </Route>
 
-            <Route element={<CrewLayout />}>
-              <Route path={RoutePath.CREW} element={<Crew />} />
-            </Route>
+              <Route element={<CrewLayout />}>
+                <Route path={RoutePath.CREW} element={<Crew />} />
+              </Route>
 
-            <Route element={<AnalysisLayout />}>
-              <Route path={RoutePath.MYCREW} element={<MyCrew />} />
+              <Route element={<AnalysisLayout />}>
+                <Route path={RoutePath.MYCREW} element={<MyCrew />} />
+              </Route>
             </Route>
           </Route>
-        </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
       <Modals />
     </BrowserRouter>
   )
