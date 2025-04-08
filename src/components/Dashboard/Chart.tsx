@@ -1,4 +1,10 @@
-import ECharts from "echarts-for-react"
+import { LineChart } from "echarts/charts"
+import { TooltipComponent, GridComponent, LegendComponent } from "echarts/components"
+import { SVGRenderer } from "echarts/renderers"
+import * as echarts from "echarts/core"
+import ReactEChartsCore from "echarts-for-react/lib/core"
+
+echarts.use([LineChart, TooltipComponent, GridComponent, LegendComponent, SVGRenderer])
 
 const poseTypeLabels: any = {
   TURTLE_NECK: "거북목",
@@ -47,7 +53,15 @@ const PoseAnalysisChart = ({ data }: { data: any[] }) => {
     })),
   }
 
-  return <ECharts option={options} opts={{ renderer: "svg" }} style={{ height: "100%", width: "100%" }} />
+  return (
+    <ReactEChartsCore
+      echarts={echarts}
+      opts={{ renderer: "svg" }}
+      option={options}
+      lazyUpdate={true}
+      style={{ height: "100%", width: "100%" }}
+    />
+  )
 }
 
 export default PoseAnalysisChart

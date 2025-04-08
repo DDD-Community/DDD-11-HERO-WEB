@@ -57,6 +57,7 @@
     "build": "tsc && vite build --mode prd",
     "build:dev": "tsc && vite build --mode prd",
     "build:test": "tsc && vite build --mode prd",
+    "preview:build": "yarn build && serve dist/web -l 3000 --single",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
     "electron:dev": "concurrently \"yarn dev\" \"cross-env DEV= tsc-watch -p tsconfig.electron.json --onSuccess \\\"electron .\\\"\"",
@@ -122,6 +123,7 @@
     "typescript": "^5.1.6",
     "vite": "^4.3.9",
     "vite-plugin-svgr": "^4.2.0",
-    "vite-tsconfig-paths": "^4.2.0"
+    "vite-tsconfig-paths": "^4.2.0",
+    "serve" : "14.2.4"
   }
 }
