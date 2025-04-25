@@ -1,76 +1,43 @@
-import { getGroupScores, getMyGroup, GroupUserRankData, MyGroupData, withdrawMyGroup } from "@/api"
+import { useMyGroupWithScores } from "@/api/queries"
 import { useAuthStore } from "@/store"
 import { useMyGroupStore } from "@/store/MyGroup"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useCallback, useEffect, useMemo } from "react"
+import { useEffect } from "react"
 
+/**
+ * 내 그룹과 점수 정보를 가져오는 훅
+ */
 export default function useMyGroup() {
-  const queryClient = useQueryClient()
   const myName = useAuthStore((state) => state.user?.nickname)
   const { myGroupData, setMyGroupData } = useMyGroupStore()
-
-  // Fetch group data
-  const { data, isLoading, error } = useQuery<{ data: MyGroupData } | null, Error>({
-    queryKey: ["myGroup"],
-    queryFn: getMyGroup,
-    staleTime: 60 * 1000,
-    retry: false,
-  })
-
-  // Fetch group scores
-  const myGroupScoresQuery = useQuery<{ data: GroupUserRankData }, Error>({
-    queryKey: ["groupScores", myGroupData?.id],
-    queryFn: () => getGroupScores(myGroupData!.id),
-    enabled: !!myGroupData?.id,
-    staleTime: 60 * 1000, // Consider data fresh for 1 minute
-  })
-
+  
+  // 새로운 쿼리 훅 사용
+  const { 
+    myGroupData: fetchedGroupData,
+    ranks,
+    avgScore,
+    isLoading,
+    error,
+    withdrawFromGroup,
+    refetch: refetchAll
+  } = useMyGroupWithScores();
+  
+  // 그룹 데이터가 변경되면 store 업데이트
   useEffect(() => {
-    if (data) {
-      setMyGroupData(data.data)
+    if (fetchedGroupData) {
+      setMyGroupData(fetchedGroupData)
     }
-  }, [data, setMyGroupData])
-
-  const myRank = useMemo(() => {
-    return myGroupScoresQuery.data?.data.ranks.find((item) => item.name === myName)
-  }, [myGroupScoresQuery.data, myName])
-
-  const refetchAll = () => {
-    queryClient.invalidateQueries({ queryKey: ["myGroup"] })
-    queryClient.invalidateQueries({ queryKey: ["groupScores"] })
-  }
-
-  const withdrawMutation = useMutation({
-    mutationFn: withdrawMyGroup,
-    onSuccess: (res) => {
-      if (res.status === 204) {
-        setMyGroupData(null)
-        queryClient.setQueryData(["myGroup"], null)
-        queryClient.removeQueries({ queryKey: ["groupScores"] })
-      }
-    },
-  })
-
-  const withdrawFromGroup = useCallback(async () => {
-    if (myGroupData) {
-      try {
-        await withdrawMutation.mutateAsync(myGroupData.id)
-        return { success: true }
-      } catch (error) {
-        console.error("Error during group withdrawal:", error)
-        return { success: false, error }
-      }
-    }
-    return { success: false, error: new Error("No group data available") }
-  }, [myGroupData, withdrawMutation])
+  }, [fetchedGroupData, setMyGroupData])
+  
+  // 자신의 랭킹 정보 찾기
+  const myRank = ranks.find((item) => item.name === myName)
 
   return {
-    myGroupData: myGroupData ?? data?.data,
-    ranks: myGroupScoresQuery.data?.data.ranks ?? [],
-    avgScore: myGroupScoresQuery.data?.data.avgScore,
+    myGroupData: myGroupData ?? fetchedGroupData,
+    ranks,
+    avgScore,
     myRank,
-    isLoading: isLoading || myGroupScoresQuery.isLoading,
-    error: error || myGroupScoresQuery.error,
+    isLoading,
+    error,
     withdrawFromGroup,
     refetchAll,
   }

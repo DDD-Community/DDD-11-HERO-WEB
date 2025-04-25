@@ -1,13 +1,9 @@
-import { poseReq, poseRes, sendPose } from "@/api"
-import { useMutation, UseMutationResult } from "@tanstack/react-query"
+import { useSendPoseMutation } from "@/api/queries"
 
-export const useSendPose = (): UseMutationResult<poseRes, unknown, poseReq, unknown> => {
-  return useMutation({
-    mutationFn: (poseReq: poseReq) => {
-      return sendPose(poseReq)
-    },
-    onSuccess: (data) => {
-      console.log(data)
-    },
-  })
+/**
+ * 자세 데이터 전송을 위한 mutation 훅
+ * @deprecated 대신 @/api/queries의 useSendPoseMutation 사용 권장
+ */
+export const useSendPose = () => {
+  return useSendPoseMutation();
 }

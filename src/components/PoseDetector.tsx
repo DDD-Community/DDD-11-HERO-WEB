@@ -1,11 +1,10 @@
 import { duration, poseType, position } from "@/api"
+import { useCreateSnapshotMutation, useSendPoseMutation } from "@/api/queries"
 import { useCameraPermission } from "@/hooks/useCameraPermission"
 import { useGuidePopup } from "@/hooks/useGuidePopup"
 import { useModals } from "@/hooks/useModals"
 import useNotification from "@/hooks/useNotification"
-import { useSendPose } from "@/hooks/usePoseMutation"
 import usePushNotification from "@/hooks/usePushNotification"
-import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
 import { useSnapShotStore } from "@/store/SnapshotStore"
 import type { pose } from "@/utils/detector"
 import { detectHandOnChin, detectSlope, detectTailboneSit, detectTextNeck } from "@/utils/detector"
@@ -57,8 +56,8 @@ const PoseDetector: React.FC = () => {
   const isDetectingRef = useRef<boolean>(false)
 
   const { isSnapShotSaved, snapshot, setSnapShot, isInitialSnapShotExist } = useSnapShotStore()
-  const createSnapMutation = useCreateSnaphot()
-  const sendPoseMutation = useSendPose()
+  const createSnapshotMutation = useCreateSnapshotMutation()
+  const sendPoseMutation = useSendPoseMutation()
   const { isPopupOpen, handleClosePopup } = useGuidePopup(isClosedInitialGuidePopup)
 
   // const userNoti = useNotificationStore((state) => state.notification)
@@ -223,7 +222,7 @@ const PoseDetector: React.FC = () => {
           logAnalytics("complete_take_snapshot", {
             posture_info: req,
           })
-          createSnapMutation.mutate(
+          createSnapshotMutation.mutate(
             { points: req },
             {
               onSuccess: () => {
@@ -242,7 +241,7 @@ const PoseDetector: React.FC = () => {
         }
       }
     }
-  }, [createSnapMutation, snapshot, setSnapShot])
+  }, [createSnapshotMutation, snapshot, setSnapShot])
 
   const getUserSnap = (): void => {
     if (snapshot) {

@@ -1,13 +1,9 @@
-import { createSnapshot, createSnapshotRes, snapshot } from "@/api"
-import { useMutation, UseMutationResult } from "@tanstack/react-query"
+import { useCreateSnapshotMutation } from "@/api/queries"
 
-export const useCreateSnaphot = (): UseMutationResult<createSnapshotRes, unknown, snapshot, unknown> => {
-  return useMutation({
-    mutationFn: (_snapshot: snapshot) => {
-      return createSnapshot(_snapshot)
-    },
-    onSuccess: (data) => {
-      console.log(data)
-    },
-  })
+/**
+ * 스냅샷 생성을 위한 mutation 훅
+ * @deprecated 대신 @/api/queries의 useCreateSnapshotMutation 사용 권장
+ */
+export const useCreateSnaphot = () => {
+  return useCreateSnapshotMutation();
 }

@@ -1,41 +1,11 @@
-import { getTodayPoseAnalysis, getTotalPoseAnalysis } from "@/api"
-import { useQueries } from "@tanstack/react-query"
-import dayjs from "dayjs"
-import { DateValueType } from "react-tailwindcss-datepicker"
+import { usePoseAnalysis as usePoseAnalysisQuery } from "@/api/queries"
+import type { DateValueType } from "react-tailwindcss-datepicker"
 
+/**
+ * Dashboard에서 자세 분석 데이터를 가져오는 훅
+ * 리팩토링 후 직접 api/queries에서 가져오는 훅을 사용합니다.
+ */
 export const usePoseAnalysis = (dateRange: DateValueType) => {
-  const results = useQueries({
-    queries: [
-      {
-        queryKey: ["todayAnalysis"],
-        queryFn: getTodayPoseAnalysis,
-      },
-      {
-        queryKey: ["totalAnalysis", dateRange],
-        queryFn: () => {
-          const params: { fromDate?: string; toDate?: string } = {}
-
-          if (dateRange?.startDate) {
-            params.fromDate = dayjs(dateRange.startDate).format("YYYY-MM-DD")
-          }
-
-          if (dateRange?.endDate) {
-            params.toDate = dayjs(dateRange.endDate).format("YYYY-MM-DD")
-          }
-
-          return getTotalPoseAnalysis(params)
-        },
-      },
-    ],
-  })
-
-  const [todayAnalysis, totalAnalysis] = results
-
-  return {
-    todayAnalysis: todayAnalysis.data,
-    totalAnalysis: totalAnalysis.data,
-    isLoading: results.some((result) => result.isLoading),
-    isError: results.some((result) => result.isError),
-    errors: results.map((result) => result.error).filter(Boolean),
-  }
+  // 리팩토링된 훅 사용
+  return usePoseAnalysisQuery(dateRange);
 }

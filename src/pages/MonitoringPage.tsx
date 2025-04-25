@@ -1,4 +1,3 @@
-import { getRecentSnapshot } from "@/api"
 import { PoseDetector } from "@/components"
 import PostrueCrew from "@/components/Posture/PostrueCrew"
 import usePushNotification from "@/hooks/usePushNotification"
@@ -8,6 +7,7 @@ import { setUserId } from "@amplitude/analytics-browser"
 import GroupSideIcon from "@assets/icons/group-side-nav-button.svg?react"
 import React, { useEffect, useState } from "react"
 import { useAuthStore } from "@/store/AuthStore"
+import { useRecentSnapshotQuery, pointsToKeypoints } from "@/api/queries"
 
 const MonitoringPage: React.FC = () => {
   const { hasPermission } = usePushNotification()
@@ -15,28 +15,28 @@ const MonitoringPage: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true)
   const { user, accessToken } = useAuthStore()
 
+  // 최근 스냅샷 데이터 쿼리
+  const { data: recentSnapshot } = useRecentSnapshotQuery({
+    retry: false,
+  });
+
+  // 스냅샷 데이터가 로드되면 스토어에 저장
+  useEffect(() => {
+    if (recentSnapshot && recentSnapshot.points && recentSnapshot.points.length > 0) {
+      setSnapShot(pointsToKeypoints(recentSnapshot.points));
+      logAnalytics("view_monitoring", {
+        is_snapshot_saved: true,
+      });
+    } else {
+      logAnalytics("view_monitoring", {
+        is_snapshot_saved: false,
+      });
+    }
+  }, [recentSnapshot, setSnapShot]);
+
   const toggleSidebar = (): void => {
     setIsSidebarOpen((prev) => !prev)
   }
-
-  useEffect(() => {
-    const init = async (): Promise<void> => {
-      // 최근 스냅샷을 가져오기
-
-      const userSnap = await getRecentSnapshot()
-
-      // 스냅샷이 있으면 store에 저장
-      if (userSnap.id !== -1) {
-        setSnapShot(
-          userSnap.points.map((p) => ({ name: p.position.toLocaleLowerCase(), x: p.x, y: p.y, confidence: 1 }))
-        )
-      }
-      logAnalytics("view_monitoring", {
-        is_snapshot_saved: userSnap.id !== -1,
-      })
-    }
-    init()
-  }, [])
 
   useEffect(() => {
     setUserId(user?.uid.toString())
