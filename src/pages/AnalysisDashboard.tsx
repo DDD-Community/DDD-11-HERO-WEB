@@ -193,9 +193,9 @@ const AnalysisDashboard = () => {
         </div>
       </div>
       <div className="h-[340px] rounded-[10px] border-[1px] border-solid border-gray-200 bg-white">
-        {totalAnalysis && (
+        {totalAnalysis && totalAnalysis.data && (
           <Suspense>
-            <PoseAnalysisChart data={totalAnalysis} />
+            <PoseAnalysisChart data={totalAnalysis.data} />
           </Suspense>
         )}
       </div>

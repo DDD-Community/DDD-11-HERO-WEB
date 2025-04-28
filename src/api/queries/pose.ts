@@ -1,6 +1,5 @@
 import { poseReq, poseRes, sendPose } from '../pose';
-import { useMutation, MutationOptions, queryKeys } from './index';
-import { useInvalidateQueries } from './index';
+import { MutationOptions, useInvalidateQueries, useMutation } from './index';
 
 /**
  * 자세 데이터 전송을 위한 mutation 훅

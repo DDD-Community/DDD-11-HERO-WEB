@@ -64,7 +64,7 @@ axiosInstance.interceptors.response.use(
 
     // 에러 처리 로직
     if (error.response) {
-      const { status, data } = error.response;
+      const { status } = error.response;
       
       // 401 Unauthorized - 로그인 필요
       if (status === 401) {
