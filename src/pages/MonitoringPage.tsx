@@ -46,6 +46,7 @@ const MonitoringPage: React.FC = () => {
     })
   }, [user])
 
+  /*
   const checkMobile = () => {
     const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera
 
@@ -62,7 +63,7 @@ const MonitoringPage: React.FC = () => {
   if (checkMobile()) {
     return <div className="text-2xl font-bold text-white">모바일 디바이스는 현재 사용이 불가능 합니다</div>
   }
-
+  */
   return (
     <div className="relative flex h-full w-full overflow-hidden">
       {/* Main content area */}
