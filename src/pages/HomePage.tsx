@@ -6,9 +6,23 @@ const REST_API_KEY = import.meta.env.VITE_OAUTH_KAKAO_REST_API_KEY
 const REDIRECT_URI = import.meta.env.VITE_OAUTH_KAKAO_REDIRECT_URI
 const LOGIN_LINK = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`
 
+const SHARE_DATA = {
+  title: "자세공작소와 함께하는 일상의 변화",
+  url: window.location.origin,
+}
+
 const HomePage: React.FC = () => {
   const loginHandler = (): void => {
     window.location.href = LOGIN_LINK
+  }
+
+  const shareLinkHandler = async (): Promise<void> => {
+    try {
+      await navigator.share(SHARE_DATA)
+      console.log("공유 성공")
+    } catch (e) {
+      console.log("공유 실패")
+    }
   }
 
   useEffect(() => {
@@ -32,6 +46,12 @@ const HomePage: React.FC = () => {
             onClick={loginHandler}
           >
             카카오톡으로 계속하기
+          </div>
+          <div
+            className="flex w-fit cursor-pointer rounded-full bg-zinc-900 px-7 py-2 leading-[34px] text-white"
+            onClick={shareLinkHandler}
+          >
+            링크 공유
           </div>
         </div>
         <div className="absolute bottom-0 left-10 h-[292px] w-[528px]">
