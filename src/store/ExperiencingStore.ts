@@ -16,7 +16,7 @@ export const useExperiencingStore = create(
     (set) => {
       return {
         isExperiencing: false,
-        experiencingTime: 3,
+        experiencingTime: 300,
         experiencingSnapshot: null,
         setIsExperiencing: (isExperiencing: boolean) => set({ isExperiencing: isExperiencing }),
         setExperiencingTime: (experiencingTime: number) =>
