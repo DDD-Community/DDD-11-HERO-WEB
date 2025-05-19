@@ -8,7 +8,7 @@ interface AuthRouteProps {
 }
 
 const AuthRoute: React.FC<AuthRouteProps> = ({ children }) => {
-  const accessToken = useAuthStore((state) => state.accessToken)
+  const { accessToken } = useAuthStore()
 
   // 토큰이 없거나 유효하지 않은 경우 홈으로 리다이렉트
   if (!accessToken) {

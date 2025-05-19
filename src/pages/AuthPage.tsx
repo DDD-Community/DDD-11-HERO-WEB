@@ -4,11 +4,13 @@ import { useOauth, useSignUp, useSignIn, useGetIsSignUp } from "@/hooks/useAuthM
 import RoutePath from "@/constants/routes.json"
 import { useAuthStore } from "@/store/AuthStore"
 import { useSnapShotStore } from "@/store/SnapshotStore"
-import { getRecentSnapshot } from "@/api"
+import { getRecentSnapshot, position } from "@/api"
 import Lottie from "react-lottie"
 import LoginLottie from "@assets/animation/login-lottie.json"
 import { setUserId } from "@amplitude/analytics-browser"
 import { logAnalytics, setUserProperties } from "@/utils/log"
+import { useExperiencingStore } from "@/store/ExperiencingStore"
+import { useCreateSnaphot } from "@/hooks/useSnapshotMutation"
 // import { useGetNoti } from "@/hooks/useNotiMutation"
 // import { useNotificationStore } from "@/store/NotificationStore"
 
@@ -25,6 +27,9 @@ const AuthPage: React.FC = () => {
 
   const setUser = useAuthStore((state) => state.setUser)
   const { setSnapShot } = useSnapShotStore()
+  const { isExperiencing, experiencingSnapshot, setIsExperiencing } = useExperiencingStore()
+  const createSnapMutation = useCreateSnaphot()
+
   // const setNoti = useNotificationStore((state) => state.setNotification)
 
   useEffect(() => {
@@ -59,8 +64,17 @@ const AuthPage: React.FC = () => {
           setSnapShot(
             userSnap.points.map((p) => ({ name: p.position.toLocaleLowerCase(), x: p.x, y: p.y, confidence: 1 }))
           )
+        } else {
+          // 스냅샷 저장한 내역이 없고 체험하기에서 진입한 경우 스냅샷 저장 요청
+          if (isExperiencing && experiencingSnapshot) {
+            const req = experiencingSnapshot.map((p) => ({
+              position: p.name.toUpperCase() as position,
+              x: p.x,
+              y: p.y,
+            }))
+            createSnapMutation.mutate({ points: req })
+          }
         }
-
         // const notification = await getNotiMutation.mutateAsync()
         // // notification 설정 없으면 기본값(틀어진 즉시)로 설정
         // if (!notification) {
@@ -76,6 +90,7 @@ const AuthPage: React.FC = () => {
         logAnalytics("complete_login")
 
         setIsLoading(false)
+        setIsExperiencing(false)
         navigate(RoutePath.MONITORING)
       } catch (error) {
         console.error("Error during authentication process:", error)

@@ -22,6 +22,7 @@ import { modals } from "./Modal/Modals"
 import Controls from "./Posture/Controls"
 import GuidePopupModal from "./Posture/GuidePopup/GuidePopupModal"
 import PostureMessage from "./Posture/PostureMessage"
+import { useExperiencingStore } from "@/store/ExperiencingStore"
 
 const PoseDetector: React.FC = () => {
   // const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false)
@@ -37,7 +38,7 @@ const PoseDetector: React.FC = () => {
 
   const { showNotification, hasPermission: hasNotiPermisson, requestNotificationPermission } = usePushNotification()
 
-  const { openModal, isModalOpen } = useModals()
+  const { openModal } = useModals()
 
   const modelRef = useRef<any>(null)
   const snapRef = useRef<pose[] | null>(null)
@@ -57,10 +58,11 @@ const PoseDetector: React.FC = () => {
   const isDetectingRef = useRef<boolean>(false)
 
   const { isSnapShotSaved, snapshot, setSnapShot, isInitialSnapShotExist } = useSnapShotStore()
+  const { setExperiencingTime, setExperiencingSnapShot, experiencingSnapshot, isExperiencing, experiencingTime } =
+    useExperiencingStore()
   const createSnapMutation = useCreateSnaphot()
   const sendPoseMutation = useSendPose()
   const { isPopupOpen, handleClosePopup } = useGuidePopup(isClosedInitialGuidePopup)
-
   // const userNoti = useNotificationStore((state) => state.notification)
   const { notification } = useNotification()
   const { hasPermission } = useCameraPermission()
@@ -79,7 +81,8 @@ const PoseDetector: React.FC = () => {
     await initializeBackend()
     setIsModelLoaded(true)
     modelRef.current = bodypose
-    worker.postMessage({ type: "init", data: {} })
+    worker.postMessage({ type: "INIT_DETECT", data: {} })
+    if (isExperiencing) worker.postMessage({ type: "INIT_EXPERIENCING", data: {} })
     isDetectingRef.current = true
   }
 
@@ -141,7 +144,8 @@ const PoseDetector: React.FC = () => {
             if (resultRef.current) {
               const { keypoints, score } = resultRef.current[0]
               const req = { snapshot: { keypoints, score }, type: poseType }
-              sendPoseMutation.mutate(req)
+              // 체험하기 상태면 API 요청 안함
+              if (!isExperiencing) sendPoseMutation.mutate(req)
               cntRef.current = cntRef.current + 1
               if (isShowImmediNotiRef.current)
                 showNotification(`척추 건강 위험! ${getPoseName(poseType)} 감지! 자세를 바르게 앉아주세요.`)
@@ -160,7 +164,7 @@ const PoseDetector: React.FC = () => {
     (results: pose[]): void => {
       if (!isDetectingRef.current) return
       resultRef.current = results
-      if (!isSnapShotSaved || !isInitialSnapShotExist || isModalOpen) {
+      if (!isSnapShotSaved || !isInitialSnapShotExist) {
         if (canvasRef.current) drawPose(results, canvasRef.current)
         return
       }
@@ -201,13 +205,22 @@ const PoseDetector: React.FC = () => {
 
   const detectStart = useCallback(
     async (video: HTMLVideoElement): Promise<void> => {
-      worker.onmessage = ({}: any) => {
-        if (modelRef.current) {
+      worker.onmessage = (e: e) => {
+        const { data } = e
+        if (data === "DETECT" && modelRef.current) {
           modelRef.current.detect(video, detect)
+        } else if (data === "TIK") {
+          if (snapRef.current) {
+            if (experiencingTime === 0) {
+              worker.postMessage({ type: "TERMINATE_EXPERIENCING", data: {} })
+              return
+            }
+            setExperiencingTime(experiencingTime - 1)
+          }
         }
       }
     },
-    [detect]
+    [detect, experiencingTime, setExperiencingTime]
   )
 
   const getInitSnap = useCallback((): void => {
@@ -223,20 +236,33 @@ const PoseDetector: React.FC = () => {
           logAnalytics("complete_take_snapshot", {
             posture_info: req,
           })
-          createSnapMutation.mutate(
-            { points: req },
-            {
-              onSuccess: () => {
-                setIsSuccessSnapShotSaved(true)
-                setTimeout(() => {
-                  setIsSuccessSnapShotSaved(false)
-                }, 3000)
-                if (snapRef.current) {
-                  setSnapShot(snapRef.current[0].keypoints)
-                }
-              },
+          // 저장될 스냅샷
+          const _snapShot = snapRef.current[0].keypoints
+          // 스냅샷 저장 후 콜백
+          const onSuccessInitSnap = (): void => {
+            setIsSuccessSnapShotSaved(true)
+            setTimeout(() => {
+              setIsSuccessSnapShotSaved(false)
+            }, 3000)
+            if (snapRef.current) {
+              setSnapShot(_snapShot)
             }
-          )
+          }
+          // 체험하기 상태면 체험용 스냅샷 저장, 스냅샷 저장 콜백 함수만 실행
+          if (isExperiencing) {
+            setExperiencingSnapShot(_snapShot)
+            onSuccessInitSnap()
+          } else {
+            // 로그인 상태면 스냅샷 저장 API 호출
+            createSnapMutation.mutate(
+              { points: req },
+              {
+                onSuccess: () => {
+                  onSuccessInitSnap()
+                },
+              }
+            )
+          }
         } else {
           alert("브라우저의 카메라 혹은 인공지능 모델에 문제가 발생했습니다. 새로고침 후 다시 시도해주시기 바랍니다.")
         }
@@ -244,12 +270,15 @@ const PoseDetector: React.FC = () => {
     }
   }, [createSnapMutation, snapshot, setSnapShot])
 
-  const getUserSnap = (): void => {
-    if (snapshot) {
+  const getUserSnap = useCallback((): void => {
+    // 체험하기 상태면 체험용 스냅샷 가져오기
+    if (isExperiencing && experiencingSnapshot) {
+      snapRef.current = [{ keypoints: experiencingSnapshot }]
+    } else if (snapshot) {
       snapRef.current = [{ keypoints: snapshot }]
       // setIsSnapSaved(true)
     }
-  }
+  }, [experiencingSnapshot, isExperiencing, snapshot])
 
   const clearTimers = (): void => {
     clearInterval(turtleNeckTimer.current)
@@ -301,7 +330,8 @@ const PoseDetector: React.FC = () => {
   // 페이지가 변경될 때마다 타이머를 제거
   useEffect(() => {
     return () => {
-      worker.postMessage({ type: "terminate", data: {} })
+      worker.postMessage({ type: "TERMINATE_DETECT", data: {} })
+      worker.postMessage({ type: "TERMINATE_EXPERIENCING", data: {} })
       isDetectingRef.current = false
       clearTimers()
       clearCnt()
@@ -337,11 +367,13 @@ const PoseDetector: React.FC = () => {
   }, [isModelLoaded, hasPermission, detectStart])
 
   useEffect(() => {
-    if (snapshot) getUserSnap()
-  }, [snapshot])
+    if (snapshot) {
+      getUserSnap()
+    }
+  }, [snapshot, isExperiencing, experiencingSnapshot, setExperiencingSnapShot, getUserSnap])
 
   useEffect(() => {
-    if (!isSnapShotSaved || !notification || !isInitialSnapShotExist || isModalOpen) return
+    if (!isSnapShotSaved || !notification || !isInitialSnapShotExist) return
 
     clearCnt()
     clearInterval(notificationTimer.current)
@@ -364,7 +396,6 @@ const PoseDetector: React.FC = () => {
 
   // 팝업 열기
   const handleShowPopup = (): void => {
-    // openPopup()
     openModal(modals.postureGuideModal, {})
   }
 
@@ -374,6 +405,8 @@ const PoseDetector: React.FC = () => {
 
   const handleCloseInitialGuidePopup = () => {
     setIsClosedInitialGuidePopup(true)
+    // 마지막 닫은 날짜 업데이트
+    handleClosePopup()
   }
 
   return (
@@ -397,16 +430,14 @@ const PoseDetector: React.FC = () => {
           <Camera detectStart={detectStart} canvasRef={canvasRef} />
           {isModelLoaded && (
             <>
-              {!isModalOpen && (
-                <PostureMessage
-                  isSnapShotSaved={isSnapShotSaved}
-                  isShoulderTwist={isShoulderTwist}
-                  isTextNeck={isTextNeck}
-                  isHandOnChin={isHandOnChin}
-                  isTailboneSit={isTailboneSit}
-                  hasPermission={hasPermission}
-                />
-              )}
+              <PostureMessage
+                isSnapShotSaved={isSnapShotSaved}
+                isShoulderTwist={isShoulderTwist}
+                isTextNeck={isTextNeck}
+                isHandOnChin={isHandOnChin}
+                isTailboneSit={isTailboneSit}
+                hasPermission={hasPermission}
+              />
               {!isSnapShotSaved && hasPermission && (
                 <Controls getInitSnap={getInitSnap} handleShowPopup={handleShowPopup} />
               )}
@@ -437,6 +468,9 @@ const PoseDetector: React.FC = () => {
 
           {!isClosedInitialGuidePopup && !isInitialSnapShotExist && (
             <GuidePopupModal onClose={handleCloseInitialGuidePopup} />
+          )}
+          {isExperiencing && experiencingTime === 0 && (
+            <div className="absolute h-full w-full rounded-[20px] backdrop-blur-lg"></div>
           )}
         </div>
       )}

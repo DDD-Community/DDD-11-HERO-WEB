@@ -22,6 +22,8 @@ import { getMyCheerUpInfo, requestSendCrewCheer } from "@/api/crewCheer"
 import toast from "react-hot-toast"
 import dayjs from "dayjs"
 import { logAnalytics } from "@/utils/log"
+import { LOGIN_LINK } from "@/pages/HomePage"
+import { useExperiencingStore } from "@/store/ExperiencingStore"
 
 interface MyPostureCrewData {
   myInfo: IPostureCrew
@@ -79,10 +81,11 @@ const useWebSocket = (url: string) => {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   // 컴포넌트 마운트 상태를 추적하는 ref
   const isMountedRef = useRef<boolean>(true)
-
+  const { isExperiencing } = useExperiencingStore()
   const connect = useCallback(() => {
     // 마운트된 상태에서만 연결
     if (!isMountedRef.current) return
+    if (isExperiencing) return
 
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       return
@@ -149,7 +152,7 @@ const useWebSocket = (url: string) => {
       setIsConnected("disconnected")
       reconnect()
     }
-  }, [url])
+  }, [url, isExperiencing])
 
   const reconnect = useCallback(() => {
     // 마운트된 상태에서만 재연결
@@ -169,6 +172,7 @@ const useWebSocket = (url: string) => {
 
   useEffect(() => {
     isMountedRef.current = true
+    // 체험하기에서는 미연걸
     connect()
 
     return () => {
@@ -204,10 +208,12 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
   const updateNotiMutation = useModifyNoti()
   const { hasPermission } = usePushNotification()
   const { myGroupData, isLoading } = useMyGroup()
+  const { isExperiencing } = useExperiencingStore()
   const navigate = useNavigate()
   const [cheeredUpCrewList, setCheeredUpCrewList] = useState<number[]>([])
 
   useEffect(() => {
+    if (isExperiencing) return
     const today = dayjs().format("YYYY-MM-DD")
     getMyCheerUpInfo(today).then(({ data }) => {
       setCheeredUpCrewList(data.cheeredUpUids)
@@ -239,7 +245,19 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
     )
   }
 
+  const openSignUpModal = useCallback((): void => {
+    openModal(modals.toSignUpModal, {
+      onSubmit: () => {
+        window.location.href = LOGIN_LINK
+      },
+    })
+  }, [isExperiencing, openModal])
+
   const onClickNotiAlarm = (): void => {
+    if (isExperiencing) {
+      openSignUpModal()
+      return
+    }
     if (!notification) {
       updateNotiMutation.mutate(
         { isActive: true, duration: "IMMEDIATELY" },
@@ -372,9 +390,11 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          {isConnected === "loading" && myGroupData && <p className="pl-2">서버와 연결 중입니다.</p>}
-          {isConnected === "disconnected" && myGroupData && <p className="pl-2">서버와 연결 끊어졌습니다.</p>}
-          {isConnected === "success" && myGroupData && (
+          {isConnected === "loading" && myGroupData && !isExperiencing && <p className="pl-2">서버와 연결 중입니다.</p>}
+          {isConnected === "disconnected" && myGroupData && !isExperiencing && (
+            <p className="pl-2">서버와 연결 끊어졌습니다.</p>
+          )}
+          {isConnected === "success" && myGroupData && !isExperiencing && (
             <>
               <div className="min-h-0 flex-1 overflow-y-auto">
                 <ul className="space-y-2">
@@ -412,7 +432,7 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
               </div>
             </>
           )}
-          {!myGroupData && !isLoading && (
+          {((!myGroupData && !isLoading) || isExperiencing) && (
             <div className="flex flex-col items-center justify-center rounded-2xl bg-zinc-100 px-4 py-8">
               <div className="text-center text-sm font-medium">
                 아직 가입한
@@ -423,7 +443,8 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
               <button
                 className="flex w-[144px] justify-center rounded-full bg-[#1A75FF] py-[10px] text-sm font-semibold text-white"
                 onClick={() => {
-                  navigate(RoutePath.CREW)
+                  if (isExperiencing) openSignUpModal()
+                  else navigate(RoutePath.CREW)
                 }}
               >
                 크루 가입하기
