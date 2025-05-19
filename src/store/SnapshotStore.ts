@@ -8,6 +8,7 @@ interface SnapShotState {
   snapshot: keypoint[] | null
   setSnapShot: (snapshot: keypoint[] | null) => void
   resetSnapShot: () => void
+  resetStore: () => void
 }
 
 export const useSnapShotStore = create(
@@ -19,6 +20,10 @@ export const useSnapShotStore = create(
       setSnapShot: (snapshot: keypoint[] | null) =>
         set({ snapshot, isSnapShotSaved: true, isInitialSnapShotExist: true }),
       resetSnapShot: () => set({ snapshot: null, isSnapShotSaved: false }),
+      resetStore: () => {
+        set({ isSnapShotSaved: false, isInitialSnapShotExist: false, snapshot: null })
+        localStorage.removeItem("snapshotStorage")
+      },
     }),
     { name: "snapshotStorage" }
   )

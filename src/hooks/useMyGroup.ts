@@ -1,5 +1,6 @@
 import { getGroupScores, getMyGroup, GroupUserRankData, MyGroupData, withdrawMyGroup } from "@/api"
 import { useAuthStore } from "@/store"
+import { useExperiencingStore } from "@/store/ExperiencingStore"
 import { useMyGroupStore } from "@/store/MyGroup"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useCallback, useEffect, useMemo } from "react"
@@ -8,11 +9,12 @@ export default function useMyGroup() {
   const queryClient = useQueryClient()
   const myName = useAuthStore((state) => state.user?.nickname)
   const { myGroupData, setMyGroupData } = useMyGroupStore()
-
+  const { isExperiencing } = useExperiencingStore()
   // Fetch group data
   const { data, isLoading, error } = useQuery<{ data: MyGroupData } | null, Error>({
     queryKey: ["myGroup"],
     queryFn: getMyGroup,
+    enabled: !isExperiencing,
     staleTime: 60 * 1000,
     retry: false,
   })

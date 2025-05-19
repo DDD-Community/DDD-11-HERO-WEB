@@ -1,9 +1,11 @@
 import { getNotification } from "@/api"
+import { useExperiencingStore } from "@/store/ExperiencingStore"
 import { useNotificationStore } from "@/store/NotificationStore"
 import { useEffect, useState } from "react"
 
 export default function useNotification() {
   const { notification, setNotification } = useNotificationStore()
+  const { isExperiencing } = useExperiencingStore()
   const [isLoading, setIsLoading] = useState(true)
 
   // Fetch group data
@@ -20,6 +22,10 @@ export default function useNotification() {
   // }, [data])
 
   useEffect(() => {
+    if (isExperiencing) {
+      setIsLoading(false)
+      return
+    }
     if (!notification) {
       getNotification()
         .then(({ data }) => {
@@ -32,7 +38,7 @@ export default function useNotification() {
           setIsLoading(false)
         })
     }
-  }, [notification])
+  }, [notification, isExperiencing])
 
   return {
     notification,

@@ -9,6 +9,7 @@ import ReportModal from "./ReportModal"
 import ToWithdrawModal from "./ToWithdrawModal"
 import WithdrawCrewModal from "./WithdrawCrewModal"
 import NickNameModal from "./NickNameModal"
+import ToSignUpModal from "./ToSignUpModal"
 
 export const modals = {
   createCrewModal: CreateCrewModal,
@@ -19,6 +20,7 @@ export const modals = {
   postureGuideModal: GoodPostureGuidePopupModal,
   reportModal: ReportModal,
   nickNameModal: NickNameModal,
+  toSignUpModal: ToSignUpModal,
 }
 
 const Modals = (): React.ReactNode => {

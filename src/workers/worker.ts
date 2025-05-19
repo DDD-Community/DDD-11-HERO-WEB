@@ -1,4 +1,5 @@
-let timer: string | number | NodeJS.Timeout | undefined
+let detector: string | number | NodeJS.Timeout | undefined
+let experiencingTimer: string | number | NodeJS.Timeout | undefined
 
 interface e {
   type: string
@@ -8,13 +9,23 @@ interface e {
 self.onmessage = (e) => {
   const { type } = e.data
   switch (type) {
-    case "init":
-      timer = setInterval(() => {
-        postMessage("do it")
+    case "INIT_DETECT":
+      clearTimeout(detector)
+      detector = setInterval(() => {
+        postMessage("DETECT")
       }, 100)
       break
-    case "terminate":
-      clearTimeout(timer)
+    case "INIT_EXPERIENCING":
+      clearTimeout(experiencingTimer)
+      experiencingTimer = setInterval(() => {
+        postMessage("TIK")
+      }, 1000)
+      break
+    case "TERMINATE_DETECT":
+      clearTimeout(detector)
+      break
+    case "TERMINATE_EXPERIENCING":
+      clearTimeout(experiencingTimer)
       break
   }
 }

@@ -38,6 +38,7 @@ export const useAuthStore = create(
             isAuthenticated: false,
             accessToken: "",
           })
+          localStorage.removeItem("userStorage")
           callback() // 로그아웃 후 콜백 실행
         },
       }

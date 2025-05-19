@@ -1,17 +1,23 @@
 import { getRecentSnapshot } from "@/api"
-import { PoseDetector } from "@/components"
+import { ExperiencingTimer, PoseDetector } from "@/components"
 import PostrueCrew from "@/components/Posture/PostrueCrew"
 import usePushNotification from "@/hooks/usePushNotification"
 import { useSnapShotStore } from "@/store/SnapshotStore"
 import { logAnalytics, setUserProperties } from "@/utils/log"
 import { setUserId } from "@amplitude/analytics-browser"
 import GroupSideIcon from "@assets/icons/group-side-nav-button.svg?react"
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { useAuthStore } from "@/store/AuthStore"
+import { useExperiencingStore } from "@/store/ExperiencingStore"
+import { useModals } from "@/hooks/useModals"
+import { modals } from "@/components/Modal/Modals"
+import { LOGIN_LINK } from "./HomePage"
 
 const MonitoringPage: React.FC = () => {
   const { hasPermission } = usePushNotification()
   const { setSnapShot, isInitialSnapShotExist } = useSnapShotStore()
+  const { isExperiencing, experiencingSnapshot, experiencingTime } = useExperiencingStore()
+  const { openModal } = useModals()
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true)
   const { user, accessToken } = useAuthStore()
 
@@ -19,10 +25,26 @@ const MonitoringPage: React.FC = () => {
     setIsSidebarOpen((prev) => !prev)
   }
 
+  const openSignUpModal = useCallback((): void => {
+    openModal(modals.toSignUpModal, {
+      onSubmit: () => {
+        window.location.href = LOGIN_LINK
+      },
+    })
+  }, [openModal])
+
   useEffect(() => {
     const init = async (): Promise<void> => {
       // 최근 스냅샷을 가져오기
-
+      // 체험하기 상태면 스냅샷 가쟈오지 않음
+      // 체험하기면 체험용 스냅샷으로 저장
+      if (isExperiencing) {
+        if (experiencingSnapshot) setSnapShot(experiencingSnapshot)
+        if (experiencingTime === 0) {
+          openSignUpModal()
+        }
+        return
+      }
       const userSnap = await getRecentSnapshot()
 
       // 스냅샷이 있으면 store에 저장
@@ -46,6 +68,9 @@ const MonitoringPage: React.FC = () => {
     })
   }, [user])
 
+  useEffect(() => {
+    if (isExperiencing && experiencingTime === 0) openSignUpModal()
+  }, [isExperiencing, experiencingTime])
   /*
   const checkMobile = () => {
     const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera
@@ -73,7 +98,12 @@ const MonitoringPage: React.FC = () => {
         }`}
       >
         <div id="monitoring-modal-root" className="relative flex h-full items-center justify-center">
-          <div className="aspect-video w-full max-w-[1280px] p-8">
+          <div className="relative aspect-video w-full max-w-[1280px] p-8">
+            {isExperiencing && (
+              <div className="mb-4 flex items-center justify-start">
+                <ExperiencingTimer />
+              </div>
+            )}
             <PoseDetector />
           </div>
           {!hasPermission && (

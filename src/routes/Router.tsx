@@ -7,6 +7,7 @@ import HomeLayout from "@/layouts/HomeLayout"
 import MonitoringLayout from "@/layouts/MonitoringLayout"
 import AuthRoute from "@/routes/AuthRoute"
 import { useAuthStore } from "@/store/AuthStore"
+import { useExperiencingStore } from "@/store/ExperiencingStore"
 import React, { lazy, Suspense } from "react"
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
@@ -20,8 +21,8 @@ const MyCrew = lazy(() => import("@/pages/MyCrew"))
 const MyPage = lazy(() => import("@/pages/MyCrew"))
 
 const Router: React.FC = () => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-
+  const { isAuthenticated } = useAuthStore()
+  const { isExperiencing } = useExperiencingStore()
   return (
     <BrowserRouter
       future={{
@@ -40,13 +41,18 @@ const Router: React.FC = () => {
             <Route path={RoutePath.DOWNLOAD} element={<DownloadPage />} />
           </Route>
 
+          <Route element={<BaseLayout />}>
+            <Route element={<MonitoringLayout />}>
+              <Route
+                path={RoutePath.MONITORING}
+                element={isAuthenticated || isExperiencing ? <MonitoringPage /> : <Navigate to={RoutePath.HOME} />}
+              />
+            </Route>
+          </Route>
+
           <Route element={<AuthRoute />}>
             <Route element={<BaseLayout />}>
               <Route path={RoutePath.MYPAGE} element={<MyPage />} />
-              <Route element={<MonitoringLayout />}>
-                <Route path={RoutePath.MONITORING} element={<MonitoringPage />} />
-              </Route>
-
               <Route element={<AnalysisLayout />}>
                 <Route path={RoutePath.ANALYSIS} element={<AnalysisDashboard />} />
               </Route>
