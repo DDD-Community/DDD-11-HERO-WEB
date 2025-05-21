@@ -16,7 +16,6 @@ const AuthPage = lazy(() => import("@/pages/AuthPage"))
 const Crew = lazy(() => import("@/pages/Crew"))
 const HomePage = lazy(() => import("@/pages/HomePage"))
 const MonitoringPage = lazy(() => import("@/pages/MonitoringPage"))
-const DownloadPage = lazy(() => import("@/pages/DownloadPage"))
 const MyCrew = lazy(() => import("@/pages/MyCrew"))
 const MyPage = lazy(() => import("@/pages/MyCrew"))
 
@@ -38,7 +37,6 @@ const Router: React.FC = () => {
           <Route element={<HomeLayout />}>
             {/* 로그인 상태에 따라 리다이렉트 */}
             <Route path="/" element={isAuthenticated ? <Navigate to={RoutePath.MONITORING} replace /> : <HomePage />} />
-            <Route path={RoutePath.DOWNLOAD} element={<DownloadPage />} />
           </Route>
 
           <Route element={<BaseLayout />}>
