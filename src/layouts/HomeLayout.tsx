@@ -1,3 +1,4 @@
+import { logAnalytics } from "@/utils/log"
 import LogoImage from "@assets/icons/home-logo.svg?react"
 import { Outlet } from "react-router-dom"
 
@@ -7,6 +8,9 @@ const LOGIN_LINK = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API
 
 const HomeLayout: React.FC = () => {
   const loginHandler = (): void => {
+    logAnalytics("click_login_button", {
+      from: "header",
+    })
     window.location.href = LOGIN_LINK
   }
 
