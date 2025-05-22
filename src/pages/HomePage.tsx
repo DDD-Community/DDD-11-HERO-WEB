@@ -22,11 +22,17 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate()
   const { setIsExperiencing } = useExperiencingStore()
   const loginHandler = (): void => {
+    logAnalytics("click_login_button", {
+      from: "main",
+    })
     window.location.href = LOGIN_LINK
   }
 
-  const shareLinkHandler = async (): Promise<void> => {
+  const shareLinkHandler = async (element: string): Promise<void> => {
     try {
+      logAnalytics("click_shared_link", {
+        from: element,
+      })
       await navigator.share(SHARE_DATA)
       console.log("공유 성공")
     } catch (e) {
@@ -36,6 +42,7 @@ const HomePage: React.FC = () => {
 
   const experiencingHandler = (): void => {
     setIsExperiencing(true)
+    logAnalytics("click_experience_button")
     navigate(RoutePath.MONITORING)
   }
 
@@ -47,7 +54,7 @@ const HomePage: React.FC = () => {
     <>
       <button
         className="fixed bottom-0 left-0 z-10 flex w-full items-center justify-center bg-[#1A75FF] py-[22px] lg:hidden"
-        onClick={shareLinkHandler}
+        onClick={() => shareLinkHandler("sticky-button")}
       >
         <span className="text-[17px] font-semibold leading-[24px] text-white">링크 공유하기</span>
       </button>
@@ -101,7 +108,7 @@ const HomePage: React.FC = () => {
               </div>
               <div className="text-zic-500 text-center text-[13px] font-medium leading-[20px]">
                 웹에서도 빠르게 써보려면?!{" "}
-                <button className="hover:underline" onClick={shareLinkHandler}>
+                <button className="hover:underline" onClick={() => shareLinkHandler("link-share-text")}>
                   ‘링크 공유하기'
                 </button>{" "}
                 클릭
@@ -168,7 +175,7 @@ const HomePage: React.FC = () => {
           </div>
           <button
             className="mt-[60px] flex h-[54px] w-[220px] items-center justify-center rounded-full bg-white px-6 py-3 text-[16px] leading-[24px]"
-            onClick={shareLinkHandler}
+            onClick={() => shareLinkHandler("bottom-share-button")}
           >
             <Share2 className="mr-2" size={16} />
             <span className="text-[16px] font-semibold leading-[24px] text-zinc-900">링크 공유하기</span>
