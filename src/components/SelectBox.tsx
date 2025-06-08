@@ -39,7 +39,7 @@ export default function SelectBox(props: SelectBoxProps): React.ReactElement {
         <DownArrowIcon />
       </div>
       {isOpen && (
-        <div className="absolute z-10 mt-1 w-full flex-col rounded-md bg-white py-1 shadow-[0px_2px_16px_0px_rgba(0,0,0,0.13)]">
+        <div className="absolute z-10 mt-1 w-full flex-col rounded-md bg-white py-1 shadow-card">
           {options.map((option) => (
             <div
               key={option.value}

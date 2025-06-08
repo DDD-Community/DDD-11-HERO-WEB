@@ -7,7 +7,7 @@ const GoodPostureGuidePopupModal = ({ onClose }: { onClose: () => void }): React
     <ModalContainer onClose={onClose} isMonitoring={true}>
       <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/25">
         {/* blur 처리 */}
-        <div className="flex h-[472px] w-[800px] flex-col items-center rounded-lg bg-white pt-10 shadow-lg">
+        <div className="flex h-[472px] w-[800px] flex-col items-center rounded-lg bg-white pt-10 shadow-card">
           <div className="pb-6">
             <div className="text-[30px] font-bold text-[#1E2535]">바른 자세 가이드</div>
           </div>

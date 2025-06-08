@@ -8,7 +8,7 @@ export default function SnapshotGuide() {
         <div className="h-2 w-2 rounded-full bg-align_blue-500"></div>
       </div>
       <div className="mb-6">
-        <div className="text-center text-title font-bold">바른 자세를 취해주세요</div>
+        <div className="text-center text-[30px] font-bold leading-10 text-[#1E2535]">바른 자세를 취해주세요</div>
       </div>
       {/* content */}
       <div className="mb-6 flex items-center gap-8">
@@ -20,25 +20,29 @@ export default function SnapshotGuide() {
             <span className="flex h-6 w-6 justify-center rounded-full bg-align_blue-300 text-center font-semibold text-white">
               1
             </span>
-            <span className="font-title font-semibold text-zinc-800">머리와 목을 일직선으로 곧게 펴기</span>
+            <span className="font-[20px] font-semibold leading-[30px] text-zinc-800">
+              머리와 목을 일직선으로 곧게 펴기
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <span className="flex h-6 w-6 justify-center rounded-full bg-align_blue-300 text-center font-semibold text-white">
               2
             </span>
-            <span className="font-title font-semibold text-zinc-800">양쪽 어깨 일직선 유지하기</span>
+            <span className="font-[20px] font-semibold leading-[30px] text-zinc-800">양쪽 어깨 일직선 유지하기</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="flex h-6 w-6 justify-center rounded-full bg-align_blue-300 text-center font-semibold text-white">
               3
             </span>
-            <span className="font-title font-semibold text-zinc-800">팔은 책상 위에 수평으로 두기</span>
+            <span className="font-[20px] font-semibold leading-[30px] text-zinc-800">팔은 책상 위에 수평으로 두기</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="flex h-6 w-6 justify-center rounded-full bg-align_blue-300 text-center font-semibold text-white">
               4
             </span>
-            <span className="font-title font-semibold text-zinc-800">등과 허리는 등받이에 지지하기</span>
+            <span className="font-[20px] font-semibold leading-[30px] text-zinc-800">
+              등과 허리는 등받이에 지지하기
+            </span>
           </div>
         </div>
       </div>

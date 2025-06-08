@@ -61,17 +61,17 @@ const HomePage: React.FC = () => {
       <div className="flex flex-col items-center">
         <section className="flex flex-col items-center">
           <div className="mt-[52px] flex flex-col items-center">
-            <div className="text-center text-display1 md:text-[42px] md:leading-[60px]">
+            <div className="text-center text-[36px] font-bold leading-[46px] md:text-[42px] md:leading-[60px]">
               <div className="text-align_blue-500">
                 자세공작소와 <div className="block xxs:hidden" /> 함께하는
               </div>
               <div className="text-zinc-900">일상 속 자세 변화</div>
             </div>
-            <div className="mt-4 hidden text-heading2 text-zinc-900 md:mt-5 lg:block">
+            <div className="mt-4 hidden text-[18px] leading-[26px] text-zinc-900 md:mt-5 lg:block">
               간단하게 회원가입 후 이용을 시작하세요!
             </div>
             {/* desktop */}
-            <div className="mt-[62px] hidden items-center gap-3 text-body1 font-semibold lg:flex">
+            <div className="mt-[62px] hidden items-center gap-3 text-[16px] font-semibold leading-[24px] lg:flex">
               <button
                 className="flex w-fit cursor-pointer rounded-full bg-align_blue-500 px-7 py-2 leading-[34px] text-white"
                 onClick={loginHandler}
@@ -86,7 +86,7 @@ const HomePage: React.FC = () => {
               </button>
             </div>
             {/* mobile */}
-            <div className="mt-5 flex flex-col items-center text-center text-body1 font-medium text-zinc-900 lg:hidden">
+            <div className="mt-5 flex flex-col items-center text-center text-[15px] font-medium leading-[24px] text-zinc-900 lg:hidden">
               <span>🖥️ 열심히 일했을 뿐인데, 왜 몸이 😥아플까요?</span>
               <p className="mt-[36px]">
                 바르지 못한 자세로 발생하는 목·어깨·허리 통증
@@ -102,11 +102,11 @@ const HomePage: React.FC = () => {
             </div>
             <div className="mb-[80px] mt-7 flex flex-col gap-3 lg:hidden">
               <div className="flex h-[42px] items-center justify-center rounded-[60px] bg-align_blue-100 px-[25px] py-[6px] ">
-                <span className="text-body1 font-semibold text-align_blue-500">
+                <span className="text-[15px] font-semibold leading-[24px] text-align_blue-500">
                   자세공작소는 PC에 최적화 되어있어요!
                 </span>
               </div>
-              <div className="text-zic-500 text-center text-body4 font-medium">
+              <div className="text-center text-[13px] font-medium leading-[20px] text-zinc-500">
                 웹에서도 빠르게 써보려면?!{" "}
                 <button className="hover:underline" onClick={() => shareLinkHandler("link-share-text")}>
                   ‘링크 공유하기'
@@ -166,19 +166,19 @@ const HomePage: React.FC = () => {
           </div>
         </section>
         <section className="flex w-full flex-col items-center bg-align_blue-200 pb-[92px] pt-[88px] text-center md:pb-[108px] lg:hidden">
-          <h2 className="text-display2 font-bold text-zinc-900">
+          <h2 className="text-[28px] font-bold leading-[38px] text-zinc-900">
             자세공작소와 <div className="block md:hidden" /> PC에서 만나요!
           </h2>
-          <div className="mt-7 text-body1 font-medium">
+          <div className="mt-7 text-[16px] font-medium leading-[24px]">
             🔥 자세공작소 링크를 까먹지 않으려면?!
             <br /> 지금 ‘링크 공유하기' 클릭!
           </div>
           <button
-            className="mt-[60px] flex h-[54px] w-[220px] items-center justify-center rounded-full bg-white px-6 py-3 text-body1"
+            className="mt-[60px] flex h-[54px] w-[220px] items-center justify-center rounded-full bg-white px-6 py-3 text-[16px] leading-[24px]"
             onClick={() => shareLinkHandler("bottom-share-button")}
           >
             <Share2 className="mr-2" size={16} />
-            <span className="text-body1 font-semibold text-zinc-900">링크 공유하기</span>
+            <span className="text-[16px] font-semibold leading-[24px] text-zinc-900">링크 공유하기</span>
           </button>
         </section>
       </div>
