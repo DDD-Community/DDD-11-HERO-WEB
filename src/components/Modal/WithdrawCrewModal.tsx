@@ -28,7 +28,7 @@ const WithdrawCrewModal = (props: ModalProps): React.ReactElement => {
             네, 탈퇴할게요
           </button>
           <button
-            className="w-[256px] rounded-[40px] bg-[#1A75FF] px-10 py-3 text-base font-semibold text-white"
+            className="w-[256px] rounded-[40px] bg-align_blue-500 px-10 py-3 text-base font-semibold text-white"
             onClick={onClose}
           >
             취소
