@@ -44,7 +44,7 @@ export default function MyPage() {
           </div>
           <div className="pr-[27px]">
             <button
-              className="rounded-full bg-[#1A75FF] px-[22px] py-[6px] text-[13px] font-semibold text-white"
+              className="rounded-full bg-align_blue-500 px-[22px] py-[6px] text-[13px] font-semibold text-white"
               onClick={onClickModifyNickName}
             >
               변경하기

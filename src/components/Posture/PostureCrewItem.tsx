@@ -19,12 +19,14 @@ export default function PostureCrewItem(props: PostureCrewItemProps) {
     <li
       key={uid}
       className={`flex h-[60px] w-full items-center justify-between rounded-[10px] ${
-        isMe ? "bg-[#DCEBFD]" : "bg-white"
+        isMe ? "bg-align_blue-100" : "bg-white"
       }`}
     >
       <div className="flex w-full items-center justify-between py-3 pl-2 pr-3">
         <div className="flex items-center gap-1">
-          <span className={`w-6 text-center font-semibold ${rank <= 3 || isMe ? "text-[#1F76F8]" : "text-[#9D9DA2]"}`}>
+          <span
+            className={`w-6 text-center font-semibold ${rank <= 3 || isMe ? "text-align_blue-500" : "text-[#9D9DA2]"}`}
+          >
             {rank}
           </span>
           <div className="flex w-[100px] flex-col text-[13px]">

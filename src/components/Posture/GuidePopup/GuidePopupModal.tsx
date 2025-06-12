@@ -10,7 +10,7 @@ const GuidePopupModal = ({ onClose }: { onClose: () => void }): ReactElement => 
   return (
     <div className="absolute inset-0 flex items-center justify-center rounded-3xl backdrop-blur-lg">
       {/* blur 처리 */}
-      <div className="pointer-events-auto relative flex h-[504px] w-[800px] flex-col items-center rounded-lg bg-white p-8 shadow-lg">
+      <div className="pointer-events-auto relative flex h-[504px] w-[800px] flex-col items-center rounded-lg bg-white p-8 shadow-card">
         {step === 0 && (
           <>
             <ServiceIntroduction />

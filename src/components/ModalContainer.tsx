@@ -24,7 +24,7 @@ const ModalContainer: React.FC<ModalContainerProps> = ({ onClose, children, isMo
         isMonitoring && "absolute w-full"
       }`}
     >
-      <div className="relative w-[640px] rounded-lg bg-white px-10 pb-6 pt-10 shadow-lg">
+      <div className="relative w-[640px] rounded-lg bg-white px-10 pb-6 pt-10 shadow-card">
         {/* Close Button */}
         <button className="absolute right-10 top-10 text-gray-500 hover:text-gray-800" onClick={handleClose}>
           <CloseIcon />

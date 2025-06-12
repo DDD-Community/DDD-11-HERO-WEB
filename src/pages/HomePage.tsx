@@ -53,7 +53,7 @@ const HomePage: React.FC = () => {
   return (
     <>
       <button
-        className="fixed bottom-0 left-0 z-10 flex w-full items-center justify-center bg-[#1A75FF] py-[22px] lg:hidden"
+        className="fixed bottom-0 left-0 z-10 flex w-full items-center justify-center bg-align_blue-500 py-[22px] lg:hidden"
         onClick={() => shareLinkHandler("sticky-button")}
       >
         <span className="text-[17px] font-semibold leading-[24px] text-white">링크 공유하기</span>
@@ -62,18 +62,18 @@ const HomePage: React.FC = () => {
         <section className="flex flex-col items-center">
           <div className="mt-[52px] flex flex-col items-center">
             <div className="text-center text-[36px] font-bold leading-[46px] md:text-[42px] md:leading-[60px]">
-              <div className="text-blue-600">
+              <div className="text-align_blue-500">
                 자세공작소와 <div className="block xxs:hidden" /> 함께하는
               </div>
-              <div className="text-[#18181B]">일상 속 자세 변화</div>
+              <div className="text-zinc-900">일상 속 자세 변화</div>
             </div>
-            <div className="mt-4 hidden text-[18px] leading-[26px] text-[#18181B] md:mt-5 lg:block">
+            <div className="mt-4 hidden text-[18px] leading-[26px] text-zinc-900 md:mt-5 lg:block">
               간단하게 회원가입 후 이용을 시작하세요!
             </div>
             {/* desktop */}
             <div className="mt-[62px] hidden items-center gap-3 text-[16px] font-semibold leading-[24px] lg:flex">
               <button
-                className="flex w-fit cursor-pointer rounded-full bg-[#1A75FF] px-7 py-2 leading-[34px] text-white"
+                className="flex w-fit cursor-pointer rounded-full bg-align_blue-500 px-7 py-2 leading-[34px] text-white"
                 onClick={loginHandler}
               >
                 카카오톡으로 계속하기
@@ -101,12 +101,12 @@ const HomePage: React.FC = () => {
               <div className="h-[15px] w-[284px] rounded-[8px] bg-zinc-900 md:w-[426px] lg:h-[20px] lg:w-[568px]" />
             </div>
             <div className="mb-[80px] mt-7 flex flex-col gap-3 lg:hidden">
-              <div className="flex h-[42px] items-center justify-center rounded-[60px] bg-[#DCEBFD] px-[25px] py-[6px] ">
-                <span className="text-[15px] font-semibold leading-[24px] text-[#1F76F8]">
+              <div className="flex h-[42px] items-center justify-center rounded-[60px] bg-align_blue-100 px-[25px] py-[6px] ">
+                <span className="text-[15px] font-semibold leading-[24px] text-align_blue-500">
                   자세공작소는 PC에 최적화 되어있어요!
                 </span>
               </div>
-              <div className="text-zic-500 text-center text-[13px] font-medium leading-[20px]">
+              <div className="text-center text-[13px] font-medium leading-[20px] text-zinc-500">
                 웹에서도 빠르게 써보려면?!{" "}
                 <button className="hover:underline" onClick={() => shareLinkHandler("link-share-text")}>
                   ‘링크 공유하기'
@@ -165,7 +165,7 @@ const HomePage: React.FC = () => {
             </p>
           </div>
         </section>
-        <section className="flex w-full flex-col items-center bg-[#8BBAFE] pb-[92px] pt-[88px] text-center md:pb-[108px] lg:hidden">
+        <section className="flex w-full flex-col items-center bg-align_blue-200 pb-[92px] pt-[88px] text-center md:pb-[108px] lg:hidden">
           <h2 className="text-[28px] font-bold leading-[38px] text-zinc-900">
             자세공작소와 <div className="block md:hidden" /> PC에서 만나요!
           </h2>

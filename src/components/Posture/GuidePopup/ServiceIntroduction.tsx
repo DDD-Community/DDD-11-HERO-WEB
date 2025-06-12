@@ -2,7 +2,7 @@ export default function ServiceIntroduction() {
   return (
     <>
       <div className="mb-8 flex gap-2">
-        <div className="h-2 w-2 rounded-full bg-[#1A75FF]"></div>
+        <div className="h-2 w-2 rounded-full bg-align_blue-500"></div>
         <div className="h-2 w-2 rounded-full bg-zinc-300"></div>
       </div>
       <div className="mb-6 flex flex-col items-center">
@@ -17,7 +17,7 @@ export default function ServiceIntroduction() {
       {/* content */}
       <div className="mb-8 flex h-[172px] gap-4">
         <div className="flex w-80 flex-col items-center rounded-[17px] bg-[#EFEFF0] px-10 py-6">
-          <div className="mb-4 h-[24px] w-[24px] rounded-full bg-[#5A9CFF] text-center text-[15px] font-semibold text-white">
+          <div className="mb-4 h-[24px] w-[24px] rounded-full bg-align_blue-300 text-center text-[15px] font-semibold text-white">
             1
           </div>
           <span className="mb-2 text-[20px] font-semibold text-[#1E2535]">바른 자세 취하기</span>
@@ -27,7 +27,7 @@ export default function ServiceIntroduction() {
           </div>
         </div>
         <div className="flex w-80 flex-col items-center rounded-[17px] bg-[#EFEFF0] px-10 py-6">
-          <div className="mb-4 h-[24px] w-[24px] rounded-full bg-[#5A9CFF] text-center text-[15px] font-semibold text-white">
+          <div className="mb-4 h-[24px] w-[24px] rounded-full bg-align_blue-300 text-center text-[15px] font-semibold text-white">
             2
           </div>
           <span className="mb-2 text-[20px] font-semibold text-[#1E2535]">스냅샷 촬영하기</span>

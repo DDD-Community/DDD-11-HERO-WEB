@@ -5,7 +5,7 @@ export default function SnapshotGuide() {
     <>
       <div className="mb-8 flex gap-2">
         <div className="h-2 w-2 rounded-full bg-zinc-300"></div>
-        <div className="h-2 w-2 rounded-full bg-[#1A75FF]"></div>
+        <div className="h-2 w-2 rounded-full bg-align_blue-500"></div>
       </div>
       <div className="mb-6">
         <div className="text-center text-[30px] font-bold leading-10 text-[#1E2535]">바른 자세를 취해주세요</div>
@@ -17,7 +17,7 @@ export default function SnapshotGuide() {
         </div>
         <div className="flex flex-col gap-5">
           <div className="flex items-center gap-3">
-            <span className="flex h-6 w-6 justify-center rounded-full bg-[#5A9CFF] text-center font-semibold text-white">
+            <span className="flex h-6 w-6 justify-center rounded-full bg-align_blue-300 text-center font-semibold text-white">
               1
             </span>
             <span className="font-[20px] font-semibold leading-[30px] text-zinc-800">
@@ -25,19 +25,19 @@ export default function SnapshotGuide() {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="flex h-6 w-6 justify-center rounded-full bg-[#5A9CFF] text-center font-semibold text-white">
+            <span className="flex h-6 w-6 justify-center rounded-full bg-align_blue-300 text-center font-semibold text-white">
               2
             </span>
             <span className="font-[20px] font-semibold leading-[30px] text-zinc-800">양쪽 어깨 일직선 유지하기</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="flex h-6 w-6 justify-center rounded-full bg-[#5A9CFF] text-center font-semibold text-white">
+            <span className="flex h-6 w-6 justify-center rounded-full bg-align_blue-300 text-center font-semibold text-white">
               3
             </span>
             <span className="font-[20px] font-semibold leading-[30px] text-zinc-800">팔은 책상 위에 수평으로 두기</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="flex h-6 w-6 justify-center rounded-full bg-[#5A9CFF] text-center font-semibold text-white">
+            <span className="flex h-6 w-6 justify-center rounded-full bg-align_blue-300 text-center font-semibold text-white">
               4
             </span>
             <span className="font-[20px] font-semibold leading-[30px] text-zinc-800">

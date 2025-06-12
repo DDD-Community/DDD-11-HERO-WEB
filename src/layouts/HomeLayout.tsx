@@ -23,7 +23,7 @@ const HomeLayout: React.FC = () => {
           <LogoImage />
         </div>
         <button
-          className="hidden rounded-full bg-blue-600 px-6 py-1 text-sm font-semibold leading-6 text-white lg:block"
+          className="hidden rounded-full bg-align_blue-500 px-6 py-1 text-sm font-semibold leading-6 text-white lg:block"
           onClick={loginHandler}
         >
           {"로그인"}
