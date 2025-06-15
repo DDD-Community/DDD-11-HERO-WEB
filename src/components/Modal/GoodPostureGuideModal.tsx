@@ -1,13 +1,14 @@
 import CloseCrewPanelIcon from "@assets/images/posture-snapshot-guide.png"
 import { ReactElement } from "react"
 import ModalContainer from "../ModalContainer"
+import { Button } from "../common/Button"
 
 const GoodPostureGuidePopupModal = ({ onClose }: { onClose: () => void }): ReactElement => {
   return (
     <ModalContainer onClose={onClose} isMonitoring={true}>
       <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/25">
         {/* blur 처리 */}
-        <div className="flex h-[472px] w-[800px] flex-col items-center rounded-lg bg-white pt-10 shadow-card">
+        <div className="flex h-[478px] w-[800px] flex-col items-center rounded-lg bg-white pt-10 shadow-card">
           <div className="pb-6">
             <div className="text-[30px] font-bold text-[#1E2535]">바른 자세 가이드</div>
           </div>
@@ -43,9 +44,11 @@ const GoodPostureGuidePopupModal = ({ onClose }: { onClose: () => void }): React
               </div>
             </div>
           </div>
-          <button className="w-[354px] rounded-full bg-[#1A75FF] py-3 text-white" onClick={onClose}>
-            확인
-          </button>
+          <div className="w-[354px]">
+            <Button onClick={onClose} fullWidth>
+              확인
+            </Button>
+          </div>
         </div>
       </div>
     </ModalContainer>

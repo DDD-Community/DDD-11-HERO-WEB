@@ -24,6 +24,7 @@ import dayjs from "dayjs"
 import { logAnalytics } from "@/utils/log"
 import { LOGIN_LINK } from "@/pages/HomePage"
 import { useExperiencingStore } from "@/store/ExperiencingStore"
+import { Button } from "../common/Button"
 
 interface MyPostureCrewData {
   myInfo: IPostureCrew
@@ -440,15 +441,15 @@ export default function PostrueCrew(props: PostureCrewProps): ReactElement {
                 크루가 없어요
               </div>
               <img src={EmptyGroupImage} />
-              <button
-                className="flex w-[144px] justify-center rounded-full bg-[#1A75FF] py-[10px] text-sm font-semibold text-white"
+              <Button
+                size={"small"}
                 onClick={() => {
                   if (isExperiencing) openSignUpModal()
                   else navigate(RoutePath.CREW)
                 }}
               >
                 크루 가입하기
-              </button>
+              </Button>
             </div>
           )}
         </div>
