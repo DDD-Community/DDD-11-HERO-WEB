@@ -1,5 +1,6 @@
 import PostureCheckIcon from "@assets/icons/good-posture-check-button-icon.svg?react"
 import GuideIcon from "@assets/icons/posture-guide-button-icon.svg?react"
+import { Button } from "../common/Button"
 
 const Controls: React.FC<{
   getInitSnap: () => void
@@ -7,24 +8,14 @@ const Controls: React.FC<{
 }> = ({ getInitSnap, handleShowPopup }) => {
   return (
     <div className="absolute bottom-0 flex w-full items-center justify-center gap-[16px] p-[50px] text-white">
-      <button
-        className="flex w-[230px] items-center justify-center rounded rounded-full bg-white bg-opacity-80 px-10 py-3 font-semibold leading-[32px] text-zinc-900"
-        onClick={handleShowPopup}
-      >
-        <div className="flex flex-row items-center gap-2">
-          <GuideIcon />
-          <span>가이드 다시 보기</span>
-        </div>
-      </button>
-      <button
-        className="flex w-[230px] items-center justify-center rounded rounded-full bg-[#1A75FF] px-10 py-3 font-semibold leading-[32px] text-white"
-        onClick={getInitSnap}
-      >
-        <div className="flex flex-row items-center gap-2">
-          <PostureCheckIcon />
-          스냅샷 촬영하기
-        </div>
-      </button>
+      <Button variant="solid_white" onClick={handleShowPopup}>
+        <GuideIcon />
+        가이드 다시보기
+      </Button>
+      <Button onClick={getInitSnap}>
+        <PostureCheckIcon />
+        스냅샷 촬영하기
+      </Button>
     </div>
   )
 }

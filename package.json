@@ -70,6 +70,8 @@
     "@tanstack/react-query": "^5.51.23",
     "@types/react-lottie": "^1.2.10",
     "axios": "1.7.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "core-js": "^3.28.0",
     "dayjs": "^1.11.13",
     "echarts": "^5.5.1",
@@ -84,6 +86,7 @@
     "react-router-dom": "^6.8.1",
     "react-tailwindcss-datepicker": "^1.7.2",
     "socket.io-client": "^4.7.5",
+    "tailwind-merge": "^3.3.1",
     "update-electron-app": "3.0.0",
     "zustand": "^4.5.5"
   },
