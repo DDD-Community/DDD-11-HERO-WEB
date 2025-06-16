@@ -30,8 +30,8 @@ export default function PostureCrewItem(props: PostureCrewItemProps) {
             {rank}
           </span>
           <div className="flex w-[100px] flex-col text-[13px]">
-            <span className="block max-w-full truncate font-semibold leading-[18px] text-zinc-900">{nickname}</span>
-            <span className="text-normal leading-[18px] text-zinc-400">경고 {score}회</span>
+            <span className="block max-w-full truncate text-headline2 text-zinc-900">{nickname}</span>
+            <span className="text-normal text-body4 text-zinc-400">경고 {score}회</span>
           </div>
         </div>
         {isMe ? (
