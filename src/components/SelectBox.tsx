@@ -30,7 +30,7 @@ export default function SelectBox(props: SelectBoxProps): React.ReactElement {
   return (
     <div className="relative w-full">
       <div
-        className={`flex h-[40px] w-full items-center justify-between rounded-md border border-[#E5E8EB] bg-white px-3 py-2.5 ${
+        className={`flex h-[40px] w-full items-center justify-between rounded-md border border-[#E5E8EB] bg-white px-3 py-2.5 text-body3 ${
           isDisabled ? "" : "cursor-pointer"
         }`}
         onClick={toggleDropdown}
@@ -43,7 +43,7 @@ export default function SelectBox(props: SelectBoxProps): React.ReactElement {
           {options.map((option) => (
             <div
               key={option.value}
-              className="cursor-pointer px-3 py-2 hover:bg-gray-100"
+              className="cursor-pointer px-3 py-2 text-body3 hover:bg-gray-100"
               onClick={() => handleOptionClick(option)}
             >
               {option.label}

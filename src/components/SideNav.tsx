@@ -164,7 +164,7 @@ export default function SideNav(): React.ReactElement {
               {footerLinks.map(({ label, onClick }, index) => {
                 if (label === "로그아웃" && isExperiencing) return
                 return (
-                  <li key={index} className="mb-3 cursor-pointer text-sm" onClick={onClick}>
+                  <li key={index} className="mb-3 cursor-pointer text-body3" onClick={onClick}>
                     {label}
                   </li>
                 )
